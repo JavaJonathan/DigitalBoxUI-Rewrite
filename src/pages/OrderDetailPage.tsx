@@ -21,13 +21,25 @@ import OpenInNewRoundedIcon from '@mui/icons-material/OpenInNewRounded';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
+import ReplayRoundedIcon from '@mui/icons-material/ReplayRounded';
+import FlagRoundedIcon from '@mui/icons-material/FlagRounded';
+import OutlinedFlagIcon from '@mui/icons-material/OutlinedFlag';
 import { AppShell } from '../components/AppShell';
 import { Mono } from '../components/ui/Mono';
 import { MarketplaceTag } from '../components/ui/MarketplaceTag';
 import { OrderStatusBadge, ParseStatusBadge } from '../components/ui/StatusBadge';
 import { EventTimeline } from '../components/ui/EventTimeline';
 import { ConfirmActionDialog } from '../components/ConfirmActionDialog';
-import { getOrder, updateOrder, fetchPackingSlipObjectUrl, shipOrders, cancelOrders } from '../api/orders';
+import {
+  getOrder,
+  updateOrder,
+  fetchPackingSlipObjectUrl,
+  shipOrders,
+  cancelOrders,
+  undoOrders,
+  setOrderPriority,
+  setOrderNotes,
+} from '../api/orders';
 import { getApiErrorMessage } from '../api/client';
 import { useToast } from '../components/ToastProvider';
 import { formatDate, pluralize, MARKETPLACE_LABELS } from '../lib/format';
@@ -65,7 +77,10 @@ export function OrderDetailPage() {
   const [shipDate, setShipDate] = useState('');
   const [lines, setLines] = useState<EditLine[]>([]);
   const [saving, setSaving] = useState(false);
-  const [action, setAction] = useState<'ship' | 'cancel' | null>(null);
+  const [action, setAction] = useState<'ship' | 'cancel' | 'undo' | null>(null);
+  const [editingNote, setEditingNote] = useState(false);
+  const [noteDraft, setNoteDraft] = useState('');
+  const [savingNote, setSavingNote] = useState(false);
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -140,12 +155,42 @@ export function OrderDetailPage() {
     if (!id) return;
     try {
       const result =
-        action === 'ship' ? await shipOrders([id], actionedBy) : await cancelOrders([id], actionedBy);
+        action === 'ship'
+          ? await shipOrders([id], actionedBy)
+          : action === 'cancel'
+            ? await cancelOrders([id], actionedBy)
+            : await undoOrders([id], actionedBy);
       notify(result.message, 'success');
       setAction(null);
       load();
     } catch (err) {
       notify(getApiErrorMessage(err, 'Action failed.'), 'error');
+    }
+  };
+
+  const togglePriority = async () => {
+    if (!order || !id) return;
+    try {
+      const updated = await setOrderPriority(id, !order.isPriority);
+      setOrder(updated);
+      notify(updated.isPriority ? 'Marked priority.' : 'Priority removed.', 'success');
+    } catch (err) {
+      notify(getApiErrorMessage(err, 'Could not update priority.'), 'error');
+    }
+  };
+
+  const saveNote = async () => {
+    if (!id) return;
+    setSavingNote(true);
+    try {
+      const updated = await setOrderNotes(id, noteDraft.trim() ? noteDraft.trim() : null);
+      setOrder(updated);
+      setEditingNote(false);
+      notify('Note saved.', 'success');
+    } catch (err) {
+      notify(getApiErrorMessage(err, 'Could not save the note.'), 'error');
+    } finally {
+      setSavingNote(false);
     }
   };
 
@@ -180,10 +225,24 @@ export function OrderDetailPage() {
           <Grid size={{ xs: 12, md: 5 }}>
             <Stack spacing={2.5}>
               <Box>
-                <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
+                <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
                   <Mono copyable sx={{ fontSize: '1rem', fontWeight: 600 }}>
                     {order.orderNumber || 'No order number'}
                   </Mono>
+                  <Tooltip title={order.isPriority ? 'Remove priority' : 'Mark priority'} arrow>
+                    <IconButton
+                      size="small"
+                      onClick={togglePriority}
+                      aria-label={order.isPriority ? 'Remove priority' : 'Mark priority'}
+                      sx={{ color: order.isPriority ? 'primary.main' : 'text.disabled' }}
+                    >
+                      {order.isPriority ? (
+                        <FlagRoundedIcon sx={{ fontSize: 16 }} />
+                      ) : (
+                        <OutlinedFlagIcon sx={{ fontSize: 16 }} />
+                      )}
+                    </IconButton>
+                  </Tooltip>
                 </Stack>
                 <Stack direction="row" spacing={1} sx={{ mt: 1, alignItems: 'center', flexWrap: 'wrap' }}>
                   <OrderStatusBadge status={order.status} />
@@ -191,7 +250,7 @@ export function OrderDetailPage() {
                 </Stack>
               </Box>
 
-              {isOpen && (
+              {isOpen ? (
                 <Stack direction="row" spacing={1}>
                   {!editing && (
                     <Button size="small" variant="outlined" startIcon={<EditOutlinedIcon sx={{ fontSize: 15 }} />} onClick={beginEdit}>
@@ -216,6 +275,17 @@ export function OrderDetailPage() {
                     sx={{ color: 'error.main', borderColor: (t) => (t.vars ?? t).palette.error.light }}
                   >
                     Cancel
+                  </Button>
+                </Stack>
+              ) : (
+                <Stack direction="row" spacing={1}>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<ReplayRoundedIcon sx={{ fontSize: 15 }} />}
+                    onClick={() => setAction('undo')}
+                  >
+                    Reopen order
                   </Button>
                 </Stack>
               )}
@@ -368,6 +438,65 @@ export function OrderDetailPage() {
                       )}
                     </Stack>
                   </>
+                )}
+              </Paper>
+
+              <Paper sx={{ p: 2.5, border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`, borderRadius: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                  <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                    Note
+                  </Typography>
+                  {!editingNote && (
+                    <Button
+                      size="small"
+                      variant="text"
+                      onClick={() => {
+                        setNoteDraft(order.notes ?? '');
+                        setEditingNote(true);
+                      }}
+                    >
+                      {order.notes ? 'Edit' : 'Add'}
+                    </Button>
+                  )}
+                </Box>
+                {editingNote ? (
+                  <Stack spacing={1}>
+                    <TextField
+                      autoFocus
+                      multiline
+                      minRows={2}
+                      maxRows={8}
+                      size="small"
+                      fullWidth
+                      placeholder="e.g. fragile — call before ship"
+                      value={noteDraft}
+                      onChange={(e) => setNoteDraft(e.target.value)}
+                      slotProps={{ htmlInput: { maxLength: 500 } }}
+                    />
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <Typography variant="caption" sx={{ color: 'text.disabled' }}>
+                        {noteDraft.length}/500
+                      </Typography>
+                      <Stack direction="row" spacing={0.5}>
+                        <Button size="small" variant="text" onClick={() => setEditingNote(false)} disabled={savingNote}>
+                          Cancel
+                        </Button>
+                        <Button size="small" variant="contained" onClick={saveNote} disabled={savingNote}>
+                          {savingNote ? 'Saving…' : 'Save'}
+                        </Button>
+                      </Stack>
+                    </Box>
+                  </Stack>
+                ) : (
+                  <Typography
+                    sx={{
+                      fontSize: '0.8125rem',
+                      color: order.notes ? 'text.primary' : 'text.disabled',
+                      whiteSpace: 'pre-wrap',
+                    }}
+                  >
+                    {order.notes || 'No note.'}
+                  </Typography>
                 )}
               </Paper>
 

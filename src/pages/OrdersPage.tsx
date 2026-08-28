@@ -10,19 +10,23 @@ import IconButton from '@mui/material/IconButton';
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
+import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
+import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import { AppShell } from '../components/AppShell';
-import { QueueToolbar } from '../components/QueueToolbar';
+import { QueueToolbar, type ToolbarState } from '../components/QueueToolbar';
 import { OrdersTable } from '../components/OrdersTable';
 import { UploadDialog } from '../components/UploadDialog';
+import { ShippableItemsDialog } from '../components/ShippableItemsDialog';
 import { ConfirmActionDialog } from '../components/ConfirmActionDialog';
 import { SelectionBar } from '../components/SelectionBar';
+import { NotePopover } from '../components/NotePopover';
 import { EmptyState } from '../components/ui/EmptyState';
 import { TableSkeleton } from '../components/ui/TableSkeleton';
 import { useOrders } from '../hooks/useOrders';
-import { cancelOrders, shipOrders } from '../api/orders';
+import { cancelOrders, setOrderNotes, setOrderPriority, shipOrders } from '../api/orders';
 import { getApiErrorMessage } from '../api/client';
 import { useToast } from '../components/ToastProvider';
-import type { Marketplace } from '../types';
+import type { Marketplace, OrderListItem } from '../types';
 
 const PAGE_SIZE = 50;
 
@@ -30,28 +34,38 @@ export function OrdersPage() {
   const { notify } = useToast();
   const [q, setQ] = useState('');
   const [marketplace, setMarketplace] = useState<Marketplace | ''>('');
+  const [priority, setPriority] = useState(false);
   const [sort, setSort] = useState<'shipDate' | 'title'>('shipDate');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
   const [action, setAction] = useState<'ship' | 'cancel' | null>(null);
+  const [noteTarget, setNoteTarget] = useState<{ order: OrderListItem; anchor: HTMLElement } | null>(null);
 
   const query = useMemo(
-    () => ({ status: 'Open' as const, q, marketplace, sort, page, pageSize: PAGE_SIZE }),
-    [q, marketplace, sort, page],
+    () => ({ status: 'Open' as const, q, marketplace, priority, sort, page, pageSize: PAGE_SIZE }),
+    [q, marketplace, priority, sort, page],
   );
   const { data, loading, error, refresh } = useOrders(query);
 
   const orders = data?.items ?? [];
   const pageCount = data ? Math.max(1, Math.ceil(data.total / data.pageSize)) : 1;
-  const filtered = q.length > 0 || marketplace !== '';
+  const filtered = q.length > 0 || marketplace !== '' || priority;
+
+  const applyToolbar = (next: ToolbarState) => {
+    setQ(next.q);
+    setMarketplace(next.marketplace);
+    setPriority(next.priority);
+    setPage(1);
+  };
 
   const toggle = (id: string) =>
     setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
+      const nextSet = new Set(prev);
+      if (nextSet.has(id)) nextSet.delete(id);
+      else nextSet.add(id);
+      return nextSet;
     });
 
   const toggleAll = (checked: boolean) =>
@@ -71,6 +85,27 @@ export function OrdersPage() {
     }
   };
 
+  const togglePriority = async (order: OrderListItem) => {
+    try {
+      await setOrderPriority(order.id, !order.isPriority);
+      notify(order.isPriority ? 'Priority removed.' : 'Marked priority.', 'success');
+      refresh();
+    } catch (err) {
+      notify(getApiErrorMessage(err, 'Could not update priority.'), 'error');
+    }
+  };
+
+  const saveNote = async (notes: string | null) => {
+    if (!noteTarget) return;
+    try {
+      await setOrderNotes(noteTarget.order.id, notes);
+      notify('Note saved.', 'success');
+      refresh();
+    } catch (err) {
+      notify(getApiErrorMessage(err, 'Could not save the note.'), 'error');
+    }
+  };
+
   return (
     <AppShell
       title="Queue"
@@ -87,6 +122,15 @@ export function OrdersPage() {
             </IconButton>
           </Tooltip>
           <Button
+            variant="outlined"
+            size="small"
+            startIcon={<Inventory2OutlinedIcon sx={{ fontSize: 16 }} />}
+            onClick={() => setReportOpen(true)}
+            sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
+          >
+            Shippable items
+          </Button>
+          <Button
             variant="contained"
             size="small"
             startIcon={<UploadFileOutlinedIcon sx={{ fontSize: 16 }} />}
@@ -98,15 +142,7 @@ export function OrdersPage() {
       }
     >
       <Stack spacing={2}>
-        <QueueToolbar
-          q={q}
-          marketplace={marketplace}
-          onChange={(next) => {
-            setQ(next.q);
-            setMarketplace(next.marketplace);
-            setPage(1);
-          }}
-        />
+        <QueueToolbar q={q} marketplace={marketplace} priority={priority} showPriority onChange={applyToolbar} />
 
         {error && <Alert severity="error">{error}</Alert>}
 
@@ -120,15 +156,12 @@ export function OrdersPage() {
               <EmptyState
                 icon={<Inventory2OutlinedIcon />}
                 title="No matching orders"
-                description="Try a different search term or marketplace filter."
+                description="Try a different search term or filter."
                 action={
                   <Button
                     size="small"
                     variant="outlined"
-                    onClick={() => {
-                      setQ('');
-                      setMarketplace('');
-                    }}
+                    onClick={() => applyToolbar({ q: '', marketplace: '', priority: false })}
                   >
                     Clear filters
                   </Button>
@@ -157,6 +190,8 @@ export function OrdersPage() {
             onToggleAll={toggleAll}
             sort={sort}
             onSortChange={setSort}
+            onTogglePriority={togglePriority}
+            onEditNote={(order, anchor) => setNoteTarget({ order, anchor })}
           />
         )}
 
@@ -167,14 +202,30 @@ export function OrdersPage() {
         )}
       </Stack>
 
-      <SelectionBar
-        count={selected.size}
-        onClear={() => setSelected(new Set())}
-        onShip={() => setAction('ship')}
-        onCancel={() => setAction('cancel')}
-      />
+      <SelectionBar count={selected.size} onClear={() => setSelected(new Set())}>
+        <Button
+          size="small"
+          variant="contained"
+          color="success"
+          startIcon={<LocalShippingOutlinedIcon sx={{ fontSize: 16 }} />}
+          onClick={() => setAction('ship')}
+        >
+          Ship
+        </Button>
+        <Button
+          size="small"
+          variant="outlined"
+          color="error"
+          startIcon={<CancelOutlinedIcon sx={{ fontSize: 16 }} />}
+          onClick={() => setAction('cancel')}
+          sx={{ color: 'error.main', borderColor: (t) => (t.vars ?? t).palette.error.light }}
+        >
+          Cancel
+        </Button>
+      </SelectionBar>
 
       <UploadDialog open={uploadOpen} onClose={() => setUploadOpen(false)} onUploaded={refresh} />
+      <ShippableItemsDialog open={reportOpen} onClose={() => setReportOpen(false)} />
 
       <ConfirmActionDialog
         open={action !== null}
@@ -182,6 +233,15 @@ export function OrdersPage() {
         count={selected.size}
         onClose={() => setAction(null)}
         onConfirm={runAction}
+      />
+
+      <NotePopover
+        open={noteTarget !== null}
+        anchorEl={noteTarget?.anchor ?? null}
+        initialNote={noteTarget?.order.notes ?? null}
+        orderNumber={noteTarget?.order.orderNumber ?? ''}
+        onClose={() => setNoteTarget(null)}
+        onSave={saveNote}
       />
     </AppShell>
   );

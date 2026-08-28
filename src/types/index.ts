@@ -31,6 +31,8 @@ export interface OrderListItem {
   lineItemCount: number;
   totalQuantity: number;
   firstItemTitle: string | null;
+  isPriority: boolean;
+  notes: string | null;
   actionedBy: string | null;
   createdAt: string;
   shippedAt: string | null;
@@ -89,8 +91,25 @@ export interface UpdateOrderPayload {
 export interface OrderQuery {
   q?: string;
   marketplace?: Marketplace | '';
+  priority?: boolean;
   status: OrderStatus;
   sort?: 'shipDate' | 'title' | 'created';
   page?: number;
   pageSize?: number;
+}
+
+export interface ShippableItemsRow {
+  title: string;
+  sku: string;
+  orderedQty: number;
+  onHandQty: number;
+  shippableQty: number;
+}
+
+export interface ShippableItemsResponse {
+  rows: ShippableItemsRow[];
+  generatedAt: string;
+  openOrderCount: number;
+  csvRowCount: number;
+  matchedRowCount: number;
 }

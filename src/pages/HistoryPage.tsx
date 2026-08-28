@@ -1,30 +1,65 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Alert from '@mui/material/Alert';
 import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
+import ReplayRoundedIcon from '@mui/icons-material/ReplayRounded';
 import { AppShell } from '../components/AppShell';
 import { QueueToolbar } from '../components/QueueToolbar';
 import { OrdersTable } from '../components/OrdersTable';
+import { SelectionBar } from '../components/SelectionBar';
+import { ConfirmActionDialog } from '../components/ConfirmActionDialog';
 import { EmptyState } from '../components/ui/EmptyState';
 import { TableSkeleton } from '../components/ui/TableSkeleton';
 import { useOrders } from '../hooks/useOrders';
+import { undoOrders } from '../api/orders';
+import { getApiErrorMessage } from '../api/client';
+import { useToast } from '../components/ToastProvider';
 import type { OrderStatus } from '../types';
 
 const PAGE_SIZE = 50;
 
 export function HistoryPage() {
+  const { notify } = useToast();
   const [tab, setTab] = useState<Extract<OrderStatus, 'Shipped' | 'Cancelled'>>('Shipped');
   const [q, setQ] = useState('');
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [undoIds, setUndoIds] = useState<string[]>([]);
 
   const query = useMemo(
     () => ({ status: tab, q, sort: 'shipDate' as const, page: 1, pageSize: PAGE_SIZE }),
     [tab, q],
   );
-  const { data, loading, error } = useOrders(query);
+  const { data, loading, error, refresh } = useOrders(query);
   const orders = data?.items ?? [];
+
+  useEffect(() => setSelected(new Set()), [tab, q]);
+
+  const toggle = (id: string) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  const toggleAll = (checked: boolean) =>
+    setSelected(checked ? new Set(orders.map((o) => o.id)) : new Set());
+
+  const runUndo = async (actionedBy: string) => {
+    try {
+      const result = await undoOrders(undoIds, actionedBy);
+      notify(result.message, 'success');
+      setSelected(new Set());
+      setConfirmOpen(false);
+      refresh();
+    } catch (err) {
+      notify(getApiErrorMessage(err, 'Could not reopen the orders.'), 'error');
+    }
+  };
 
   return (
     <AppShell title="History">
@@ -37,6 +72,7 @@ export function HistoryPage() {
         <QueueToolbar
           q={q}
           marketplace=""
+          priority={false}
           showMarketplace={false}
           onChange={(next) => setQ(next.q)}
         />
@@ -60,9 +96,42 @@ export function HistoryPage() {
             />
           </Box>
         ) : (
-          <OrdersTable orders={orders} status={tab} />
+          <OrdersTable
+            orders={orders}
+            status={tab}
+            selectable
+            selectedIds={selected}
+            onToggle={toggle}
+            onToggleAll={toggleAll}
+            onUndoRow={(order) => {
+              setUndoIds([order.id]);
+              setConfirmOpen(true);
+            }}
+          />
         )}
       </Stack>
+
+      <SelectionBar count={selected.size} onClear={() => setSelected(new Set())}>
+        <Button
+          size="small"
+          variant="contained"
+          startIcon={<ReplayRoundedIcon sx={{ fontSize: 16 }} />}
+          onClick={() => {
+            setUndoIds([...selected]);
+            setConfirmOpen(true);
+          }}
+        >
+          Reopen
+        </Button>
+      </SelectionBar>
+
+      <ConfirmActionDialog
+        open={confirmOpen}
+        intent="undo"
+        count={undoIds.length}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={runUndo}
+      />
     </AppShell>
   );
 }

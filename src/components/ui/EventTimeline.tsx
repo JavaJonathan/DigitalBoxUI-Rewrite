@@ -9,6 +9,7 @@ const DOT_COLOR: Record<string, string> = {
   Edited: 'warning.main',
   Shipped: 'success.main',
   Cancelled: 'error.main',
+  Reopened: 'info.main',
 };
 
 export function EventTimeline({ events }: { events: OrderEvent[] }) {
