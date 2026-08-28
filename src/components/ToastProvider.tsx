@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
+import Slide, { type SlideProps } from '@mui/material/Slide';
 
 type Severity = 'success' | 'error' | 'info' | 'warning';
 
@@ -16,6 +17,8 @@ interface ToastContextValue {
 
 const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 
+const SlideUp = (props: SlideProps) => <Slide {...props} direction="up" />;
+
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<ToastState>({ open: false, message: '', severity: 'info' });
 
@@ -24,22 +27,19 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(() => ({ notify }), [notify]);
+  const close = () => setState((s) => ({ ...s, open: false }));
 
   return (
     <ToastContext.Provider value={value}>
       {children}
       <Snackbar
         open={state.open}
-        autoHideDuration={5000}
-        onClose={() => setState((s) => ({ ...s, open: false }))}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        autoHideDuration={4500}
+        onClose={close}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        slots={{ transition: SlideUp }}
       >
-        <Alert
-          severity={state.severity}
-          variant="filled"
-          onClose={() => setState((s) => ({ ...s, open: false }))}
-          sx={{ width: '100%' }}
-        >
+        <Alert severity={state.severity} variant="standard" onClose={close} sx={{ minWidth: 300 }}>
           {state.message}
         </Alert>
       </Snackbar>
@@ -49,8 +49,6 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
 export function useToast() {
   const ctx = useContext(ToastContext);
-  if (!ctx) {
-    throw new Error('useToast must be used within a ToastProvider');
-  }
+  if (!ctx) throw new Error('useToast must be used within a ToastProvider');
   return ctx;
 }

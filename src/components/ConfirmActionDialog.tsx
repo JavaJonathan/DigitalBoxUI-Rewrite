@@ -1,33 +1,30 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import { pluralize } from '../lib/format';
 
 interface ConfirmActionDialogProps {
   open: boolean;
-  title: string;
+  intent: 'ship' | 'cancel';
   count: number;
-  confirmLabel: string;
-  confirmColor?: 'primary' | 'error' | 'success';
   onClose: () => void;
   onConfirm: (actionedBy: string) => Promise<void> | void;
 }
 
-export function ConfirmActionDialog({
-  open,
-  title,
-  count,
-  confirmLabel,
-  confirmColor = 'primary',
-  onClose,
-  onConfirm,
-}: ConfirmActionDialogProps) {
+export function ConfirmActionDialog({ open, intent, count, onClose, onConfirm }: ConfirmActionDialogProps) {
   const [name, setName] = useState('');
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (open) setBusy(false);
+  }, [open]);
+
+  const ship = intent === 'ship';
 
   const handleConfirm = async () => {
     setBusy(true);
@@ -41,31 +38,38 @@ export function ConfirmActionDialog({
 
   return (
     <Dialog open={open} onClose={busy ? undefined : onClose} maxWidth="xs" fullWidth>
-      <DialogTitle>{title}</DialogTitle>
+      <DialogTitle>{ship ? 'Ship orders' : 'Cancel orders'}</DialogTitle>
       <DialogContent>
-        <DialogContentText sx={{ mb: 2 }}>
-          {count} order{count === 1 ? '' : 's'} selected. Enter your name for the record.
-        </DialogContentText>
+        <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
+          {ship
+            ? `Mark ${pluralize(count, 'order')} as shipped and move them to history.`
+            : `Cancel ${pluralize(count, 'order')} and move them to history.`}{' '}
+          Enter your name for the record.
+        </Typography>
         <TextField
           autoFocus
-          label="Your name"
           fullWidth
+          size="small"
+          label="Your name"
           value={name}
-          slotProps={{ htmlInput: { maxLength: 60 } }}
           onChange={(e) => setName(e.target.value)}
+          slotProps={{ htmlInput: { maxLength: 60 } }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && name.trim()) handleConfirm();
+          }}
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={busy}>
-          Cancel
+        <Button variant="text" onClick={onClose} disabled={busy}>
+          Back
         </Button>
         <Button
           variant="contained"
-          color={confirmColor}
+          color={ship ? 'success' : 'error'}
           disabled={busy || name.trim().length === 0}
           onClick={handleConfirm}
         >
-          {busy ? 'Working…' : confirmLabel}
+          {busy ? 'Working…' : ship ? `Ship ${count}` : `Cancel ${count}`}
         </Button>
       </DialogActions>
     </Dialog>

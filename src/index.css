@@ -1,3 +1,17 @@
-body {
+html,
+body,
+#root {
   margin: 0;
+  min-height: 100%;
+}
+
+#root {
+  isolation: isolate;
+}
+
+/* Let long identifiers wrap gracefully inside table cells. */
+.db-mono {
+  font-family: var(--db-mono);
+  font-feature-settings: 'tnum' 1;
+  letter-spacing: -0.01em;
 }

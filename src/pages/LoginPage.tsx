@@ -7,9 +7,14 @@ import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
+import InputAdornment from '@mui/material/InputAdornment';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForwardRounded';
+import PersonOutlineIcon from '@mui/icons-material/PersonOutlineRounded';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useAuth } from '../auth/AuthContext';
 import { getApiErrorMessage } from '../api/client';
-import { BRAND_GRADIENT, SURFACE_SUBTLE } from '../theme';
+import { Logo } from '../components/Logo';
+import { ColorModeToggle } from '../components/ColorModeToggle';
 
 export function LoginPage() {
   const { user, login } = useAuth();
@@ -22,10 +27,7 @@ export function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const from = (location.state as { from?: string } | null)?.from ?? '/';
-
-  if (user) {
-    return <Navigate to={from} replace />;
-  }
+  if (user) return <Navigate to={from} replace />;
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -42,74 +44,110 @@ export function LoginPage() {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex' }}>
-      <Box
-        sx={{
-          display: { xs: 'none', md: 'flex' },
-          flex: '1 1 50%',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: BRAND_GRADIENT,
-          color: '#fff',
-          p: 6,
-        }}
-      >
-        <Box sx={{ textAlign: 'center' }}>
-          <Typography sx={{ fontFamily: '"Plus Jakarta Sans", sans-serif', fontWeight: 800, fontSize: 56 }}>
-            {'<Digital Box />'}
-          </Typography>
-          <Typography sx={{ mt: 2, fontSize: 18, color: 'rgba(255,255,255,0.85)' }}>
-            Upload packing slips. Ship orders. Keep the queue moving.
-          </Typography>
-        </Box>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'grid',
+        placeItems: 'center',
+        px: 2,
+        bgcolor: 'surface.canvas',
+        position: 'relative',
+        overflow: 'hidden',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          inset: 0,
+          background: (t) =>
+            `radial-gradient(60rem 40rem at 50% -10rem, ${(t.vars ?? t).palette.primary.main}14, transparent 70%)`,
+          pointerEvents: 'none',
+        },
+      }}
+    >
+      <Box sx={{ position: 'absolute', top: 20, right: 20 }}>
+        <ColorModeToggle />
       </Box>
 
-      <Box
-        sx={{
-          flex: '1 1 50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          bgcolor: SURFACE_SUBTLE,
-          px: 2,
-          py: 6,
-        }}
-      >
-        <Paper elevation={0} sx={{ width: '100%', maxWidth: 400, p: 4, border: '1px solid #e2e8f0', borderRadius: 4 }}>
-          <Typography variant="h5" sx={{ fontWeight: 800 }}>
+      <Stack spacing={3} sx={{ width: '100%', maxWidth: 380, position: 'relative' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+          <Logo size={30} />
+        </Box>
+
+        <Paper
+          sx={{
+            p: 3.5,
+            border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
+            borderRadius: 3.5,
+            boxShadow: 'var(--db-shadow-md)',
+          }}
+        >
+          <Typography variant="h3" sx={{ fontSize: '1.125rem' }}>
             Sign in
           </Typography>
-          <Typography variant="body2" sx={{ mt: 0.5, color: 'text.secondary' }}>
-            Use the shared warehouse login.
+          <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
+            Enter the shared warehouse credentials to continue.
           </Typography>
 
-          <Stack component="form" spacing={2.5} sx={{ mt: 3 }} onSubmit={handleSubmit}>
+          <Stack component="form" spacing={2} sx={{ mt: 3 }} onSubmit={handleSubmit}>
             <TextField
               label="Username"
               required
+              size="small"
               autoComplete="username"
+              autoFocus
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              fullWidth
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PersonOutlineIcon sx={{ fontSize: 18, color: 'text.disabled' }} />
+                    </InputAdornment>
+                  ),
+                },
+              }}
             />
             <TextField
               label="Password"
               type="password"
               required
+              size="small"
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              fullWidth
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LockOutlinedIcon sx={{ fontSize: 18, color: 'text.disabled' }} />
+                    </InputAdornment>
+                  ),
+                },
+              }}
             />
 
-            {error && <Alert severity="error">{error}</Alert>}
+            {error && (
+              <Alert severity="error" variant="standard">
+                {error}
+              </Alert>
+            )}
 
-            <Button type="submit" variant="contained" size="large" disabled={submitting} fullWidth>
-              {submitting ? 'Signing in…' : 'Sign In'}
+            <Button
+              type="submit"
+              variant="contained"
+              size="large"
+              disabled={submitting}
+              endIcon={!submitting && <ArrowForwardIcon sx={{ fontSize: 18 }} />}
+              sx={{ mt: 0.5 }}
+            >
+              {submitting ? 'Signing in…' : 'Sign in'}
             </Button>
           </Stack>
         </Paper>
-      </Box>
+
+        <Typography variant="caption" sx={{ color: 'text.disabled', textAlign: 'center' }}>
+          DigitalBox — warehouse fulfillment
+        </Typography>
+      </Stack>
     </Box>
   );
 }

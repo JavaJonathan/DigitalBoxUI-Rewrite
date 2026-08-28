@@ -6,28 +6,48 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import Chip from '@mui/material/Chip';
 import Divider from '@mui/material/Divider';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
-import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import Link from '@mui/material/Link';
-import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/DeleteOutlined';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { AppLayout } from '../components/AppLayout';
-import { getOrder, updateOrder, fetchPackingSlipObjectUrl } from '../api/orders';
+import Skeleton from '@mui/material/Skeleton';
+import Tooltip from '@mui/material/Tooltip';
+import AddRoundedIcon from '@mui/icons-material/AddRounded';
+import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
+import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
+import OpenInNewRoundedIcon from '@mui/icons-material/OpenInNewRounded';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
+import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
+import { AppShell } from '../components/AppShell';
+import { Mono } from '../components/ui/Mono';
+import { MarketplaceTag } from '../components/ui/MarketplaceTag';
+import { OrderStatusBadge, ParseStatusBadge } from '../components/ui/StatusBadge';
+import { EventTimeline } from '../components/ui/EventTimeline';
+import { ConfirmActionDialog } from '../components/ConfirmActionDialog';
+import { getOrder, updateOrder, fetchPackingSlipObjectUrl, shipOrders, cancelOrders } from '../api/orders';
 import { getApiErrorMessage } from '../api/client';
 import { useToast } from '../components/ToastProvider';
-import { formatDateTime, MARKETPLACE_LABELS, parseStatusColor, PARSE_STATUS_LABELS } from '../lib/format';
+import { formatDate, pluralize, MARKETPLACE_LABELS } from '../lib/format';
 import { MARKETPLACES, type Marketplace, type OrderDetail } from '../types';
 
 interface EditLine {
   title: string;
   quantity: number;
   sku: string;
+}
+
+function FieldRow({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <Box sx={{ display: 'flex', gap: 2, py: 0.75, alignItems: 'baseline' }}>
+      <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled', width: 96, flexShrink: 0 }}>
+        {label}
+      </Typography>
+      <Box sx={{ fontSize: '0.8125rem', minWidth: 0 }}>{children}</Box>
+    </Box>
+  );
 }
 
 export function OrderDetailPage() {
@@ -45,14 +65,14 @@ export function OrderDetailPage() {
   const [shipDate, setShipDate] = useState('');
   const [lines, setLines] = useState<EditLine[]>([]);
   const [saving, setSaving] = useState(false);
+  const [action, setAction] = useState<'ship' | 'cancel' | null>(null);
 
   const load = useCallback(async () => {
     if (!id) return;
     setLoading(true);
     setError(null);
     try {
-      const data = await getOrder(id);
-      setOrder(data);
+      setOrder(await getOrder(id));
     } catch (err) {
       setError(getApiErrorMessage(err, 'Could not load this order.'));
     } finally {
@@ -70,10 +90,7 @@ export function OrderDetailPage() {
     let url: string | null = null;
     fetchPackingSlipObjectUrl(id)
       .then((objectUrl) => {
-        if (revoked) {
-          URL.revokeObjectURL(objectUrl);
-          return;
-        }
+        if (revoked) return URL.revokeObjectURL(objectUrl);
         url = objectUrl;
         setPdfUrl(objectUrl);
       })
@@ -104,9 +121,9 @@ export function OrderDetailPage() {
       const updated = await updateOrder(id, {
         orderNumber: orderNumber.trim(),
         marketplace,
-        shipDate: shipDate ? shipDate : null,
+        shipDate: shipDate || null,
         lineItems: lines
-          .filter((l) => l.title.trim().length > 0)
+          .filter((l) => l.title.trim())
           .map((l) => ({ title: l.title.trim(), quantity: l.quantity, sku: l.sku.trim() || null })),
       });
       setOrder(updated);
@@ -119,206 +136,308 @@ export function OrderDetailPage() {
     }
   };
 
+  const runAction = async (actionedBy: string) => {
+    if (!id) return;
+    try {
+      const result =
+        action === 'ship' ? await shipOrders([id], actionedBy) : await cancelOrders([id], actionedBy);
+      notify(result.message, 'success');
+      setAction(null);
+      load();
+    } catch (err) {
+      notify(getApiErrorMessage(err, 'Action failed.'), 'error');
+    }
+  };
+
+  const isOpen = order?.status === 'Open';
+
   return (
-    <AppLayout>
-      <Button component={RouterLink} to="/" startIcon={<ArrowBackIcon />} sx={{ mb: 2 }}>
+    <AppShell title="Order">
+      <Button
+        component={RouterLink}
+        to="/"
+        variant="text"
+        startIcon={<ArrowBackRoundedIcon sx={{ fontSize: 16 }} />}
+        sx={{ mb: 2, ml: -1 }}
+      >
         Back to queue
       </Button>
 
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
-          <CircularProgress />
-        </Box>
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12, md: 5 }}>
+            <Skeleton variant="rounded" height={360} />
+          </Grid>
+          <Grid size={{ xs: 12, md: 7 }}>
+            <Skeleton variant="rounded" height={560} />
+          </Grid>
+        </Grid>
       ) : error ? (
         <Alert severity="error">{error}</Alert>
       ) : order ? (
         <Grid container spacing={3}>
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Paper variant="outlined" sx={{ p: 3 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <Box>
-                  <Typography variant="h6">{order.orderNumber || '(no order #)'}</Typography>
-                  <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                    <Chip size="small" label={order.status} />
-                    <Chip size="small" variant="outlined" label={MARKETPLACE_LABELS[order.marketplace]} />
-                    {order.parseStatus !== 'Parsed' && (
-                      <Chip
-                        size="small"
-                        color={parseStatusColor(order.parseStatus)}
-                        label={PARSE_STATUS_LABELS[order.parseStatus]}
-                      />
-                    )}
-                  </Stack>
-                </Box>
-                {order.status === 'Open' && !editing && (
-                  <Button variant="outlined" onClick={beginEdit}>
-                    Edit
-                  </Button>
-                )}
+          {/* left column */}
+          <Grid size={{ xs: 12, md: 5 }}>
+            <Stack spacing={2.5}>
+              <Box>
+                <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
+                  <Mono copyable sx={{ fontSize: '1rem', fontWeight: 600 }}>
+                    {order.orderNumber || 'No order number'}
+                  </Mono>
+                </Stack>
+                <Stack direction="row" spacing={1} sx={{ mt: 1, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <OrderStatusBadge status={order.status} />
+                  <ParseStatusBadge status={order.parseStatus} />
+                </Stack>
               </Box>
 
-              <Divider sx={{ my: 2 }} />
-
-              {editing ? (
-                <Stack spacing={2}>
-                  <TextField
-                    label="Order number"
-                    size="small"
-                    value={orderNumber}
-                    onChange={(e) => setOrderNumber(e.target.value)}
-                  />
-                  <TextField
-                    label="Marketplace"
-                    size="small"
-                    select
-                    value={marketplace}
-                    onChange={(e) => setMarketplace(e.target.value as Marketplace)}
-                  >
-                    {MARKETPLACES.map((m) => (
-                      <MenuItem key={m} value={m}>
-                        {MARKETPLACE_LABELS[m]}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                  <TextField
-                    label="Ship date"
-                    size="small"
-                    type="date"
-                    value={shipDate}
-                    onChange={(e) => setShipDate(e.target.value)}
-                    slotProps={{ inputLabel: { shrink: true } }}
-                  />
-
-                  <Typography variant="subtitle2">Line items</Typography>
-                  {lines.map((line, index) => (
-                    <Stack key={index} direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-                      <TextField
-                        label="Title"
-                        size="small"
-                        fullWidth
-                        value={line.title}
-                        onChange={(e) =>
-                          setLines((prev) =>
-                            prev.map((l, i) => (i === index ? { ...l, title: e.target.value } : l)),
-                          )
-                        }
-                      />
-                      <TextField
-                        label="Qty"
-                        size="small"
-                        type="number"
-                        sx={{ width: 90 }}
-                        value={line.quantity}
-                        slotProps={{ htmlInput: { min: 0 } }}
-                        onChange={(e) =>
-                          setLines((prev) =>
-                            prev.map((l, i) =>
-                              i === index
-                                ? { ...l, quantity: Math.max(0, Math.floor(Number(e.target.value) || 0)) }
-                                : l,
-                            ),
-                          )
-                        }
-                      />
-                      <IconButton
-                        onClick={() => setLines((prev) => prev.filter((_, i) => i !== index))}
-                        disabled={lines.length === 1}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Stack>
-                  ))}
-                  <Button
-                    startIcon={<AddIcon />}
-                    onClick={() => setLines((prev) => [...prev, { title: '', quantity: 1, sku: '' }])}
-                  >
-                    Add line item
-                  </Button>
-
-                  <Stack direction="row" spacing={1}>
-                    <Button variant="contained" onClick={save} disabled={saving}>
-                      {saving ? 'Saving…' : 'Save'}
+              {isOpen && (
+                <Stack direction="row" spacing={1}>
+                  {!editing && (
+                    <Button size="small" variant="outlined" startIcon={<EditOutlinedIcon sx={{ fontSize: 15 }} />} onClick={beginEdit}>
+                      Edit
                     </Button>
-                    <Button onClick={() => setEditing(false)} disabled={saving}>
-                      Cancel
-                    </Button>
-                  </Stack>
-                </Stack>
-              ) : (
-                <Stack spacing={1}>
-                  <Detail label="Ship date" value={order.shipDate ?? '—'} />
-                  <Detail label="Total quantity" value={String(order.totalQuantity)} />
-                  {order.actionedBy && <Detail label="Actioned by" value={order.actionedBy} />}
-                  <Divider sx={{ my: 1 }} />
-                  {order.lineItems.map((li) => (
-                    <Box key={li.id} sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-                      <Typography variant="body2">{li.title}</Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 600, whiteSpace: 'nowrap' }}>
-                        × {li.quantity}
-                      </Typography>
-                    </Box>
-                  ))}
-                  {order.lineItems.length === 0 && (
-                    <Typography variant="body2" color="text.secondary">
-                      No line items were parsed. Use Edit to add them.
-                    </Typography>
                   )}
+                  <Button
+                    size="small"
+                    variant="contained"
+                    color="success"
+                    startIcon={<LocalShippingOutlinedIcon sx={{ fontSize: 15 }} />}
+                    onClick={() => setAction('ship')}
+                  >
+                    Ship
+                  </Button>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    color="error"
+                    startIcon={<CancelOutlinedIcon sx={{ fontSize: 15 }} />}
+                    onClick={() => setAction('cancel')}
+                    sx={{ color: 'error.main', borderColor: (t) => (t.vars ?? t).palette.error.light }}
+                  >
+                    Cancel
+                  </Button>
                 </Stack>
               )}
 
-              <Divider sx={{ my: 2 }} />
-              <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                History
-              </Typography>
-              <Stack spacing={0.5}>
-                {order.events.map((event, i) => (
-                  <Typography key={i} variant="caption" color="text.secondary">
-                    {formatDateTime(event.occurredAt)} — {event.type}
-                    {event.actor ? ` by ${event.actor}` : ''}
-                    {event.detail ? ` · ${event.detail}` : ''}
-                  </Typography>
-                ))}
-              </Stack>
-            </Paper>
+              <Paper sx={{ p: 2.5, border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`, borderRadius: 3 }}>
+                {editing ? (
+                  <Stack spacing={2}>
+                    <TextField
+                      label="Order number"
+                      size="small"
+                      value={orderNumber}
+                      onChange={(e) => setOrderNumber(e.target.value)}
+                    />
+                    <TextField
+                      label="Marketplace"
+                      size="small"
+                      select
+                      value={marketplace}
+                      onChange={(e) => setMarketplace(e.target.value as Marketplace)}
+                    >
+                      {MARKETPLACES.map((m) => (
+                        <MenuItem key={m} value={m}>
+                          {MARKETPLACE_LABELS[m]}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                    <TextField
+                      label="Ship date"
+                      size="small"
+                      type="date"
+                      value={shipDate}
+                      onChange={(e) => setShipDate(e.target.value)}
+                      slotProps={{ inputLabel: { shrink: true } }}
+                    />
+
+                    <Divider />
+                    <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                      Line items
+                    </Typography>
+                    {lines.map((line, index) => (
+                      <Stack key={index} direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+                        <TextField
+                          label="Title"
+                          size="small"
+                          fullWidth
+                          value={line.title}
+                          onChange={(e) =>
+                            setLines((prev) => prev.map((l, i) => (i === index ? { ...l, title: e.target.value } : l)))
+                          }
+                        />
+                        <TextField
+                          label="Qty"
+                          size="small"
+                          type="number"
+                          sx={{ width: 84 }}
+                          value={line.quantity}
+                          slotProps={{ htmlInput: { min: 0 } }}
+                          onChange={(e) =>
+                            setLines((prev) =>
+                              prev.map((l, i) =>
+                                i === index
+                                  ? { ...l, quantity: Math.max(0, Math.floor(Number(e.target.value) || 0)) }
+                                  : l,
+                              ),
+                            )
+                          }
+                        />
+                        <IconButton
+                          size="small"
+                          onClick={() => setLines((prev) => prev.filter((_, i) => i !== index))}
+                          disabled={lines.length === 1}
+                          aria-label="Remove line item"
+                        >
+                          <DeleteOutlineRoundedIcon sx={{ fontSize: 17 }} />
+                        </IconButton>
+                      </Stack>
+                    ))}
+                    <Button
+                      size="small"
+                      variant="text"
+                      startIcon={<AddRoundedIcon sx={{ fontSize: 16 }} />}
+                      onClick={() => setLines((prev) => [...prev, { title: '', quantity: 1, sku: '' }])}
+                      sx={{ alignSelf: 'flex-start' }}
+                    >
+                      Add line item
+                    </Button>
+
+                    <Divider />
+                    <Stack direction="row" spacing={1}>
+                      <Button variant="contained" size="small" onClick={save} disabled={saving}>
+                        {saving ? 'Saving…' : 'Save changes'}
+                      </Button>
+                      <Button variant="text" size="small" onClick={() => setEditing(false)} disabled={saving}>
+                        Discard
+                      </Button>
+                    </Stack>
+                  </Stack>
+                ) : (
+                  <>
+                    <FieldRow label="Marketplace">
+                      <MarketplaceTag marketplace={order.marketplace} />
+                    </FieldRow>
+                    <FieldRow label="Ship date">
+                      <Typography sx={{ fontSize: '0.8125rem', color: order.shipDate ? 'text.primary' : 'text.disabled' }}>
+                        {formatDate(order.shipDate)}
+                      </Typography>
+                    </FieldRow>
+                    {order.actionedBy && <FieldRow label="Operator">{order.actionedBy}</FieldRow>}
+
+                    <Divider sx={{ my: 1.5 }} />
+                    <Typography variant="subtitle2" sx={{ color: 'text.secondary', mb: 1 }}>
+                      Line items · {pluralize(order.totalQuantity, 'unit')}
+                    </Typography>
+                    <Stack spacing={1}>
+                      {order.lineItems.map((li) => (
+                        <Box key={li.id} sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>
+                          <Box
+                            sx={{
+                              minWidth: 26,
+                              height: 20,
+                              px: 0.5,
+                              mt: 0.125,
+                              borderRadius: 1,
+                              bgcolor: 'surface.sunken',
+                              color: 'text.secondary',
+                              fontSize: '0.6875rem',
+                              fontWeight: 650,
+                              display: 'grid',
+                              placeItems: 'center',
+                              flexShrink: 0,
+                              fontVariantNumeric: 'tabular-nums',
+                            }}
+                          >
+                            ×{li.quantity}
+                          </Box>
+                          <Box sx={{ minWidth: 0 }}>
+                            <Typography sx={{ fontSize: '0.8125rem', lineHeight: 1.4 }}>{li.title}</Typography>
+                            {li.sku && (
+                              <Mono muted sx={{ fontSize: '0.6875rem' }}>
+                                {li.sku}
+                              </Mono>
+                            )}
+                          </Box>
+                        </Box>
+                      ))}
+                      {order.lineItems.length === 0 && (
+                        <Typography sx={{ fontSize: '0.8125rem', color: 'text.disabled' }}>
+                          Nothing was parsed. Use Edit to enter the items manually.
+                        </Typography>
+                      )}
+                    </Stack>
+                  </>
+                )}
+              </Paper>
+
+              <Box>
+                <Typography variant="subtitle2" sx={{ color: 'text.secondary', mb: 1.5 }}>
+                  Activity
+                </Typography>
+                <EventTimeline events={order.events} />
+              </Box>
+            </Stack>
           </Grid>
 
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Paper variant="outlined" sx={{ p: 2, height: '100%' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                <Typography variant="subtitle2">Packing slip</Typography>
+          {/* right column — packing slip */}
+          <Grid size={{ xs: 12, md: 7 }}>
+            <Paper
+              sx={{
+                border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
+                borderRadius: 3,
+                overflow: 'hidden',
+                position: { md: 'sticky' },
+                top: { md: 80 },
+              }}
+            >
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  px: 2,
+                  height: 44,
+                  borderBottom: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
+                }}
+              >
+                <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
+                  Packing slip
+                </Typography>
                 {pdfUrl && (
-                  <Link href={pdfUrl} target="_blank" rel="noreferrer">
-                    Open in new tab
-                  </Link>
+                  <Tooltip title="Open in new tab" arrow>
+                    <IconButton size="small" component={Link} href={pdfUrl} target="_blank" rel="noreferrer">
+                      <OpenInNewRoundedIcon sx={{ fontSize: 16 }} />
+                    </IconButton>
+                  </Tooltip>
                 )}
               </Box>
               {pdfUrl ? (
                 <Box
                   component="iframe"
-                  src={pdfUrl}
+                  src={`${pdfUrl}#toolbar=0`}
                   title="Packing slip"
-                  sx={{ width: '100%', height: { xs: 400, md: 640 }, border: 'none' }}
+                  sx={{ width: '100%', height: { xs: 460, md: 'calc(100vh - 180px)' }, border: 'none', display: 'block', bgcolor: 'surface.inset' }}
                 />
               ) : (
-                <Typography variant="body2" color="text.secondary">
-                  Packing slip unavailable.
-                </Typography>
+                <Box sx={{ p: 4, textAlign: 'center' }}>
+                  <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+                    Packing slip unavailable.
+                  </Typography>
+                </Box>
               )}
             </Paper>
           </Grid>
         </Grid>
       ) : null}
-    </AppLayout>
-  );
-}
 
-function Detail({ label, value }: { label: string; value: string }) {
-  return (
-    <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-      <Typography variant="body2" color="text.secondary">
-        {label}
-      </Typography>
-      <Typography variant="body2">{value}</Typography>
-    </Box>
+      <ConfirmActionDialog
+        open={action !== null}
+        intent={action ?? 'ship'}
+        count={1}
+        onClose={() => setAction(null)}
+        onConfirm={runAction}
+      />
+    </AppShell>
   );
 }

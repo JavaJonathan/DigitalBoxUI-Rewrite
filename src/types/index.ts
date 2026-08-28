@@ -30,6 +30,7 @@ export interface OrderListItem {
   parseStatus: ParseStatus;
   lineItemCount: number;
   totalQuantity: number;
+  firstItemTitle: string | null;
   actionedBy: string | null;
   createdAt: string;
   shippedAt: string | null;

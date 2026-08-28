@@ -4,16 +4,20 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Pagination from '@mui/material/Pagination';
-import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
-import UploadFileIcon from '@mui/icons-material/UploadFile';
-import LocalShippingIcon from '@mui/icons-material/LocalShipping';
-import CancelIcon from '@mui/icons-material/Cancel';
-import { AppLayout } from '../components/AppLayout';
-import { FilterBar } from '../components/FilterBar';
+import Tooltip from '@mui/material/Tooltip';
+import IconButton from '@mui/material/IconButton';
+import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
+import { AppShell } from '../components/AppShell';
+import { QueueToolbar } from '../components/QueueToolbar';
 import { OrdersTable } from '../components/OrdersTable';
 import { UploadDialog } from '../components/UploadDialog';
 import { ConfirmActionDialog } from '../components/ConfirmActionDialog';
+import { SelectionBar } from '../components/SelectionBar';
+import { EmptyState } from '../components/ui/EmptyState';
+import { TableSkeleton } from '../components/ui/TableSkeleton';
 import { useOrders } from '../hooks/useOrders';
 import { cancelOrders, shipOrders } from '../api/orders';
 import { getApiErrorMessage } from '../api/client';
@@ -40,6 +44,7 @@ export function OrdersPage() {
 
   const orders = data?.items ?? [];
   const pageCount = data ? Math.max(1, Math.ceil(data.total / data.pageSize)) : 1;
+  const filtered = q.length > 0 || marketplace !== '';
 
   const toggle = (id: string) =>
     setSelected((prev) => {
@@ -67,28 +72,33 @@ export function OrdersPage() {
   };
 
   return (
-    <AppLayout
+    <AppShell
+      title="Queue"
+      titleMeta={
+        <Typography component="span" sx={{ fontSize: '0.75rem', color: 'text.disabled', fontVariantNumeric: 'tabular-nums' }}>
+          {data?.total ?? 0} open
+        </Typography>
+      }
       actions={
-        <Button
-          variant="contained"
-          color="inherit"
-          startIcon={<UploadFileIcon />}
-          onClick={() => setUploadOpen(true)}
-          sx={{ color: 'primary.main', bgcolor: '#fff' }}
-        >
-          Upload slips
-        </Button>
+        <>
+          <Tooltip title="Refresh" arrow>
+            <IconButton size="small" onClick={refresh} aria-label="Refresh">
+              <RefreshIcon sx={{ fontSize: 18 }} />
+            </IconButton>
+          </Tooltip>
+          <Button
+            variant="contained"
+            size="small"
+            startIcon={<UploadFileOutlinedIcon sx={{ fontSize: 16 }} />}
+            onClick={() => setUploadOpen(true)}
+          >
+            Upload slips
+          </Button>
+        </>
       }
     >
       <Stack spacing={2}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
-          <Typography variant="h5">Open orders</Typography>
-          <Typography variant="body2" color="text.secondary">
-            {selected.size} selected · {data?.total ?? 0} total
-          </Typography>
-        </Box>
-
-        <FilterBar
+        <QueueToolbar
           q={q}
           marketplace={marketplace}
           onChange={(next) => {
@@ -98,32 +108,44 @@ export function OrdersPage() {
           }}
         />
 
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button
-            variant="contained"
-            color="success"
-            startIcon={<LocalShippingIcon />}
-            disabled={selected.size === 0}
-            onClick={() => setAction('ship')}
-          >
-            Ship ({selected.size})
-          </Button>
-          <Button
-            variant="contained"
-            color="error"
-            startIcon={<CancelIcon />}
-            disabled={selected.size === 0}
-            onClick={() => setAction('cancel')}
-          >
-            Cancel ({selected.size})
-          </Button>
-        </Box>
-
         {error && <Alert severity="error">{error}</Alert>}
 
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
-            <CircularProgress />
+          <Box sx={{ border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`, borderRadius: 3, bgcolor: 'surface.panel' }}>
+            <TableSkeleton rows={10} columns={6} />
+          </Box>
+        ) : orders.length === 0 ? (
+          <Box sx={{ border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`, borderRadius: 3, bgcolor: 'surface.panel' }}>
+            {filtered ? (
+              <EmptyState
+                icon={<Inventory2OutlinedIcon />}
+                title="No matching orders"
+                description="Try a different search term or marketplace filter."
+                action={
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    onClick={() => {
+                      setQ('');
+                      setMarketplace('');
+                    }}
+                  >
+                    Clear filters
+                  </Button>
+                }
+              />
+            ) : (
+              <EmptyState
+                icon={<UploadFileOutlinedIcon />}
+                title="The queue is clear"
+                description="Upload packing-slip PDFs and DigitalBox will parse them into orders ready to ship."
+                action={
+                  <Button variant="contained" size="small" onClick={() => setUploadOpen(true)}>
+                    Upload packing slips
+                  </Button>
+                }
+              />
+            )}
           </Box>
         ) : (
           <OrdersTable
@@ -135,28 +157,32 @@ export function OrdersPage() {
             onToggleAll={toggleAll}
             sort={sort}
             onSortChange={setSort}
-            emptyMessage="No open orders. Upload some packing slips to get started."
           />
         )}
 
         {pageCount > 1 && (
-          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-            <Pagination count={pageCount} page={page} onChange={(_, p) => setPage(p)} />
+          <Box sx={{ display: 'flex', justifyContent: 'center', pt: 0.5 }}>
+            <Pagination count={pageCount} page={page} onChange={(_, p) => setPage(p)} size="small" />
           </Box>
         )}
       </Stack>
+
+      <SelectionBar
+        count={selected.size}
+        onClear={() => setSelected(new Set())}
+        onShip={() => setAction('ship')}
+        onCancel={() => setAction('cancel')}
+      />
 
       <UploadDialog open={uploadOpen} onClose={() => setUploadOpen(false)} onUploaded={refresh} />
 
       <ConfirmActionDialog
         open={action !== null}
-        title={action === 'ship' ? 'Ship orders' : 'Cancel orders'}
+        intent={action ?? 'ship'}
         count={selected.size}
-        confirmLabel={action === 'ship' ? 'Ship' : 'Cancel orders'}
-        confirmColor={action === 'ship' ? 'success' : 'error'}
         onClose={() => setAction(null)}
         onConfirm={runAction}
       />
-    </AppLayout>
+    </AppShell>
   );
 }

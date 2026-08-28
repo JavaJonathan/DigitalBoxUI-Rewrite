@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -7,12 +8,18 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import Checkbox from '@mui/material/Checkbox';
-import Chip from '@mui/material/Chip';
-import Paper from '@mui/material/Paper';
-import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import Tooltip from '@mui/material/Tooltip';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import type { OrderListItem, OrderStatus } from '../types';
-import { formatDate, formatDateTime, MARKETPLACE_LABELS, parseStatusColor, PARSE_STATUS_LABELS } from '../lib/format';
+import { formatDate } from '../lib/format';
+import { Mono } from './ui/Mono';
+import { MarketplaceTag } from './ui/MarketplaceTag';
+import { OrderStatusBadge, ParseStatusBadge } from './ui/StatusBadge';
+import { RelativeTime } from './ui/RelativeTime';
+
+type SortKey = 'shipDate' | 'title';
 
 interface OrdersTableProps {
   orders: OrderListItem[];
@@ -21,9 +28,13 @@ interface OrdersTableProps {
   selectedIds?: Set<string>;
   onToggle?: (id: string) => void;
   onToggleAll?: (checked: boolean) => void;
-  sort?: 'shipDate' | 'title' | 'created';
-  onSortChange?: (sort: 'shipDate' | 'title') => void;
-  emptyMessage?: string;
+  sort?: SortKey | 'created';
+  onSortChange?: (sort: SortKey) => void;
+}
+
+function isOverdue(order: OrderListItem) {
+  if (order.status !== 'Open' || !order.shipDate) return false;
+  return new Date(`${order.shipDate}T23:59:59`).getTime() < Date.now();
 }
 
 export function OrdersTable({
@@ -35,115 +46,173 @@ export function OrdersTable({
   onToggleAll,
   sort,
   onSortChange,
-  emptyMessage = 'No orders found.',
 }: OrdersTableProps) {
   const navigate = useNavigate();
   const isHistory = status !== 'Open';
   const allSelected = selectable && orders.length > 0 && orders.every((o) => selectedIds?.has(o.id));
   const someSelected = selectable && orders.some((o) => selectedIds?.has(o.id)) && !allSelected;
 
-  if (orders.length === 0) {
-    return (
-      <Paper variant="outlined" sx={{ p: 6, textAlign: 'center' }}>
-        <Typography color="text.secondary">{emptyMessage}</Typography>
-      </Paper>
+  const headCell = (key: SortKey, label: string, align: 'left' | 'right' = 'left') =>
+    onSortChange ? (
+      <TableSortLabel
+        active={sort === key}
+        direction="asc"
+        hideSortIcon={sort !== key}
+        onClick={() => onSortChange(key)}
+        sx={{ flexDirection: align === 'right' ? 'row-reverse' : 'row' }}
+      >
+        {label}
+      </TableSortLabel>
+    ) : (
+      label
     );
-  }
 
   return (
-    <TableContainer component={Paper} variant="outlined" sx={{ overflowX: 'auto' }}>
-      <Table size="small">
+    <TableContainer
+      sx={{
+        border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
+        borderRadius: 3,
+        maxHeight: 'max(360px, calc(100dvh - 250px))',
+        overflow: 'auto',
+        bgcolor: 'surface.panel',
+      }}
+    >
+      <Table stickyHeader size="small" sx={{ minWidth: isHistory ? 820 : 760 }}>
         <TableHead>
           <TableRow>
             {selectable && (
-              <TableCell padding="checkbox">
+              <TableCell padding="checkbox" sx={{ pl: 1.5 }}>
                 <Checkbox
                   checked={allSelected}
                   indeterminate={someSelected}
                   onChange={(e) => onToggleAll?.(e.target.checked)}
+                  slotProps={{ input: { 'aria-label': 'Select all rows' } }}
                 />
               </TableCell>
             )}
-            <TableCell sortDirection={false}>
-              {onSortChange ? (
-                <TableSortLabel active={sort === 'title'} direction="asc" onClick={() => onSortChange('title')}>
-                  Order / first item
-                </TableSortLabel>
-              ) : (
-                'Order / first item'
-              )}
-            </TableCell>
+            <TableCell>{headCell('title', 'Order')}</TableCell>
             <TableCell>Marketplace</TableCell>
-            <TableCell align="right">Items</TableCell>
             <TableCell align="right">Qty</TableCell>
-            <TableCell>
-              {onSortChange ? (
-                <TableSortLabel active={sort === 'shipDate'} direction="asc" onClick={() => onSortChange('shipDate')}>
-                  Ship date
-                </TableSortLabel>
-              ) : (
-                'Ship date'
-              )}
-            </TableCell>
+            <TableCell>{headCell('shipDate', 'Ship date')}</TableCell>
             {isHistory ? (
               <>
+                <TableCell>Status</TableCell>
                 <TableCell>{status === 'Shipped' ? 'Shipped' : 'Cancelled'}</TableCell>
-                <TableCell>By</TableCell>
+                <TableCell>Operator</TableCell>
               </>
             ) : (
               <TableCell>Parse</TableCell>
             )}
+            <TableCell padding="checkbox" />
           </TableRow>
         </TableHead>
         <TableBody>
-          {orders.map((order) => (
-            <TableRow
-              key={order.id}
-              hover
-              sx={{ cursor: 'pointer' }}
-              onClick={() => navigate(`/orders/${order.id}`)}
-            >
-              {selectable && (
-                <TableCell padding="checkbox" onClick={(e) => e.stopPropagation()}>
-                  <Checkbox
-                    checked={selectedIds?.has(order.id) ?? false}
-                    onChange={() => onToggle?.(order.id)}
+          {orders.map((order) => {
+            const overdue = isOverdue(order);
+            const selected = selectedIds?.has(order.id) ?? false;
+            return (
+              <TableRow
+                key={order.id}
+                hover
+                selected={selected}
+                onClick={() => navigate(`/orders/${order.id}`)}
+                sx={{ cursor: 'pointer', '&:hover .db-row-chevron': { opacity: 1 } }}
+              >
+                {selectable && (
+                  <TableCell padding="checkbox" sx={{ pl: 1.5 }} onClick={(e) => e.stopPropagation()}>
+                    <Checkbox
+                      checked={selected}
+                      onChange={() => onToggle?.(order.id)}
+                      slotProps={{ input: { 'aria-label': `Select order ${order.orderNumber || order.id}` } }}
+                    />
+                  </TableCell>
+                )}
+
+                <TableCell sx={{ py: 0.75, maxWidth: 340 }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.125, minWidth: 0 }}>
+                    <Mono muted={!order.orderNumber} sx={{ fontWeight: 550, whiteSpace: 'nowrap' }}>
+                      {order.orderNumber || 'No order number'}
+                    </Mono>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: 'text.secondary',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        maxWidth: 360,
+                      }}
+                    >
+                      {order.firstItemTitle || '—'}
+                    </Typography>
+                  </Box>
+                </TableCell>
+
+                <TableCell>
+                  <MarketplaceTag marketplace={order.marketplace} />
+                </TableCell>
+
+                <TableCell align="right">
+                  <Tooltip
+                    title={`${order.lineItemCount} line item${order.lineItemCount === 1 ? '' : 's'}`}
+                    arrow
+                    placement="left"
+                  >
+                    <Typography
+                      component="span"
+                      sx={{ fontSize: '0.8125rem', fontVariantNumeric: 'tabular-nums', cursor: 'default' }}
+                    >
+                      {order.totalQuantity}
+                    </Typography>
+                  </Tooltip>
+                </TableCell>
+
+                <TableCell>
+                  <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75 }}>
+                    <Typography component="span" sx={{ fontSize: '0.8125rem', color: order.shipDate ? 'text.primary' : 'text.disabled' }}>
+                      {formatDate(order.shipDate)}
+                    </Typography>
+                    {overdue && (
+                      <Tooltip title="Ship date has passed" arrow>
+                        <WarningAmberRoundedIcon sx={{ fontSize: 14, color: 'warning.main' }} />
+                      </Tooltip>
+                    )}
+                  </Box>
+                </TableCell>
+
+                {isHistory ? (
+                  <>
+                    <TableCell>
+                      <OrderStatusBadge status={order.status} />
+                    </TableCell>
+                    <TableCell>
+                      <RelativeTime value={status === 'Shipped' ? order.shippedAt : order.cancelledAt} />
+                    </TableCell>
+                    <TableCell>
+                      <Typography sx={{ fontSize: '0.8125rem', color: order.actionedBy ? 'text.primary' : 'text.disabled' }}>
+                        {order.actionedBy ?? '—'}
+                      </Typography>
+                    </TableCell>
+                  </>
+                ) : (
+                  <TableCell>
+                    {order.parseStatus === 'Parsed' ? (
+                      <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>OK</Typography>
+                    ) : (
+                      <ParseStatusBadge status={order.parseStatus} />
+                    )}
+                  </TableCell>
+                )}
+
+                <TableCell padding="checkbox" sx={{ pr: 1 }}>
+                  <ChevronRightIcon
+                    className="db-row-chevron"
+                    sx={{ fontSize: 16, color: 'text.disabled', opacity: 0, transition: 'opacity 100ms ease' }}
                   />
                 </TableCell>
-              )}
-              <TableCell>
-                <Typography sx={{ fontWeight: 600, fontSize: 14 }}>
-                  {order.orderNumber || <em>(no order #)</em>}
-                </Typography>
-              </TableCell>
-              <TableCell>
-                <Chip label={MARKETPLACE_LABELS[order.marketplace]} size="small" variant="outlined" />
-              </TableCell>
-              <TableCell align="right">{order.lineItemCount}</TableCell>
-              <TableCell align="right">{order.totalQuantity}</TableCell>
-              <TableCell>{formatDate(order.shipDate)}</TableCell>
-              {isHistory ? (
-                <>
-                  <TableCell>
-                    {formatDateTime(status === 'Shipped' ? order.shippedAt : order.cancelledAt)}
-                  </TableCell>
-                  <TableCell>{order.actionedBy ?? '—'}</TableCell>
-                </>
-              ) : (
-                <TableCell>
-                  {order.parseStatus === 'Parsed' ? (
-                    <Box component="span" sx={{ color: 'text.disabled' }}>OK</Box>
-                  ) : (
-                    <Chip
-                      label={PARSE_STATUS_LABELS[order.parseStatus]}
-                      size="small"
-                      color={parseStatusColor(order.parseStatus)}
-                    />
-                  )}
-                </TableCell>
-              )}
-            </TableRow>
-          ))}
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </TableContainer>
