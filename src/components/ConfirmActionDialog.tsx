@@ -8,23 +8,48 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { pluralize } from '../lib/format';
 
+type Intent = 'ship' | 'cancel' | 'undo';
+
 interface ConfirmActionDialogProps {
   open: boolean;
-  intent: 'ship' | 'cancel';
+  intent: Intent;
   count: number;
   onClose: () => void;
   onConfirm: (actionedBy: string) => Promise<void> | void;
 }
 
+const CONFIG: Record<
+  Intent,
+  { title: string; color: 'success' | 'error' | 'primary'; verb: string; body: (n: number) => string }
+> = {
+  ship: {
+    title: 'Ship orders',
+    color: 'success',
+    verb: 'Ship',
+    body: (n) => `Mark ${pluralize(n, 'order')} as shipped and move them to history.`,
+  },
+  cancel: {
+    title: 'Cancel orders',
+    color: 'error',
+    verb: 'Cancel',
+    body: (n) => `Cancel ${pluralize(n, 'order')} and move them to history.`,
+  },
+  undo: {
+    title: 'Reopen orders',
+    color: 'primary',
+    verb: 'Reopen',
+    body: (n) => `Move ${pluralize(n, 'order')} back to the open queue.`,
+  },
+};
+
 export function ConfirmActionDialog({ open, intent, count, onClose, onConfirm }: ConfirmActionDialogProps) {
   const [name, setName] = useState('');
   const [busy, setBusy] = useState(false);
+  const cfg = CONFIG[intent];
 
   useEffect(() => {
     if (open) setBusy(false);
   }, [open]);
-
-  const ship = intent === 'ship';
 
   const handleConfirm = async () => {
     setBusy(true);
@@ -38,13 +63,10 @@ export function ConfirmActionDialog({ open, intent, count, onClose, onConfirm }:
 
   return (
     <Dialog open={open} onClose={busy ? undefined : onClose} maxWidth="xs" fullWidth>
-      <DialogTitle>{ship ? 'Ship orders' : 'Cancel orders'}</DialogTitle>
+      <DialogTitle>{cfg.title}</DialogTitle>
       <DialogContent>
         <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
-          {ship
-            ? `Mark ${pluralize(count, 'order')} as shipped and move them to history.`
-            : `Cancel ${pluralize(count, 'order')} and move them to history.`}{' '}
-          Enter your name for the record.
+          {cfg.body(count)} Enter your name for the record.
         </Typography>
         <TextField
           autoFocus
@@ -65,11 +87,11 @@ export function ConfirmActionDialog({ open, intent, count, onClose, onConfirm }:
         </Button>
         <Button
           variant="contained"
-          color={ship ? 'success' : 'error'}
+          color={cfg.color}
           disabled={busy || name.trim().length === 0}
           onClick={handleConfirm}
         >
-          {busy ? 'Working…' : ship ? `Ship ${count}` : `Cancel ${count}`}
+          {busy ? 'Working…' : `${cfg.verb} ${count}`}
         </Button>
       </DialogActions>
     </Dialog>

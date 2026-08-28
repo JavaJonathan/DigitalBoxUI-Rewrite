@@ -14,6 +14,7 @@ export function listOrders(query: OrderQuery) {
   params.set('status', query.status);
   if (query.q) params.set('q', query.q);
   if (query.marketplace) params.set('marketplace', query.marketplace);
+  if (query.priority) params.set('priority', 'true');
   if (query.sort) params.set('sort', query.sort);
   params.set('page', String(query.page ?? 1));
   params.set('pageSize', String(query.pageSize ?? 50));
@@ -22,6 +23,27 @@ export function listOrders(query: OrderQuery) {
 
 export function getOrder(id: string) {
   return apiFetch<OrderDetail>(`/api/orders/${id}`);
+}
+
+export function setOrderPriority(id: string, isPriority: boolean) {
+  return apiFetch<OrderDetail>(`/api/orders/${id}/priority`, {
+    method: 'POST',
+    body: JSON.stringify({ isPriority }),
+  });
+}
+
+export function setOrderNotes(id: string, notes: string | null) {
+  return apiFetch<OrderDetail>(`/api/orders/${id}/notes`, {
+    method: 'PUT',
+    body: JSON.stringify({ notes }),
+  });
+}
+
+export function undoOrders(orderIds: string[], actionedBy: string) {
+  return apiFetch<ActionResult>('/api/orders/undo', {
+    method: 'POST',
+    body: JSON.stringify({ orderIds, actionedBy }),
+  });
 }
 
 export function updateOrder(id: string, payload: UpdateOrderPayload) {

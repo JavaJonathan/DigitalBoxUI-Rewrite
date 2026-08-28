@@ -10,8 +10,13 @@ import TableSortLabel from '@mui/material/TableSortLabel';
 import Checkbox from '@mui/material/Checkbox';
 import Typography from '@mui/material/Typography';
 import Tooltip from '@mui/material/Tooltip';
+import IconButton from '@mui/material/IconButton';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
+import FlagRoundedIcon from '@mui/icons-material/FlagRounded';
+import OutlinedFlagIcon from '@mui/icons-material/OutlinedFlag';
+import StickyNote2OutlinedIcon from '@mui/icons-material/StickyNote2Outlined';
+import ReplayRoundedIcon from '@mui/icons-material/ReplayRounded';
 import type { OrderListItem, OrderStatus } from '../types';
 import { formatDate } from '../lib/format';
 import { Mono } from './ui/Mono';
@@ -30,6 +35,9 @@ interface OrdersTableProps {
   onToggleAll?: (checked: boolean) => void;
   sort?: SortKey | 'created';
   onSortChange?: (sort: SortKey) => void;
+  onTogglePriority?: (order: OrderListItem) => void;
+  onEditNote?: (order: OrderListItem, anchor: HTMLElement) => void;
+  onUndoRow?: (order: OrderListItem) => void;
 }
 
 function isOverdue(order: OrderListItem) {
@@ -46,26 +54,31 @@ export function OrdersTable({
   onToggleAll,
   sort,
   onSortChange,
+  onTogglePriority,
+  onEditNote,
+  onUndoRow,
 }: OrdersTableProps) {
   const navigate = useNavigate();
   const isHistory = status !== 'Open';
   const allSelected = selectable && orders.length > 0 && orders.every((o) => selectedIds?.has(o.id));
   const someSelected = selectable && orders.some((o) => selectedIds?.has(o.id)) && !allSelected;
+  const showFlag = !isHistory && !!onTogglePriority;
 
-  const headCell = (key: SortKey, label: string, align: 'left' | 'right' = 'left') =>
+  const headCell = (key: SortKey, label: string) =>
     onSortChange ? (
       <TableSortLabel
         active={sort === key}
         direction="asc"
         hideSortIcon={sort !== key}
         onClick={() => onSortChange(key)}
-        sx={{ flexDirection: align === 'right' ? 'row-reverse' : 'row' }}
       >
         {label}
       </TableSortLabel>
     ) : (
       label
     );
+
+  const stop = (e: React.MouseEvent) => e.stopPropagation();
 
   return (
     <TableContainer
@@ -77,7 +90,7 @@ export function OrdersTable({
         bgcolor: 'surface.panel',
       }}
     >
-      <Table stickyHeader size="small" sx={{ minWidth: isHistory ? 820 : 760 }}>
+      <Table stickyHeader size="small" sx={{ minWidth: isHistory ? 820 : 780 }}>
         <TableHead>
           <TableRow>
             {selectable && (
@@ -90,6 +103,7 @@ export function OrdersTable({
                 />
               </TableCell>
             )}
+            {showFlag && <TableCell padding="checkbox" />}
             <TableCell>{headCell('title', 'Order')}</TableCell>
             <TableCell>Marketplace</TableCell>
             <TableCell align="right">Qty</TableCell>
@@ -116,10 +130,10 @@ export function OrdersTable({
                 hover
                 selected={selected}
                 onClick={() => navigate(`/orders/${order.id}`)}
-                sx={{ cursor: 'pointer', '&:hover .db-row-chevron': { opacity: 1 } }}
+                sx={{ cursor: 'pointer', '&:hover .db-row-hover': { opacity: 1 } }}
               >
                 {selectable && (
-                  <TableCell padding="checkbox" sx={{ pl: 1.5 }} onClick={(e) => e.stopPropagation()}>
+                  <TableCell padding="checkbox" sx={{ pl: 1.5 }} onClick={stop}>
                     <Checkbox
                       checked={selected}
                       onChange={() => onToggle?.(order.id)}
@@ -128,11 +142,63 @@ export function OrdersTable({
                   </TableCell>
                 )}
 
+                {showFlag && (
+                  <TableCell padding="checkbox" onClick={stop}>
+                    <Tooltip title={order.isPriority ? 'Remove priority' : 'Mark priority'} arrow>
+                      <IconButton
+                        size="small"
+                        onClick={() => onTogglePriority?.(order)}
+                        aria-label={order.isPriority ? 'Remove priority' : 'Mark priority'}
+                        sx={{
+                          color: order.isPriority ? 'primary.main' : 'text.disabled',
+                          opacity: order.isPriority ? 1 : 0,
+                          transition: 'opacity 100ms ease, color 100ms ease',
+                          '&:hover': { color: 'primary.main' },
+                        }}
+                        className={order.isPriority ? undefined : 'db-row-hover'}
+                      >
+                        {order.isPriority ? (
+                          <FlagRoundedIcon sx={{ fontSize: 15 }} />
+                        ) : (
+                          <OutlinedFlagIcon sx={{ fontSize: 15 }} />
+                        )}
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
+                )}
+
                 <TableCell sx={{ py: 0.75, maxWidth: 340 }}>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.125, minWidth: 0 }}>
-                    <Mono muted={!order.orderNumber} sx={{ fontWeight: 550, whiteSpace: 'nowrap' }}>
-                      {order.orderNumber || 'No order number'}
-                    </Mono>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, minWidth: 0 }}>
+                      <Mono muted={!order.orderNumber} sx={{ fontWeight: 550, whiteSpace: 'nowrap' }}>
+                        {order.orderNumber || 'No order number'}
+                      </Mono>
+                      {(order.notes || onEditNote) && (
+                        <Tooltip title={order.notes || 'Add a note'} arrow>
+                          <IconButton
+                            size="small"
+                            onClick={
+                              onEditNote
+                                ? (e) => {
+                                    stop(e);
+                                    onEditNote(order, e.currentTarget);
+                                  }
+                                : undefined
+                            }
+                            aria-label="Note"
+                            sx={{
+                              p: 0.25,
+                              color: order.notes ? 'warning.main' : 'text.disabled',
+                              opacity: order.notes ? 1 : 0,
+                              cursor: onEditNote ? 'pointer' : 'default',
+                            }}
+                            className={order.notes ? undefined : 'db-row-hover'}
+                          >
+                            <StickyNote2OutlinedIcon sx={{ fontSize: 13 }} />
+                          </IconButton>
+                        </Tooltip>
+                      )}
+                    </Box>
                     <Typography
                       variant="caption"
                       sx={{
@@ -140,7 +206,7 @@ export function OrdersTable({
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
-                        maxWidth: 360,
+                        maxWidth: 340,
                       }}
                     >
                       {order.firstItemTitle || '—'}
@@ -204,11 +270,25 @@ export function OrdersTable({
                   </TableCell>
                 )}
 
-                <TableCell padding="checkbox" sx={{ pr: 1 }}>
-                  <ChevronRightIcon
-                    className="db-row-chevron"
-                    sx={{ fontSize: 16, color: 'text.disabled', opacity: 0, transition: 'opacity 100ms ease' }}
-                  />
+                <TableCell padding="checkbox" sx={{ pr: 1 }} onClick={onUndoRow ? stop : undefined}>
+                  {isHistory && onUndoRow ? (
+                    <Tooltip title="Reopen" arrow>
+                      <IconButton
+                        size="small"
+                        onClick={() => onUndoRow(order)}
+                        aria-label="Reopen order"
+                        className="db-row-hover"
+                        sx={{ opacity: 0, transition: 'opacity 100ms ease' }}
+                      >
+                        <ReplayRoundedIcon sx={{ fontSize: 15 }} />
+                      </IconButton>
+                    </Tooltip>
+                  ) : (
+                    <ChevronRightIcon
+                      className="db-row-hover"
+                      sx={{ fontSize: 16, color: 'text.disabled', opacity: 0, transition: 'opacity 100ms ease' }}
+                    />
+                  )}
                 </TableCell>
               </TableRow>
             );

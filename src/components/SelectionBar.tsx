@@ -1,21 +1,18 @@
+import type { ReactNode } from 'react';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import Slide from '@mui/material/Slide';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
-import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 
 interface SelectionBarProps {
   count: number;
   onClear: () => void;
-  onShip: () => void;
-  onCancel: () => void;
+  children: ReactNode;
 }
 
-export function SelectionBar({ count, onClear, onShip, onCancel }: SelectionBarProps) {
+export function SelectionBar({ count, onClear, children }: SelectionBarProps) {
   return (
     <Slide in={count > 0} direction="up" mountOnEnter unmountOnExit>
       <Box
@@ -63,27 +60,7 @@ export function SelectionBar({ count, onClear, onShip, onCancel }: SelectionBarP
 
         <Divider orientation="vertical" flexItem sx={{ my: 0.5 }} />
 
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button
-            size="small"
-            variant="contained"
-            color="success"
-            startIcon={<LocalShippingOutlinedIcon sx={{ fontSize: 16 }} />}
-            onClick={onShip}
-          >
-            Ship
-          </Button>
-          <Button
-            size="small"
-            variant="outlined"
-            color="error"
-            startIcon={<CancelOutlinedIcon sx={{ fontSize: 16 }} />}
-            onClick={onCancel}
-            sx={{ color: 'error.main', borderColor: (t) => (t.vars ?? t).palette.error.light }}
-          >
-            Cancel
-          </Button>
-        </Box>
+        <Box sx={{ display: 'flex', gap: 1 }}>{children}</Box>
       </Box>
     </Slide>
   );
