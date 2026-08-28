@@ -76,13 +76,21 @@ tabs), `/orders/:id` (detail + packing-slip viewer + correction form). Everythin
 - `AppShell` — fixed left sidebar (≥900px) / `Drawer` (<900px) + sticky blurred topbar with
   page title + `actions` slot. Sidebar footer has the user chip, `ColorModeToggle`, sign-out.
 - `Logo` / `LogoMark` — inline-SVG isometric-box monogram.
-- `QueueToolbar` — debounced search box + marketplace `ToggleButtonGroup` (dot per marketplace).
-- `OrdersTable` — one table for queue (selectable rows, sortable Order/Ship-date, `SelectionBar`
-  drives bulk ship/cancel) and history (read-only, relative-time + operator). Has `minWidth` so
-  it scrolls horizontally instead of squishing on narrow screens.
-- `SelectionBar` — floating pill that slides up when rows are selected; hosts Ship/Cancel.
+- `QueueToolbar` — debounced search (order # / item / **note**) + marketplace `ToggleButtonGroup`
+  + a "Priority" toggle (`showPriority`). `onChange` emits `ToolbarState { q, marketplace, priority }`;
+  the toggles fire immediately, the text field debounces.
+- `OrdersTable` — one table for queue and history. Optional callbacks: `onTogglePriority` (flag
+  cell, queue only), `onEditNote` (note icon → opens a popover), `onUndoRow` (per-row Reopen,
+  history only). Hover-reveal elements use the `.db-row-hover` class. Has `minWidth` so it
+  scrolls horizontally instead of squishing on narrow screens.
+- `SelectionBar` — floating pill; generalized to `{ count, onClear, children }` — each page passes
+  its own action buttons (queue: Ship/Cancel; history: Reopen).
+- `NotePopover` — anchored multiline note editor (500-char cap, Cmd/Ctrl+Enter saves).
 - `UploadDialog` — drag-drop multi-PDF; per-file created/duplicate/error result list.
-- `ConfirmActionDialog` — ship/cancel confirm; `intent` prop; requires operator name → `actionedBy`.
+- `ShippableItemsDialog` — drop inventory CSV → map columns (auto-detected client-side via
+  `lib/csv.ts`) → preview table → Download CSV (built client-side, BOM + CRLF).
+- `ConfirmActionDialog` — `intent: 'ship' | 'cancel' | 'undo'`, 3-way copy config; requires
+  operator name → `actionedBy`.
 - `ToastProvider` / `useToast` — MUI Snackbar (bottom-right, slide-up); severity passed
   explicitly, never string-matched (the old app's fragile pattern).
 - `ui/` primitives: `Mono`, `MarketplaceTag`, `StatusBadge` (`OrderStatusBadge` / `ParseStatusBadge`),
