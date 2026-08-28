@@ -55,6 +55,19 @@ Full redesign, 2026 — target aesthetic is Linear / Vercel / Stripe dashboard: 
 - Fonts: Inter Variable for UI, Geist Mono for order numbers / SKUs / IDs (`.db-mono` class or
   the `<Mono>` component, which also does click-to-copy).
 - Shadow tokens: `var(--db-shadow-sm | -md | -lg)` (defined in `MuiCssBaseline`, light + dark).
+- Motion: two opt-in classes in `index.css` — `.db-fade-in` (page/panel entrance) and
+  `.db-row-in` (per-row; caller sets `style={{ animationDelay }}` for the stagger, capped at
+  ~10 rows). One easing curve. A global `prefers-reduced-motion` block neutralises all of it.
+  `AppShell` keys `<main>` by pathname so every route change replays `.db-fade-in`.
+- Layout: `AppShell` `CONTENT_MAX` (1440, overridable per page via the `contentMax` prop)
+  caps **both** the sticky-header row and the page body with the same `mx: 'auto'`, so the
+  page title / header actions align to the table edges at any viewport. `OrdersTable` uses
+  `tableLayout: 'fixed'` + an explicit `<colgroup>`: every column except Order has a fixed
+  width and the Order column (unsized `<col>`) absorbs the rest, so the table fills the page
+  without the columns drifting apart on wide screens.
+- `SelectionBar` is a full-width fixed strip that flex-centres its pill — do **not** try to
+  centre the pill itself with `translateX(-50%)`, MUI's `<Slide>` writes an inline `transform`
+  that overrides it (that bug parked the bar in the bottom-right corner).
 
 **`src/api/client.ts`** — `apiFetch<T>` wrapper: injects the bearer token, throws `ApiError`
 with the server's `{ message }`, and calls the registered unauthorized handler on `401`

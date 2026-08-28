@@ -204,7 +204,7 @@ export function OrdersPage() {
 
       <SelectionBar count={selected.size} onClear={() => setSelected(new Set())}>
         <Button
-          size="small"
+          size="medium"
           variant="contained"
           color="success"
           startIcon={<LocalShippingOutlinedIcon sx={{ fontSize: 16 }} />}
@@ -213,7 +213,7 @@ export function OrdersPage() {
           Ship
         </Button>
         <Button
-          size="small"
+          size="medium"
           variant="outlined"
           color="error"
           startIcon={<CancelOutlinedIcon sx={{ fontSize: 16 }} />}

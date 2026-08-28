@@ -113,7 +113,7 @@ export function HistoryPage() {
 
       <SelectionBar count={selected.size} onClear={() => setSelected(new Set())}>
         <Button
-          size="small"
+          size="medium"
           variant="contained"
           startIcon={<ReplayRoundedIcon sx={{ fontSize: 16 }} />}
           onClick={() => {

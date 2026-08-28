@@ -15,3 +15,54 @@ body,
   font-feature-settings: 'tnum' 1;
   letter-spacing: -0.01em;
 }
+
+/* ------------------------------------------------------------------ *
+ * Motion — lightweight, one easing curve, all opt-in via class.
+ * Everything here collapses to a no-op under prefers-reduced-motion.
+ * ------------------------------------------------------------------ */
+@keyframes db-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes db-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/*
+ * Page / panel entrance. `backwards` (not `both`) on purpose: the element must
+ * NOT keep a `transform` after the animation ends, or `position: fixed`
+ * descendants (e.g. SelectionBar) would anchor to it instead of the viewport.
+ */
+.db-fade-in {
+  animation: db-fade-in 260ms cubic-bezier(0.22, 0.61, 0.36, 1) backwards;
+}
+
+/* Per-row entrance; callers set `style={{ animationDelay }}` for the stagger. */
+.db-row-in {
+  animation: db-row-in 240ms cubic-bezier(0.22, 0.61, 0.36, 1) backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

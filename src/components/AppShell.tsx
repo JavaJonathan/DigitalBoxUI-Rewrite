@@ -15,6 +15,8 @@ import { Logo, LogoMark } from './Logo';
 import { ColorModeToggle } from './ColorModeToggle';
 
 const SIDEBAR_WIDTH = 232;
+/** Shared reading measure — the header row and the page body align to this. */
+const CONTENT_MAX = 1440;
 
 const NAV = [
   { label: 'Queue', to: '/', icon: InboxOutlinedIcon, match: (p: string) => p === '/' },
@@ -29,6 +31,8 @@ interface AppShellProps {
   children: ReactNode;
   /** disable the default content padding (full-bleed pages) */
   disableGutters?: boolean;
+  /** override the shared content max-width (e.g. the detail view wants more room) */
+  contentMax?: number;
 }
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
@@ -128,9 +132,17 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-export function AppShell({ title, titleMeta, actions, children, disableGutters = false }: AppShellProps) {
+export function AppShell({
+  title,
+  titleMeta,
+  actions,
+  children,
+  disableGutters = false,
+  contentMax = CONTENT_MAX,
+}: AppShellProps) {
   const isDesktop = useMediaQuery('(min-width:900px)');
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const { pathname } = useLocation();
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'surface.canvas' }}>
@@ -165,42 +177,52 @@ export function AppShell({ title, titleMeta, actions, children, disableGutters =
             position: 'sticky',
             top: 0,
             zIndex: (t) => t.zIndex.appBar - 1,
-            height: 56,
-            px: { xs: 2, sm: 3 },
-            display: 'flex',
-            alignItems: 'center',
-            gap: 1.5,
             bgcolor: (t) => `color-mix(in srgb, ${(t.vars ?? t).palette.surface.canvas} 82%, transparent)`,
             backdropFilter: 'saturate(180%) blur(8px)',
             borderBottom: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
           }}
         >
-          {!isDesktop && (
-            <>
-              <IconButton size="small" edge="start" onClick={() => setDrawerOpen(true)} aria-label="Open navigation">
-                <MenuOutlinedIcon sx={{ fontSize: 20 }} />
-              </IconButton>
-              <LogoMark size={22} />
-            </>
-          )}
-          <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1.25, minWidth: 0 }}>
-            <Typography variant="h4" component="h1" noWrap sx={{ fontSize: '0.9375rem' }}>
-              {title}
-            </Typography>
-            {titleMeta}
+          <Box
+            sx={{
+              height: 56,
+              width: '100%',
+              maxWidth: contentMax,
+              mx: 'auto',
+              px: { xs: 2, sm: 3 },
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1.5,
+            }}
+          >
+            {!isDesktop && (
+              <>
+                <IconButton size="small" edge="start" onClick={() => setDrawerOpen(true)} aria-label="Open navigation">
+                  <MenuOutlinedIcon sx={{ fontSize: 20 }} />
+                </IconButton>
+                <LogoMark size={22} />
+              </>
+            )}
+            <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1.25, minWidth: 0 }}>
+              <Typography variant="h4" component="h1" noWrap sx={{ fontSize: '0.9375rem' }}>
+                {title}
+              </Typography>
+              {titleMeta}
+            </Box>
+            <Box sx={{ flex: 1 }} />
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>{actions}</Box>
           </Box>
-          <Box sx={{ flex: 1 }} />
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>{actions}</Box>
         </Box>
 
         <Box
+          key={pathname}
           component="main"
+          className="db-fade-in"
           sx={{
             flex: 1,
             px: disableGutters ? 0 : { xs: 2, sm: 3 },
             py: disableGutters ? 0 : { xs: 2, sm: 3 },
             width: '100%',
-            maxWidth: disableGutters ? 'none' : 1360,
+            maxWidth: disableGutters ? 'none' : contentMax,
             mx: 'auto',
           }}
         >

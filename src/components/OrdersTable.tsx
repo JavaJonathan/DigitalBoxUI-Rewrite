@@ -82,6 +82,7 @@ export function OrdersTable({
 
   return (
     <TableContainer
+      className="db-fade-in"
       sx={{
         border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
         borderRadius: 3,
@@ -90,7 +91,34 @@ export function OrdersTable({
         bgcolor: 'surface.panel',
       }}
     >
-      <Table stickyHeader size="small" sx={{ minWidth: isHistory ? 820 : 780 }}>
+      <Table
+        stickyHeader
+        size="small"
+        sx={{ tableLayout: 'fixed', minWidth: isHistory ? 1120 : 980 }}
+      >
+        {/*
+          Fixed layout + an explicit colgroup: every column except Order gets a
+          comfortable fixed width, and Order absorbs the rest — so the table
+          fills the page without the columns drifting apart on wide screens.
+        */}
+        <colgroup>
+          {selectable && <col style={{ width: 48 }} />}
+          {showFlag && <col style={{ width: 36 }} />}
+          <col />
+          <col style={{ width: 148 }} />
+          <col style={{ width: 84 }} />
+          <col style={{ width: 152 }} />
+          {isHistory ? (
+            <>
+              <col style={{ width: 120 }} />
+              <col style={{ width: 132 }} />
+              <col style={{ width: 152 }} />
+            </>
+          ) : (
+            <col style={{ width: 148 }} />
+          )}
+          <col style={{ width: 52 }} />
+        </colgroup>
         <TableHead>
           <TableRow>
             {selectable && (
@@ -121,7 +149,7 @@ export function OrdersTable({
           </TableRow>
         </TableHead>
         <TableBody>
-          {orders.map((order) => {
+          {orders.map((order, index) => {
             const overdue = isOverdue(order);
             const selected = selectedIds?.has(order.id) ?? false;
             return (
@@ -130,7 +158,13 @@ export function OrdersTable({
                 hover
                 selected={selected}
                 onClick={() => navigate(`/orders/${order.id}`)}
-                sx={{ cursor: 'pointer', '&:hover .db-row-hover': { opacity: 1 } }}
+                className="db-row-in"
+                style={{ animationDelay: `${Math.min(index, 10) * 22}ms` }}
+                sx={{
+                  cursor: 'pointer',
+                  '&:hover .db-row-hover': { opacity: 1 },
+                  '&:hover .db-chevron': { opacity: 1, transform: 'translateX(0)' },
+                }}
               >
                 {selectable && (
                   <TableCell padding="checkbox" sx={{ pl: 1.5 }} onClick={stop}>
@@ -167,8 +201,8 @@ export function OrdersTable({
                   </TableCell>
                 )}
 
-                <TableCell sx={{ py: 0.75, maxWidth: 340 }}>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.125, minWidth: 0 }}>
+                <TableCell sx={{ py: 0.75 }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.125, minWidth: 0, overflow: 'hidden' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, minWidth: 0 }}>
                       <Mono muted={!order.orderNumber} sx={{ fontWeight: 550, whiteSpace: 'nowrap' }}>
                         {order.orderNumber || 'No order number'}
@@ -206,7 +240,7 @@ export function OrdersTable({
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
-                        maxWidth: 340,
+                        maxWidth: '100%',
                       }}
                     >
                       {order.firstItemTitle || '—'}
@@ -234,7 +268,7 @@ export function OrdersTable({
                 </TableCell>
 
                 <TableCell>
-                  <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75 }}>
+                  <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75, whiteSpace: 'nowrap' }}>
                     <Typography component="span" sx={{ fontSize: '0.8125rem', color: order.shipDate ? 'text.primary' : 'text.disabled' }}>
                       {formatDate(order.shipDate)}
                     </Typography>
@@ -285,8 +319,14 @@ export function OrdersTable({
                     </Tooltip>
                   ) : (
                     <ChevronRightIcon
-                      className="db-row-hover"
-                      sx={{ fontSize: 16, color: 'text.disabled', opacity: 0, transition: 'opacity 100ms ease' }}
+                      className="db-chevron"
+                      sx={{
+                        fontSize: 16,
+                        color: 'text.disabled',
+                        opacity: 0,
+                        transform: 'translateX(-4px)',
+                        transition: 'opacity 120ms ease, transform 120ms ease',
+                      }}
                     />
                   )}
                 </TableCell>
