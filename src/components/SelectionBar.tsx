@@ -43,24 +43,24 @@ export function SelectionBar({ count, onClear, children }: SelectionBarProps) {
             pointerEvents: 'auto',
             display: 'flex',
             alignItems: 'center',
-            gap: { xs: '12px', sm: '20px' },
-            pl: '20px',
-            pr: '16px',
-            py: '14px',
-            borderRadius: '16px',
+            gap: { xs: 3, sm: 5 },
+            pl: 5,
+            pr: 4,
+            py: 3.5,
+            borderRadius: 2,
             bgcolor: 'surface.panel',
             border: (t) => `1px solid ${(t.vars ?? t).palette.surface.borderStrong}`,
             boxShadow: (t) =>
               `0 0 0 4px color-mix(in srgb, ${(t.vars ?? t).palette.primary.main} 22%, transparent), var(--db-shadow-lg)`,
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
             <Box
               sx={{
                 minWidth: 28,
                 height: 28,
-                px: '6px',
-                borderRadius: '8px',
+                px: 1.5,
+                borderRadius: 1,
                 bgcolor: 'primary.main',
                 color: 'primary.contrastText',
                 fontSize: '0.875rem',
@@ -86,15 +86,15 @@ export function SelectionBar({ count, onClear, children }: SelectionBarProps) {
               size="small"
               onClick={onClear}
               aria-label="Clear selection"
-              sx={{ ml: '2px' }}
+              sx={{ ml: 0.5 }}
             >
               <CloseRoundedIcon sx={{ fontSize: 19 }} />
             </IconButton>
           </Box>
 
-          <Divider orientation="vertical" flexItem sx={{ my: '2px' }} />
+          <Divider orientation="vertical" flexItem sx={{ my: 0.5 }} />
 
-          <Box sx={{ display: 'flex', gap: '10px' }}>{children}</Box>
+          <Box sx={{ display: 'flex', gap: 2.5 }}>{children}</Box>
         </Box>
       </Slide>
     </Box>

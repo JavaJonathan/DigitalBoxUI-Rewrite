@@ -3,14 +3,16 @@ import Box from '@mui/material/Box';
 import InputBase from '@mui/material/InputBase';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import FlagRoundedIcon from '@mui/icons-material/FlagRounded';
-import IconButton from '@mui/material/IconButton';
+import { alpha } from '@mui/material/styles';
 import { MARKETPLACES, type Marketplace } from '../types';
 import { MARKETPLACE_LABELS } from '../lib/format';
 import { MARKETPLACE_COLORS } from '../theme';
 import { SEARCH_DEBOUNCE_MS } from '../lib/constants';
+import { Kbd } from './ui/Kbd';
 
 export interface ToolbarState {
   q: string;
@@ -74,25 +76,26 @@ export function QueueToolbar({
   const hasFilters = showMarketplace || showPriority;
 
   return (
-    <Box sx={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+    <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap', alignItems: 'center' }}>
       <Box
         sx={{
           display: 'flex',
           alignItems: 'center',
-          gap: '10px',
+          gap: 2.5,
           height: 44,
-          px: '14px',
+          px: 3.5,
           flex: '1 1 300px',
           maxWidth: hasFilters ? { md: 640 } : 'none',
           minWidth: { xs: '100%', sm: 260 },
-          borderRadius: '10px',
+          borderRadius: 1.25,
           border: (t) => `1px solid ${(t.vars ?? t).palette.surface.borderStrong}`,
           bgcolor: 'surface.panel',
           transition: 'border-color 120ms ease, box-shadow 120ms ease',
           '& .search-icon': { color: 'text.disabled', transition: 'color 120ms ease' },
           '&:focus-within': {
             borderColor: 'primary.main',
-            boxShadow: (t) => `0 0 0 3px ${(t.vars ?? t).palette.primary.main}29`,
+            boxShadow: (t) =>
+              `0 0 0 3px color-mix(in srgb, ${(t.vars ?? t).palette.primary.main} 16%, transparent)`,
           },
           '&:focus-within .search-icon': { color: 'primary.main' },
         }}
@@ -116,28 +119,12 @@ export function QueueToolbar({
             size="small"
             onClick={() => setText('')}
             aria-label="Clear search"
-            sx={{ p: '2px' }}
+            sx={{ p: 0.5 }}
           >
             <CloseIcon sx={{ fontSize: 16 }} />
           </IconButton>
         ) : (
-          <Box
-            component="kbd"
-            sx={{
-              display: { xs: 'none', sm: 'block' },
-              fontFamily: 'var(--db-mono)',
-              fontSize: '0.75rem',
-              lineHeight: 1,
-              px: '6px',
-              py: '3px',
-              borderRadius: '6px',
-              border: (t) => `1px solid ${(t.vars ?? t).palette.surface.borderStrong}`,
-              bgcolor: 'surface.sunken',
-              color: 'text.disabled',
-            }}
-          >
-            /
-          </Box>
+          <Kbd sx={{ display: { xs: 'none', sm: 'inline-block' } }}>/</Kbd>
         )}
       </Box>
 
@@ -146,7 +133,7 @@ export function QueueToolbar({
           sx={{
             display: 'flex',
             alignItems: 'center',
-            gap: '10px',
+            gap: 2.5,
             flexWrap: 'wrap',
             ml: { md: 'auto' },
           }}
@@ -159,14 +146,14 @@ export function QueueToolbar({
               onChange={() => emit({ priority: !priority })}
               sx={{
                 border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
-                borderRadius: '9px !important',
-                px: '14px',
+                borderRadius: '9px !important', // !important overrides MUI's own toggle radius
+                px: 3.5,
                 height: 40,
                 fontSize: '0.8125rem',
                 fontWeight: 550,
                 color: 'text.secondary',
                 textTransform: 'none',
-                gap: '8px',
+                gap: 2,
                 '&.Mui-selected': {
                   bgcolor: (t) =>
                     `color-mix(in srgb, ${(t.vars ?? t).palette.primary.main} 12%, transparent)`,
@@ -193,13 +180,13 @@ export function QueueToolbar({
                 emit({ marketplace: val === 'all' || !val ? '' : (val as Marketplace) })
               }
               sx={{
-                gap: '6px',
+                gap: 1.5,
                 flexWrap: 'wrap',
                 maxWidth: '100%',
                 '& .MuiToggleButton-root': {
                   border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
                   borderRadius: '9px !important',
-                  px: '13px',
+                  px: 3.25,
                   height: 40,
                   fontSize: '0.8125rem',
                   fontWeight: 550,
@@ -223,8 +210,8 @@ export function QueueToolbar({
                       height: 8,
                       borderRadius: '50%',
                       bgcolor: MARKETPLACE_COLORS[m],
-                      mr: '8px',
-                      boxShadow: `0 0 0 3px ${MARKETPLACE_COLORS[m]}22`,
+                      mr: 2,
+                      boxShadow: `0 0 0 3px ${alpha(MARKETPLACE_COLORS[m], 0.13)}`,
                     }}
                   />
                   {MARKETPLACE_LABELS[m]}

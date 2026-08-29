@@ -1,4 +1,5 @@
 import Box from '@mui/material/Box';
+import { alpha } from '@mui/material/styles';
 import type { Marketplace } from '../../types';
 import { MARKETPLACE_LABELS } from '../../lib/format';
 import { MARKETPLACE_COLORS } from '../../theme';
@@ -8,7 +9,7 @@ interface MarketplaceTagProps {
 }
 
 export function MarketplaceTag({ marketplace }: MarketplaceTagProps) {
-  const color = MARKETPLACE_COLORS[marketplace] ?? MARKETPLACE_COLORS.Unknown;
+  const color = MARKETPLACE_COLORS[marketplace];
 
   return (
     <Box
@@ -30,7 +31,7 @@ export function MarketplaceTag({ marketplace }: MarketplaceTagProps) {
           borderRadius: '50%',
           bgcolor: color,
           flexShrink: 0,
-          boxShadow: `0 0 0 3px ${color}1f`,
+          boxShadow: `0 0 0 3px ${alpha(color, 0.12)}`,
         }}
       />
       {MARKETPLACE_LABELS[marketplace]}

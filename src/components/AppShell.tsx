@@ -1,28 +1,27 @@
 import { useState, type ReactNode } from 'react';
-import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import Tooltip from '@mui/material/Tooltip';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import InboxOutlinedIcon from '@mui/icons-material/InboxOutlined';
 import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
-import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
 import { useAuth } from '../auth/AuthContext';
 import { SIDEBAR_WIDTH } from '../lib/layout';
-import { EASE_BACK_OUT } from '../lib/constants';
 import { Logo, LogoMark } from './Logo';
-import { ColorModeToggle } from './ColorModeToggle';
+import { Kbd } from './ui/Kbd';
+import { SidebarNavItem, type NavItem } from './app-shell/SidebarNavItem';
+import { SidebarFooter } from './app-shell/SidebarFooter';
 
-const NAV = [
-  { label: 'Queue', to: '/', icon: InboxOutlinedIcon, match: (p: string) => p === '/' },
+const NAV: NavItem[] = [
+  { label: 'Queue', to: '/', icon: InboxOutlinedIcon, match: (p) => p === '/' },
   {
     label: 'History',
     to: '/history',
     icon: HistoryOutlinedIcon,
-    match: (p: string) => p.startsWith('/history'),
+    match: (p) => p.startsWith('/history'),
   },
 ];
 
@@ -49,7 +48,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       <Box
         sx={{
           height: 64,
-          px: '20px',
+          px: 5,
           display: 'flex',
           alignItems: 'center',
           borderBottom: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
@@ -60,19 +59,12 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
       <Box
         component="nav"
-        sx={{
-          flex: 1,
-          px: '12px',
-          pt: '16px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '4px',
-        }}
+        sx={{ flex: 1, px: 3, pt: 4, display: 'flex', flexDirection: 'column', gap: 1 }}
       >
         <Typography
           sx={{
-            px: '12px',
-            mb: '6px',
+            px: 3,
+            mb: 1.5,
             fontSize: '0.6875rem',
             fontWeight: 700,
             letterSpacing: '0.09em',
@@ -83,173 +75,31 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           Warehouse
         </Typography>
 
-        {NAV.map((item) => {
-          const active = item.match(location.pathname);
-          const Icon = item.icon;
-          return (
-            <Box
-              key={item.to}
-              component={RouterLink}
-              to={item.to}
-              onClick={onNavigate}
-              aria-current={active ? 'page' : undefined}
-              sx={{
-                position: 'relative',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                pl: '12px',
-                pr: '10px',
-                height: 46,
-                borderRadius: '12px',
-                textDecoration: 'none',
-                fontSize: '0.9375rem',
-                fontWeight: active ? 650 : 500,
-                color: active ? 'primary.main' : 'text.secondary',
-                bgcolor: active
-                  ? (t) =>
-                      `color-mix(in srgb, ${(t.vars ?? t).palette.primary.main} 12%, transparent)`
-                  : 'transparent',
-                transition: 'background-color 120ms ease, color 120ms ease',
-                '&:hover': {
-                  bgcolor: active
-                    ? (t) =>
-                        `color-mix(in srgb, ${(t.vars ?? t).palette.primary.main} 17%, transparent)`
-                    : 'surface.hover',
-                  color: active ? 'primary.main' : 'text.primary',
-                },
-                '&::before': {
-                  content: '""',
-                  position: 'absolute',
-                  left: -12,
-                  top: '50%',
-                  width: 3,
-                  height: 22,
-                  borderRadius: '0 3px 3px 0',
-                  bgcolor: 'primary.main',
-                  transform: `translateY(-50%) scaleY(${active ? 1 : 0})`,
-                  transition: `transform 180ms ${EASE_BACK_OUT}`,
-                },
-              }}
-            >
-              <Box
-                sx={{
-                  width: 30,
-                  height: 30,
-                  flexShrink: 0,
-                  borderRadius: '9px',
-                  display: 'grid',
-                  placeItems: 'center',
-                  bgcolor: active
-                    ? (t) =>
-                        `color-mix(in srgb, ${(t.vars ?? t).palette.primary.main} 20%, transparent)`
-                    : 'surface.sunken',
-                  color: active ? 'primary.main' : 'text.secondary',
-                  transition: 'background-color 120ms ease, color 120ms ease',
-                  '& svg': { fontSize: 19 },
-                }}
-              >
-                <Icon />
-              </Box>
-              {item.label}
-            </Box>
-          );
-        })}
+        {NAV.map((item) => (
+          <SidebarNavItem
+            key={item.to}
+            item={item}
+            active={item.match(location.pathname)}
+            onNavigate={onNavigate}
+          />
+        ))}
 
         <Box sx={{ flex: 1 }} />
 
         <Typography
           sx={{
-            px: '12px',
-            pb: '4px',
+            px: 3,
+            pb: 1,
             fontSize: '0.6875rem',
             color: 'text.disabled',
             display: { xs: 'none', md: 'block' },
           }}
         >
-          Press{' '}
-          <Box
-            component="kbd"
-            sx={{
-              fontFamily: 'var(--db-mono)',
-              fontSize: '0.6875rem',
-              px: '5px',
-              py: '1px',
-              borderRadius: '5px',
-              border: (t) => `1px solid ${(t.vars ?? t).palette.surface.borderStrong}`,
-              bgcolor: 'surface.sunken',
-              color: 'text.secondary',
-            }}
-          >
-            /
-          </Box>{' '}
-          to search
+          Press <Kbd size="sm">/</Kbd> to search
         </Typography>
       </Box>
 
-      <Box
-        sx={{ p: '12px', borderTop: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}` }}
-      >
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '8px',
-            p: '12px',
-            borderRadius: '12px',
-            border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
-            bgcolor: 'surface.sunken',
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Box
-              sx={{
-                width: 36,
-                height: 36,
-                borderRadius: '50%',
-                display: 'grid',
-                placeItems: 'center',
-                bgcolor: 'primary.main',
-                color: 'primary.contrastText',
-                fontSize: '0.8125rem',
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                flexShrink: 0,
-              }}
-            >
-              {(user?.username ?? '?').slice(0, 2)}
-            </Box>
-            <Box sx={{ minWidth: 0, flex: 1 }}>
-              <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, lineHeight: 1.3 }} noWrap>
-                {user?.username}
-              </Typography>
-              <Typography
-                sx={{ fontSize: '0.75rem', color: 'text.disabled', lineHeight: 1.3 }}
-                noWrap
-              >
-                Shared warehouse login
-              </Typography>
-            </Box>
-          </Box>
-
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              pt: '8px',
-              borderTop: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
-            }}
-          >
-            <ColorModeToggle />
-            <Tooltip title="Sign out" placement="top" arrow>
-              <IconButton onClick={signOut} aria-label="Sign out">
-                <LogoutOutlinedIcon sx={{ fontSize: 19 }} />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        </Box>
-      </Box>
+      <SidebarFooter username={user?.username} onSignOut={signOut} />
     </Box>
   );
 }

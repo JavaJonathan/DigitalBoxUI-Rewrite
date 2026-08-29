@@ -1,4 +1,5 @@
 import { createTheme, alpha } from '@mui/material/styles';
+import type { Marketplace } from './types';
 
 /* ------------------------------------------------------------------ *
  * DigitalBox design system
@@ -23,7 +24,7 @@ const brand = {
   900: '#1c376e',
 };
 
-export const MARKETPLACE_COLORS: Record<string, string> = {
+export const MARKETPLACE_COLORS: Record<Marketplace, string> = {
   Amazon: '#ff9900',
   Ebay: '#e53238',
   Walmart: '#0071dc',
