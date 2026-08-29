@@ -113,9 +113,9 @@ export function HistoryPage() {
 
       <SelectionBar count={selected.size} onClear={() => setSelected(new Set())}>
         <Button
-          size="medium"
+          size="large"
           variant="contained"
-          startIcon={<ReplayRoundedIcon sx={{ fontSize: 16 }} />}
+          startIcon={<ReplayRoundedIcon sx={{ fontSize: 18 }} />}
           onClick={() => {
             setUndoIds([...selected]);
             setConfirmOpen(true);

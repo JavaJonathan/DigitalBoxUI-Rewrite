@@ -98,19 +98,28 @@ tabs), `/orders/:id` (detail + packing-slip viewer + correction form). Everythin
   + a "Priority" toggle (`showPriority`). `onChange` emits `ToolbarState { q, marketplace, priority }`;
   the toggles fire immediately, the text field debounces.
 - `OrdersTable` — one table for queue and history. Optional callbacks: `onTogglePriority` (flag
-  cell, queue only), `onEditNote` (note icon → opens a popover), `onUndoRow` (per-row Reopen,
-  history only). Hover-reveal elements use the `.db-row-hover` class. Has `minWidth` so it
-  scrolls horizontally instead of squishing on narrow screens.
-- `SelectionBar` — floating pill; generalized to `{ count, onClear, children }` — each page passes
-  its own action buttons (queue: Ship/Cancel; history: Reopen).
+  cell, queue only), `onEditNote` (queue **Notes** column — click the cell to open the popover;
+  empty cells hover-reveal an add icon), `onUndoRow` (per-row Reopen, history only). Hover-reveal
+  elements use the `.db-row-hover` class. Has `minWidth` so it scrolls horizontally instead of
+  squishing on narrow screens. Parse status is **not a column** — a non-`Parsed` order shows a
+  warning/error icon next to its number (tooltip from `PARSE_STATUS_HINTS`); history rows show a
+  note-present icon there instead.
+- `SelectionBar` — floating pill, bottom-centre over the content, deliberately **loud**
+  (large `size="large"` buttons, 28px count badge, a `color-mix` primary ring + `--db-shadow-lg`,
+  back-out slide-up). Generalized to `{ count, onClear, children }` — each page passes its own
+  action buttons (queue: Ship/Cancel; history: Reopen). This and the toast are the two
+  intentional exceptions to the quiet-UI rule: a warehouse operator must not miss them.
 - `NotePopover` — anchored multiline note editor (500-char cap, Cmd/Ctrl+Enter saves).
 - `UploadDialog` — drag-drop multi-PDF; per-file created/duplicate/error result list.
 - `ShippableItemsDialog` — drop inventory CSV → map columns (auto-detected client-side via
   `lib/csv.ts`) → preview table → Download CSV (built client-side, BOM + CRLF).
 - `ConfirmActionDialog` — `intent: 'ship' | 'cancel' | 'undo'`, 3-way copy config; requires
   operator name → `actionedBy`.
-- `ToastProvider` / `useToast` — MUI Snackbar (bottom-right, slide-up); severity passed
-  explicitly, never string-matched (the old app's fragile pattern).
+- `ToastProvider` / `useToast` — MUI Snackbar, **top-centre over the content**, a big solid
+  `palette[severity].main` bar (28px icon, 16px/600 text, `contrastText`), slide-down with a
+  back-out easing; errors linger (9s) longer than success (4.5s). Severity is passed explicitly,
+  never string-matched (the old app's fragile pattern). Not an MUI `<Alert>` — a plain styled
+  `Box`, because the theme's `MuiAlert` root forces `surface.panel` bg and would kill the fill.
 - `ui/` primitives: `Mono`, `MarketplaceTag`, `StatusBadge` (`OrderStatusBadge` / `ParseStatusBadge`),
   `RelativeTime`, `EmptyState`, `TableSkeleton`, `EventTimeline`.
 

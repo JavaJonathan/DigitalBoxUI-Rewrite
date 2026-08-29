@@ -4,7 +4,7 @@ import Divider from '@mui/material/Divider';
 import Slide from '@mui/material/Slide';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
-import CloseIcon from '@mui/icons-material/Close';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 
 const SIDEBAR_WIDTH = 232;
 
@@ -21,7 +21,7 @@ export function SelectionBar({ count, onClear, children }: SelectionBarProps) {
     <Box
       sx={{
         position: 'fixed',
-        bottom: { xs: 16, md: 28 },
+        bottom: { xs: 20, md: 36 },
         left: { xs: 12, md: `${SIDEBAR_WIDTH}px` },
         right: 12,
         display: 'flex',
@@ -30,32 +30,40 @@ export function SelectionBar({ count, onClear, children }: SelectionBarProps) {
         pointerEvents: 'none',
       }}
     >
-      <Slide in={count > 0} direction="up" mountOnEnter unmountOnExit>
+      <Slide
+        in={count > 0}
+        direction="up"
+        mountOnEnter
+        unmountOnExit
+        timeout={{ enter: 340, exit: 180 }}
+        easing={{ enter: 'cubic-bezier(0.34, 1.5, 0.64, 1)', exit: 'ease-in' }}
+      >
         <Box
           sx={{
             pointerEvents: 'auto',
             display: 'flex',
             alignItems: 'center',
-            gap: 2,
-            pl: 2,
-            pr: 1.5,
-            py: 1.25,
-            borderRadius: 3,
+            gap: { xs: '12px', sm: '20px' },
+            pl: '20px',
+            pr: '16px',
+            py: '14px',
+            borderRadius: '16px',
             bgcolor: 'surface.panel',
-            border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
-            boxShadow: 'var(--db-shadow-lg)',
+            border: (t) => `1px solid ${(t.vars ?? t).palette.surface.borderStrong}`,
+            boxShadow: (t) =>
+              `0 0 0 4px color-mix(in srgb, ${(t.vars ?? t).palette.primary.main} 22%, transparent), var(--db-shadow-lg)`,
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <Box
               sx={{
-                minWidth: 22,
-                height: 22,
-                px: 0.625,
-                borderRadius: 1.5,
+                minWidth: 28,
+                height: 28,
+                px: '6px',
+                borderRadius: '8px',
                 bgcolor: 'primary.main',
                 color: 'primary.contrastText',
-                fontSize: '0.75rem',
+                fontSize: '0.875rem',
                 fontWeight: 700,
                 display: 'grid',
                 placeItems: 'center',
@@ -64,17 +72,24 @@ export function SelectionBar({ count, onClear, children }: SelectionBarProps) {
             >
               {count}
             </Box>
-            <Typography sx={{ fontSize: '0.8125rem', color: 'text.secondary', whiteSpace: 'nowrap' }}>
+            <Typography
+              sx={{
+                fontSize: '0.9375rem',
+                fontWeight: 600,
+                color: 'text.primary',
+                whiteSpace: 'nowrap',
+              }}
+            >
               selected
             </Typography>
-            <IconButton size="small" onClick={onClear} aria-label="Clear selection">
-              <CloseIcon sx={{ fontSize: 15 }} />
+            <IconButton size="small" onClick={onClear} aria-label="Clear selection" sx={{ ml: '2px' }}>
+              <CloseRoundedIcon sx={{ fontSize: 19 }} />
             </IconButton>
           </Box>
 
-          <Divider orientation="vertical" flexItem sx={{ my: 0.25 }} />
+          <Divider orientation="vertical" flexItem sx={{ my: '2px' }} />
 
-          <Box sx={{ display: 'flex', gap: 1 }}>{children}</Box>
+          <Box sx={{ display: 'flex', gap: '10px' }}>{children}</Box>
         </Box>
       </Slide>
     </Box>

@@ -13,15 +13,16 @@ import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
+import ErrorOutlineRoundedIcon from '@mui/icons-material/ErrorOutlineRounded';
 import FlagRoundedIcon from '@mui/icons-material/FlagRounded';
 import OutlinedFlagIcon from '@mui/icons-material/OutlinedFlag';
 import StickyNote2OutlinedIcon from '@mui/icons-material/StickyNote2Outlined';
 import ReplayRoundedIcon from '@mui/icons-material/ReplayRounded';
 import type { OrderListItem, OrderStatus } from '../types';
-import { formatDate } from '../lib/format';
+import { formatDate, PARSE_STATUS_HINTS } from '../lib/format';
 import { Mono } from './ui/Mono';
 import { MarketplaceTag } from './ui/MarketplaceTag';
-import { OrderStatusBadge, ParseStatusBadge } from './ui/StatusBadge';
+import { OrderStatusBadge } from './ui/StatusBadge';
 import { RelativeTime } from './ui/RelativeTime';
 
 type SortKey = 'shipDate' | 'title';
@@ -94,7 +95,7 @@ export function OrdersTable({
       <Table
         stickyHeader
         size="small"
-        sx={{ tableLayout: 'fixed', minWidth: isHistory ? 1100 : 1040 }}
+        sx={{ tableLayout: 'fixed', minWidth: isHistory ? 1100 : 1080 }}
       >
         {/*
           Fixed layout + an explicit colgroup. Every column except Order has a
@@ -106,7 +107,7 @@ export function OrdersTable({
         <colgroup>
           {selectable && <col style={{ width: 40 }} />}
           {showFlag && <col style={{ width: 32 }} />}
-          <col style={{ width: isHistory ? '36%' : '48%' }} />
+          <col style={{ width: isHistory ? '36%' : '42%' }} />
           <col style={{ width: 124 }} />
           <col style={{ width: 60 }} />
           <col style={{ width: 128 }} />
@@ -117,7 +118,7 @@ export function OrdersTable({
               <col style={{ width: 128 }} />
             </>
           ) : (
-            <col style={{ width: 120 }} />
+            <col style={{ width: '17%' }} />
           )}
           <col style={{ width: 44 }} />
           <col />
@@ -146,7 +147,7 @@ export function OrdersTable({
                 <TableCell>Operator</TableCell>
               </>
             ) : (
-              <TableCell>Parse</TableCell>
+              <TableCell>Notes</TableCell>
             )}
             <TableCell padding="checkbox" />
             <TableCell aria-hidden sx={{ p: 0 }} />
@@ -207,33 +208,28 @@ export function OrdersTable({
 
                 <TableCell sx={{ py: 0.75 }}>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.125, minWidth: 0, overflow: 'hidden' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, minWidth: 0 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.625, minWidth: 0 }}>
                       <Mono muted={!order.orderNumber} sx={{ fontWeight: 550, whiteSpace: 'nowrap' }}>
                         {order.orderNumber || 'No order number'}
                       </Mono>
-                      {(order.notes || onEditNote) && (
-                        <Tooltip title={order.notes || 'Add a note'} arrow>
-                          <IconButton
-                            size="small"
-                            onClick={
-                              onEditNote
-                                ? (e) => {
-                                    stop(e);
-                                    onEditNote(order, e.currentTarget);
-                                  }
-                                : undefined
-                            }
-                            aria-label="Note"
-                            sx={{
-                              p: 0.25,
-                              color: order.notes ? 'warning.main' : 'text.disabled',
-                              opacity: order.notes ? 1 : 0,
-                              cursor: onEditNote ? 'pointer' : 'default',
-                            }}
-                            className={order.notes ? undefined : 'db-row-hover'}
-                          >
-                            <StickyNote2OutlinedIcon sx={{ fontSize: 13 }} />
-                          </IconButton>
+                      {!isHistory && order.parseStatus !== 'Parsed' && (
+                        <Tooltip title={PARSE_STATUS_HINTS[order.parseStatus]} arrow>
+                          {order.parseStatus === 'Failed' ? (
+                            <ErrorOutlineRoundedIcon
+                              sx={{ fontSize: 14, flexShrink: 0, color: 'error.main' }}
+                            />
+                          ) : (
+                            <WarningAmberRoundedIcon
+                              sx={{ fontSize: 14, flexShrink: 0, color: 'warning.main' }}
+                            />
+                          )}
+                        </Tooltip>
+                      )}
+                      {isHistory && order.notes && (
+                        <Tooltip title={order.notes} arrow>
+                          <StickyNote2OutlinedIcon
+                            sx={{ fontSize: 13, flexShrink: 0, color: 'text.disabled' }}
+                          />
                         </Tooltip>
                       )}
                     </Box>
@@ -299,12 +295,44 @@ export function OrdersTable({
                     </TableCell>
                   </>
                 ) : (
-                  <TableCell>
-                    {order.parseStatus === 'Parsed' ? (
-                      <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>OK</Typography>
-                    ) : (
-                      <ParseStatusBadge status={order.parseStatus} />
-                    )}
+                  <TableCell
+                    onClick={
+                      onEditNote
+                        ? (e) => {
+                            stop(e);
+                            onEditNote(order, e.currentTarget);
+                          }
+                        : undefined
+                    }
+                    sx={{ cursor: onEditNote ? 'pointer' : undefined }}
+                  >
+                    {order.notes ? (
+                      <Tooltip title={order.notes} arrow>
+                        <Typography
+                          sx={{
+                            fontSize: '0.75rem',
+                            color: 'text.secondary',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            maxWidth: '100%',
+                          }}
+                        >
+                          {order.notes}
+                        </Typography>
+                      </Tooltip>
+                    ) : onEditNote ? (
+                      <StickyNote2OutlinedIcon
+                        className="db-row-hover"
+                        sx={{
+                          fontSize: 14,
+                          color: 'text.disabled',
+                          opacity: 0,
+                          transition: 'opacity 100ms ease',
+                          display: 'block',
+                        }}
+                      />
+                    ) : null}
                   </TableCell>
                 )}
 

@@ -51,6 +51,13 @@ export const PARSE_STATUS_LABELS: Record<ParseStatus, string> = {
   Failed: 'Parse failed',
 };
 
+/** Shown as the tooltip on the parse-warning icon next to an order number. */
+export const PARSE_STATUS_HINTS: Record<ParseStatus, string> = {
+  Parsed: '',
+  NeedsReview: 'Some details may be wrong — open the order and check against the slip before shipping.',
+  Failed: "Couldn't read this packing slip — open the order to enter the details manually.",
+};
+
 export const STATUS_LABELS: Record<OrderStatus, string> = {
   Open: 'Open',
   Shipped: 'Shipped',
