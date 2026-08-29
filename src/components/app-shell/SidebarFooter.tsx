@@ -4,6 +4,7 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import { ColorModeToggle } from '../ColorModeToggle';
+import { PoweredByHsl } from '../PoweredByHsl';
 
 export function SidebarFooter({
   username,
@@ -72,6 +73,10 @@ export function SidebarFooter({
             </IconButton>
           </Tooltip>
         </Box>
+      </Box>
+
+      <Box sx={{ mt: 2.5, display: 'flex', justifyContent: 'center' }}>
+        <PoweredByHsl size={15} />
       </Box>
     </Box>
   );

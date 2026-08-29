@@ -14,6 +14,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useAuth } from '../auth/AuthContext';
 import { getApiErrorMessage } from '../api/client';
 import { Logo } from '../components/Logo';
+import { PoweredByHsl } from '../components/PoweredByHsl';
 import { ColorModeToggle } from '../components/ColorModeToggle';
 
 export function LoginPage() {
@@ -140,9 +141,12 @@ export function LoginPage() {
           </Stack>
         </Paper>
 
-        <Typography variant="caption" sx={{ color: 'text.disabled', textAlign: 'center' }}>
-          DigitalBox — warehouse fulfillment
-        </Typography>
+        <Stack spacing={1.25} sx={{ alignItems: 'center' }}>
+          <Typography variant="caption" sx={{ color: 'text.disabled', textAlign: 'center' }}>
+            DigitalBox — warehouse fulfillment
+          </Typography>
+          <PoweredByHsl />
+        </Stack>
       </Stack>
     </Box>
   );
