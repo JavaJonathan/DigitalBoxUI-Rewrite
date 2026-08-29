@@ -62,6 +62,10 @@ Full redesign, 2026 — target aesthetic is Linear / Vercel / Stripe dashboard: 
 - Fonts: Inter Variable for UI, Geist Mono for order numbers / SKUs / IDs (`.db-mono` class or
   the `<Mono>` component, which also does click-to-copy).
 - Shadow tokens: `var(--db-shadow-sm | -md | -lg)` (defined in `MuiCssBaseline`, light + dark).
+- Spacing base is **4px** (`theme.spacing = 4`), radius base **8px** (`shape.borderRadius = 8`) —
+  so sx `p: 3` = 12px, `borderRadius: 3` = 24px, `borderRadius: 1.5` = 12px. Use multipliers for
+  padding / margin / gap / borderRadius; raw px numbers only for fixed dimensions (`height`,
+  `width`, `fontSize`).
 - Motion: two opt-in classes in `index.css` — `.db-fade-in` (page/panel entrance, **opacity
   only** — `<main>` carries it and also holds the `position: fixed` SelectionBar, so a
   `transform` there would re-anchor the fixed child) and `.db-row-in` (per-row; caller sets
@@ -69,9 +73,9 @@ Full redesign, 2026 — target aesthetic is Linear / Vercel / Stripe dashboard: 
   `prefers-reduced-motion` block neutralises all of it. `AppShell` keys `<main>` by pathname
   so every route change replays `.db-fade-in`.
 - Layout: `AppShell` content is **full-width** (viewport minus `px` gutters) — no centred
-  max-width, an ops tool shouldn't waste pixels on a wide monitor. The `contentMax` prop can
-  still cap a specific page. The sticky-header row uses the same width + gutters so the page
-  title / header actions stay aligned with the table edges. `OrdersTable` uses
+  max-width, an ops tool shouldn't waste pixels on a wide monitor. The sticky-header row uses
+  the same width + gutters so the page title / header actions stay aligned with the table
+  edges. `OrdersTable` uses
   `tableLayout: 'fixed'` + an explicit `<colgroup>`: every column except Order has a fixed
   px width; Order is a percentage (`48%` queue / `36%` history) so it grows with the viewport
   and long product titles get room; a small trailing spacer `<col>` (+ matching `aria-hidden`
@@ -100,11 +104,10 @@ tabs), `/orders/:id` (detail + packing-slip viewer + correction form). Everythin
 **Key components**:
 - `AppShell` — fixed left sidebar (`SIDEBAR_WIDTH` = 260, exported from `lib/layout.ts` and
   reused by `SelectionBar` + the toast so they stay aligned) at ≥900px / `Drawer` (<900px),
-  plus a 64px sticky blurred topbar (page title + `actions` slot). Sidebar: 64px brand header,
-  an uppercase "Warehouse" label, tall 46px nav rows (icon in a rounded tile + an animated
-  `::before` accent bar on the active row, both primary-tinted via `color-mix`), a flex spacer,
-  a "Press / to search" hint, then a bordered footer card (avatar + username, then a divider row
-  with `ColorModeToggle` + sign-out).
+  plus a 64px sticky blurred topbar (page title + `actions` slot). Sidebar body split into
+  `components/app-shell/`: `SidebarNavItem` (the 46px nav row — icon tile + animated `::before`
+  accent bar, active state primary-tinted via one `tint()` helper) and `SidebarFooter` (avatar
+  card + `ColorModeToggle` + sign-out). Content is full-width with `{ xs: 3, sm: 4, lg: 6 }` gutters.
 - `Logo` / `LogoMark` — inline-SVG isometric-box monogram.
 - `QueueToolbar` — a tall (44px) search field that grows to fill the row (with a `/` kbd hint
   and a global `/`-to-focus / `Esc`-to-clear handler) + a right-aligned filter cluster:
@@ -112,23 +115,28 @@ tabs), `/orders/:id` (detail + packing-slip viewer + correction form). Everythin
   neither filter is shown (history) the cluster is omitted and the search runs full-width.
   `onChange` emits `ToolbarState { q, marketplace, priority }`; the toggles fire immediately,
   the text field debounces.
-- `OrdersTable` — one table for queue and history. Optional callbacks: `onTogglePriority` (flag
-  cell, queue only), `onEditNote` (queue **Notes** column — click the cell to open the popover;
-  empty cells hover-reveal an add icon), `onUndoRow` (per-row Reopen, history only). Hover-reveal
-  elements use the `.db-row-hover` class. Has `minWidth` so it scrolls horizontally instead of
-  squishing on narrow screens. Parse status is **not a column** — a non-`Parsed` order shows a
-  warning/error icon next to its number (tooltip from `PARSE_STATUS_HINTS`); history rows show a
-  note-present icon there instead.
+- `OrdersTable` — one table for queue and history (`status` picks which). Just the container +
+  header + `.map` shell now; each row is `orders-table/OrdersTableRow` (with `OrderPrimaryCell`
+  / `NotesCell` local to it), and the `<colgroup>` widths + coupled `minWidth` live in
+  `orders-table/orderColumns.ts`. Callbacks: `onTogglePriority` (flag cell, queue only),
+  `onEditNote` (queue **Notes** column — click to open the popover; empty cells hover-reveal an
+  add icon), `onReopenRow` (per-row Reopen, history only). Hover-reveal elements use
+  `.db-row-hover`. Parse status is **not a column** — a non-`Parsed` order shows a warning/error
+  icon next to its number (tooltip from `PARSE_STATUS_HINTS`); history rows show a note-present
+  icon there instead.
+- `OrderDetailPage` is a thin shell over `components/order-detail/`: `OrderInfoPanel` (read
+  view), `OrderEditForm` (correction form, owns its edit state — mount `key={order.id}`),
+  `OrderNoteCard`, `PackingSlipPanel` (owns the blob-URL effect).
 - `SelectionBar` — floating pill, bottom-centre over the content, deliberately **loud**
   (large `size="large"` buttons, 28px count badge, a `color-mix` primary ring + `--db-shadow-lg`,
   back-out slide-up). Generalized to `{ count, onClear, children }` — each page passes its own
   action buttons (queue: Ship/Cancel; history: Reopen). This and the toast are the two
   intentional exceptions to the quiet-UI rule: a warehouse operator must not miss them.
-- `NotePopover` — anchored multiline note editor (500-char cap, Cmd/Ctrl+Enter saves).
-- `UploadDialog` — drag-drop multi-PDF; per-file created/duplicate/error result list.
-- `ShippableItemsDialog` — drop inventory CSV → map columns (auto-detected client-side via
-  `lib/csv.ts`) → preview table → Download CSV (built client-side, BOM + CRLF).
-- `ConfirmActionDialog` — `intent: 'ship' | 'cancel' | 'undo'`, 3-way copy config; requires
+- `NotePopover` — anchored popover around the shared `ui/NoteEditor` (Cmd/Ctrl+Enter saves).
+- `UploadDialog` / `ShippableItemsDialog` — both use the shared `ui/FileDropzone` for the
+  drag-drop area. ShippableItems: drop CSV → map columns (auto-detected via `lib/csv.ts`) →
+  preview → Download CSV (client-side, BOM + CRLF).
+- `ConfirmActionDialog` — `intent: 'ship' | 'cancel' | 'reopen'`, 3-way copy config; requires
   operator name → `actionedBy`.
 - `ToastProvider` / `useToast` — MUI Snackbar, **top-centre over the content**, a big solid
   `palette[severity].main` bar (28px icon, 16px/600 text, `contrastText`), slide-down with a
@@ -136,7 +144,8 @@ tabs), `/orders/:id` (detail + packing-slip viewer + correction form). Everythin
   never string-matched (the old app's fragile pattern). Not an MUI `<Alert>` — a plain styled
   `Box`, because the theme's `MuiAlert` root forces `surface.panel` bg and would kill the fill.
 - `ui/` primitives: `Mono`, `MarketplaceTag`, `StatusBadge` (`OrderStatusBadge` / `ParseStatusBadge`),
-  `RelativeTime`, `EmptyState`, `TableSkeleton`, `EventTimeline`.
+  `RelativeTime`, `EmptyState`, `TableSkeleton`, `EventTimeline`, `Kbd`, `FileDropzone`,
+  `NoteEditor`, `PriorityToggle`.
 
 Marketplace accent colours: `MARKETPLACE_COLORS` in `theme.ts` (Amazon orange, eBay red,
 Walmart blue, Shopify green) — used only as small dots, never as fills.
