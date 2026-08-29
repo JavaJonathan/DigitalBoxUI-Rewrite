@@ -15,8 +15,6 @@ import { Logo, LogoMark } from './Logo';
 import { ColorModeToggle } from './ColorModeToggle';
 
 const SIDEBAR_WIDTH = 232;
-/** Shared reading measure — the header row and the page body align to this. */
-const CONTENT_MAX = 1440;
 
 const NAV = [
   { label: 'Queue', to: '/', icon: InboxOutlinedIcon, match: (p: string) => p === '/' },
@@ -31,7 +29,11 @@ interface AppShellProps {
   children: ReactNode;
   /** disable the default content padding (full-bleed pages) */
   disableGutters?: boolean;
-  /** override the shared content max-width (e.g. the detail view wants more room) */
+  /**
+   * Optional cap on the content width. Left undefined the content fills the
+   * viewport (minus the gutters) — an ops tool has no reason to waste the pixels
+   * on a wide monitor.
+   */
   contentMax?: number;
 }
 
@@ -138,7 +140,7 @@ export function AppShell({
   actions,
   children,
   disableGutters = false,
-  contentMax = CONTENT_MAX,
+  contentMax,
 }: AppShellProps) {
   const isDesktop = useMediaQuery('(min-width:900px)');
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -186,9 +188,9 @@ export function AppShell({
             sx={{
               height: 56,
               width: '100%',
-              maxWidth: contentMax,
+              maxWidth: contentMax ?? 'none',
               mx: 'auto',
-              px: { xs: 2, sm: 3 },
+              px: { xs: 3, sm: 4, lg: 6 },
               display: 'flex',
               alignItems: 'center',
               gap: 1.5,
@@ -219,10 +221,10 @@ export function AppShell({
           className="db-fade-in"
           sx={{
             flex: 1,
-            px: disableGutters ? 0 : { xs: 2, sm: 3 },
-            py: disableGutters ? 0 : { xs: 2, sm: 3 },
+            px: disableGutters ? 0 : { xs: 3, sm: 4, lg: 6 },
+            py: disableGutters ? 0 : { xs: 3, sm: 4 },
             width: '100%',
-            maxWidth: disableGutters ? 'none' : contentMax,
+            maxWidth: disableGutters ? 'none' : (contentMax ?? 'none'),
             mx: 'auto',
           }}
         >

@@ -94,30 +94,33 @@ export function OrdersTable({
       <Table
         stickyHeader
         size="small"
-        sx={{ tableLayout: 'fixed', minWidth: isHistory ? 1120 : 980 }}
+        sx={{ tableLayout: 'fixed', minWidth: isHistory ? 1100 : 1040 }}
       >
         {/*
-          Fixed layout + an explicit colgroup: every column except Order gets a
-          comfortable fixed width, and Order absorbs the rest — so the table
-          fills the page without the columns drifting apart on wide screens.
+          Fixed layout + an explicit colgroup. Every column except Order has a
+          fixed width; Order takes a share of the viewport so long product
+          titles get room; a small trailing spacer <col> keeps a little air on
+          the right of very wide screens without letting the data columns drift
+          apart. (Matching aria-hidden <td>s carry the spacer through the body.)
         */}
         <colgroup>
-          {selectable && <col style={{ width: 48 }} />}
-          {showFlag && <col style={{ width: 36 }} />}
-          <col />
-          <col style={{ width: 148 }} />
-          <col style={{ width: 84 }} />
-          <col style={{ width: 152 }} />
+          {selectable && <col style={{ width: 40 }} />}
+          {showFlag && <col style={{ width: 32 }} />}
+          <col style={{ width: isHistory ? '36%' : '48%' }} />
+          <col style={{ width: 124 }} />
+          <col style={{ width: 60 }} />
+          <col style={{ width: 128 }} />
           {isHistory ? (
             <>
-              <col style={{ width: 120 }} />
-              <col style={{ width: 132 }} />
-              <col style={{ width: 152 }} />
+              <col style={{ width: 100 }} />
+              <col style={{ width: 116 }} />
+              <col style={{ width: 128 }} />
             </>
           ) : (
-            <col style={{ width: 148 }} />
+            <col style={{ width: 120 }} />
           )}
-          <col style={{ width: 52 }} />
+          <col style={{ width: 44 }} />
+          <col />
         </colgroup>
         <TableHead>
           <TableRow>
@@ -146,6 +149,7 @@ export function OrdersTable({
               <TableCell>Parse</TableCell>
             )}
             <TableCell padding="checkbox" />
+            <TableCell aria-hidden sx={{ p: 0 }} />
           </TableRow>
         </TableHead>
         <TableBody>
@@ -330,6 +334,7 @@ export function OrdersTable({
                     />
                   )}
                 </TableCell>
+                <TableCell aria-hidden sx={{ p: 0 }} />
               </TableRow>
             );
           })}

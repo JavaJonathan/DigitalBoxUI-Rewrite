@@ -23,11 +23,9 @@ body,
 @keyframes db-fade-in {
   from {
     opacity: 0;
-    transform: translateY(6px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -43,15 +41,20 @@ body,
 }
 
 /*
- * Page / panel entrance. `backwards` (not `both`) on purpose: the element must
- * NOT keep a `transform` after the animation ends, or `position: fixed`
- * descendants (e.g. SelectionBar) would anchor to it instead of the viewport.
+ * Page / panel entrance — opacity only, deliberately no `transform`: <main>
+ * carries this class and also contains the `position: fixed` SelectionBar; any
+ * transform on an ancestor would re-anchor the fixed child to it. No fill-mode
+ * either, so a paused/never-run animation leaves the element at its base
+ * opacity (visible) rather than stuck transparent.
  */
 .db-fade-in {
-  animation: db-fade-in 260ms cubic-bezier(0.22, 0.61, 0.36, 1) backwards;
+  animation: db-fade-in 240ms ease;
 }
 
-/* Per-row entrance; callers set `style={{ animationDelay }}` for the stagger. */
+/*
+ * Per-row entrance; callers set `style={{ animationDelay }}` for the stagger.
+ * `backwards` (not `both`) so no per-row transform lingers.
+ */
 .db-row-in {
   animation: db-row-in 240ms cubic-bezier(0.22, 0.61, 0.36, 1) backwards;
 }

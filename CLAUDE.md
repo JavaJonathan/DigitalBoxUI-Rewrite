@@ -55,16 +55,21 @@ Full redesign, 2026 — target aesthetic is Linear / Vercel / Stripe dashboard: 
 - Fonts: Inter Variable for UI, Geist Mono for order numbers / SKUs / IDs (`.db-mono` class or
   the `<Mono>` component, which also does click-to-copy).
 - Shadow tokens: `var(--db-shadow-sm | -md | -lg)` (defined in `MuiCssBaseline`, light + dark).
-- Motion: two opt-in classes in `index.css` — `.db-fade-in` (page/panel entrance) and
-  `.db-row-in` (per-row; caller sets `style={{ animationDelay }}` for the stagger, capped at
-  ~10 rows). One easing curve. A global `prefers-reduced-motion` block neutralises all of it.
-  `AppShell` keys `<main>` by pathname so every route change replays `.db-fade-in`.
-- Layout: `AppShell` `CONTENT_MAX` (1440, overridable per page via the `contentMax` prop)
-  caps **both** the sticky-header row and the page body with the same `mx: 'auto'`, so the
-  page title / header actions align to the table edges at any viewport. `OrdersTable` uses
+- Motion: two opt-in classes in `index.css` — `.db-fade-in` (page/panel entrance, **opacity
+  only** — `<main>` carries it and also holds the `position: fixed` SelectionBar, so a
+  `transform` there would re-anchor the fixed child) and `.db-row-in` (per-row; caller sets
+  `style={{ animationDelay }}` for the stagger, capped at ~10 rows). A global
+  `prefers-reduced-motion` block neutralises all of it. `AppShell` keys `<main>` by pathname
+  so every route change replays `.db-fade-in`.
+- Layout: `AppShell` content is **full-width** (viewport minus `px` gutters) — no centred
+  max-width, an ops tool shouldn't waste pixels on a wide monitor. The `contentMax` prop can
+  still cap a specific page. The sticky-header row uses the same width + gutters so the page
+  title / header actions stay aligned with the table edges. `OrdersTable` uses
   `tableLayout: 'fixed'` + an explicit `<colgroup>`: every column except Order has a fixed
-  width and the Order column (unsized `<col>`) absorbs the rest, so the table fills the page
-  without the columns drifting apart on wide screens.
+  px width; Order is a percentage (`48%` queue / `36%` history) so it grows with the viewport
+  and long product titles get room; a small trailing spacer `<col>` (+ matching `aria-hidden`
+  `<td>`s) keeps a little air on the right of very wide screens. `min()` in a `<col>` width is
+  ignored under fixed layout (the browser treats it as `auto`) — use a plain `%`.
 - `SelectionBar` is a full-width fixed strip that flex-centres its pill — do **not** try to
   centre the pill itself with `translateX(-50%)`, MUI's `<Slide>` writes an inline `transform`
   that overrides it (that bug parked the bar in the bottom-right corner).
