@@ -156,10 +156,53 @@ signed-in user (`ConfirmActionDialog` has no fields).
 Marketplace accent colours: `MARKETPLACE_COLORS` in `theme.ts` (Amazon orange, eBay red,
 Walmart blue, Shopify green) — used only as small dots, never as fills.
 
+## Security
+
+The JWT lives in `localStorage` (`digitalbox_token`), so **any XSS is full account takeover** —
+token theft, not just a defaced page. Keep the discipline that makes that hard:
+
+- **Never `dangerouslySetInnerHTML`**, and never build DOM / URLs by string-concatenating
+  server data (order numbers, product titles, notes, filenames, display names). Render values
+  as JSX text and let React escape them.
+- **Packing-slip PDFs**: keep loading them as an auth-fetched `blob:` object URL in an
+  `<iframe>`/`<embed>` (`fetchPackingSlipObjectUrl`). Don't switch to a raw cross-origin `<a>`
+  or `window.open` on the API URL, and don't render slip/order text as HTML.
+- **`VITE_API_BASE_URL` must be `https://` in every deployed environment.** The bearer token
+  rides every request.
+- **Trust the server's `role` for data, the UI's role checks for convenience only.** `ADMIN_NAV`
+  hiding and `ProtectedRoute requireRole` are UX, not a security boundary — the API enforces
+  `[Authorize(Roles=Admin)]` and that's what actually matters.
+- **No new runtime dependency without a look at what it does** — a compromised or sloppy
+  package runs with the token in scope. This also keeps the bundle lean (see Cost awareness).
+- Surface the API's `{ message }` in toasts as **text** (the `ApiError` path already does this) —
+  never inject an error string as markup.
+
 ## Deployment (mirror Henderson — not yet wired)
 
 `amplify.yml` is in place. Target: AWS Amplify connected to `master`, auto-build/deploy.
 `VITE_API_BASE_URL` is set as an Amplify branch env var pointing at the deployed API.
+Security headers (CSP, `X-Frame-Options: DENY`, `Referrer-Policy`, HSTS) belong in
+`amplify.yml` under `customHeaders` — not wired yet.
+
+## Cost awareness (AWS)
+
+Amplify bills build minutes, hosting storage, and data transfer out. The UI is cheap and
+should stay that way — this isn't about cutting features, just not shipping weight we don't
+need:
+
+- **Keep the dependency list lean.** Adding a runtime dep grows every user's bundle and the
+  transfer bill. Before reaching for a library, check whether MUI / React / the standard lib
+  already covers it. Heavy date/utility/animation libs especially — we deliberately don't
+  have them.
+- **Import narrowly.** `@mui/icons-material/SpecificIcon`, never `{ SpecificIcon } from
+  '@mui/icons-material'`. Same for any package with deep entry points.
+- **Fonts are already subset-aware** (`@fontsource*` files carry `unicode-range`, so browsers
+  fetch only the Latin slice). Don't add font weights or families casually — each is another
+  always-loaded asset.
+- **No new build steps or codegen** in `amplify.yml` unless a feature needs it — build
+  minutes are metered.
+- Server data lives in small hooks around `apiFetch`, not a client-side store or cache
+  layer — keep it that way; it's less code and less bundle.
 
 ## Gotchas
 

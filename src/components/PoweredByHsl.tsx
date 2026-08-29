@@ -42,7 +42,17 @@ export function HslMark({ size = 18 }: { size?: number }) {
 }
 
 /** "Powered by Henderson Software Labs" credit — mark + text, links to the HSL site. */
-export function PoweredByHsl({ size = 18, sx }: { size?: number; sx?: SxProps<Theme> }) {
+export function PoweredByHsl({
+  size = 18,
+  fontSize = '0.6875rem',
+  gap = 0.75,
+  sx,
+}: {
+  size?: number;
+  fontSize?: string | number;
+  gap?: number;
+  sx?: SxProps<Theme>;
+}) {
   return (
     <Link
       href="https://hendersonsoftwarelabs.com"
@@ -52,13 +62,13 @@ export function PoweredByHsl({ size = 18, sx }: { size?: number; sx?: SxProps<Th
       sx={{
         display: 'inline-flex',
         alignItems: 'center',
-        gap: 0.75,
+        gap,
         color: 'text.secondary',
         ...sx,
       }}
     >
       <HslMark size={size} />
-      <Box component="span" sx={{ fontSize: '0.6875rem', lineHeight: 1.3 }}>
+      <Box component="span" sx={{ fontSize, lineHeight: 1.3 }}>
         <Box component="span" sx={{ color: 'text.disabled' }}>
           Powered by{' '}
         </Box>

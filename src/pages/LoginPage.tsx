@@ -141,12 +141,9 @@ export function LoginPage() {
           </Stack>
         </Paper>
 
-        <Stack spacing={1.25} sx={{ alignItems: 'center' }}>
-          <Typography variant="caption" sx={{ color: 'text.disabled', textAlign: 'center' }}>
-            DigitalBox — warehouse fulfillment
-          </Typography>
-          <PoweredByHsl />
-        </Stack>
+        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+          <PoweredByHsl size={32} fontSize="1rem" gap={1.25} />
+        </Box>
       </Stack>
     </Box>
   );
