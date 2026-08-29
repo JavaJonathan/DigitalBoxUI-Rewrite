@@ -15,6 +15,8 @@ import { Logo, LogoMark } from './Logo';
 import { Kbd } from './ui/Kbd';
 import { SidebarNavItem, type NavItem } from './app-shell/SidebarNavItem';
 import { SidebarFooter } from './app-shell/SidebarFooter';
+import { SidebarPresence } from './app-shell/SidebarPresence';
+import { PresenceBar } from './PresenceBar';
 
 const NAV: NavItem[] = [
   { label: 'Queue', to: '/', icon: InboxOutlinedIcon, match: (p) => p === '/' },
@@ -89,6 +91,8 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             onNavigate={onNavigate}
           />
         ))}
+
+        <SidebarPresence />
 
         <Box sx={{ flex: 1 }} />
 
@@ -195,6 +199,8 @@ export function AppShell({ title, titleMeta, actions, children }: AppShellProps)
               {titleMeta}
             </Box>
             <Box sx={{ flex: 1 }} />
+            {/* Desktop shows the full roster in the sidebar; mobile keeps a compact stack here. */}
+            {!isDesktop && <PresenceBar />}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>{actions}</Box>
           </Box>
         </Box>

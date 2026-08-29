@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
@@ -26,6 +26,7 @@ import { useOrders } from '../hooks/useOrders';
 import { cancelOrders, setOrderNotes, setOrderPriority, shipOrders } from '../api/orders';
 import { getApiErrorMessage } from '../api/client';
 import { useToast } from '../components/ToastProvider';
+import { useRealtimeEvent } from '../realtime/RealtimeContext';
 import { PAGE_SIZE } from '../lib/constants';
 import { toggleInSet } from '../lib/collections';
 import type { Marketplace, OrderListItem } from '../types';
@@ -51,6 +52,14 @@ export function OrdersPage() {
     [q, marketplace, priority, sort, page],
   );
   const { data, loading, error, refresh } = useOrders(query);
+
+  // A coworker shipped / cancelled / uploaded — re-fetch, coalescing bursts into one call.
+  const syncTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useRealtimeEvent('queueChanged', () => {
+    clearTimeout(syncTimer.current);
+    syncTimer.current = setTimeout(refresh, 1200);
+  });
+  useEffect(() => () => clearTimeout(syncTimer.current), []);
 
   const orders = data?.items ?? [];
   const pageCount = data ? Math.max(1, Math.ceil(data.total / data.pageSize)) : 1;

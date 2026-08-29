@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
@@ -18,6 +18,7 @@ import { useOrders } from '../hooks/useOrders';
 import { undoOrders } from '../api/orders';
 import { getApiErrorMessage } from '../api/client';
 import { useToast } from '../components/ToastProvider';
+import { useRealtimeEvent } from '../realtime/RealtimeContext';
 import { PAGE_SIZE } from '../lib/constants';
 import { toggleInSet } from '../lib/collections';
 import type { OrderStatus } from '../types';
@@ -38,6 +39,14 @@ export function HistoryPage() {
   const orders = data?.items ?? [];
 
   useEffect(() => setSelectedIds(new Set()), [tab, q]);
+
+  // Reflect a coworker's ship / cancel / reopen in the history tabs too, debounced.
+  const syncTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useRealtimeEvent('queueChanged', () => {
+    clearTimeout(syncTimer.current);
+    syncTimer.current = setTimeout(refresh, 1200);
+  });
+  useEffect(() => () => clearTimeout(syncTimer.current), []);
 
   const toggle = (id: string) => setSelectedIds((prev) => toggleInSet(prev, id));
   const toggleAll = (checked: boolean) =>
