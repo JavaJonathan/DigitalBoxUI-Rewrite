@@ -41,7 +41,11 @@ export function LogoMark({ size = 26 }: { size?: number }) {
         <path d="M16 3.5 27.5 10v12L16 28.5 4.5 22V10L16 3.5Z" />
         <path d="M4.5 10 16 16.5l11.5-6.5M16 28.5v-12" />
         {/* top-face grid */}
-        <path d="M10.25 6.75 21.75 13.25M21.75 6.75 10.25 13.25" strokeWidth="1.5" strokeOpacity="0.9" />
+        <path
+          d="M10.25 6.75 21.75 13.25M21.75 6.75 10.25 13.25"
+          strokeWidth="1.5"
+          strokeOpacity="0.9"
+        />
       </svg>
     </Box>
   );

@@ -22,6 +22,7 @@ import { SelectionBar } from '../components/SelectionBar';
 import { NotePopover } from '../components/NotePopover';
 import { EmptyState } from '../components/ui/EmptyState';
 import { TableSkeleton } from '../components/ui/TableSkeleton';
+import { useAuth } from '../auth/AuthContext';
 import { useOrders } from '../hooks/useOrders';
 import { cancelOrders, setOrderNotes, setOrderPriority, shipOrders } from '../api/orders';
 import { getApiErrorMessage } from '../api/client';
@@ -33,6 +34,8 @@ import type { Marketplace, OrderListItem } from '../types';
 
 export function OrdersPage() {
   const { notify } = useToast();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'Admin';
   const [q, setQ] = useState('');
   const [marketplace, setMarketplace] = useState<Marketplace | ''>('');
   const [priority, setPriority] = useState(false);
@@ -138,14 +141,16 @@ export function OrdersPage() {
           >
             Shippable items
           </Button>
-          <Button
-            variant="contained"
-            size="small"
-            startIcon={<UploadFileOutlinedIcon sx={{ fontSize: 16 }} />}
-            onClick={() => setUploadOpen(true)}
-          >
-            Upload slips
-          </Button>
+          {isAdmin && (
+            <Button
+              variant="contained"
+              size="small"
+              startIcon={<UploadFileOutlinedIcon sx={{ fontSize: 16 }} />}
+              onClick={() => setUploadOpen(true)}
+            >
+              Upload slips
+            </Button>
+          )}
         </>
       }
     >
@@ -197,11 +202,17 @@ export function OrdersPage() {
               <EmptyState
                 icon={<UploadFileOutlinedIcon />}
                 title="The queue is clear"
-                description="Upload packing-slip PDFs and DigitalBox will parse them into orders ready to ship."
+                description={
+                  isAdmin
+                    ? 'Upload packing-slip PDFs and DigitalBox will parse them into orders ready to ship.'
+                    : 'New orders appear here once an admin uploads packing slips.'
+                }
                 action={
-                  <Button variant="contained" size="small" onClick={() => setUploadOpen(true)}>
-                    Upload packing slips
-                  </Button>
+                  isAdmin ? (
+                    <Button variant="contained" size="small" onClick={() => setUploadOpen(true)}>
+                      Upload packing slips
+                    </Button>
+                  ) : undefined
                 }
               />
             )}

@@ -31,12 +31,15 @@ import {
   setOrderNotes,
 } from '../api/orders';
 import { getApiErrorMessage } from '../api/client';
+import { useAuth } from '../auth/AuthContext';
 import { useToast } from '../components/ToastProvider';
 import type { OrderDetail } from '../types';
 
 export function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { notify } = useToast();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'Admin';
 
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -151,7 +154,7 @@ export function OrderDetailPage() {
 
               {isOpen ? (
                 <Stack direction="row" spacing={1}>
-                  {!editing && (
+                  {isAdmin && !editing && (
                     <Button
                       size="small"
                       variant="outlined"

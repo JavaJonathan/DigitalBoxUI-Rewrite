@@ -29,11 +29,7 @@ import { parseCsvHeaders, guessInventoryColumns, toCsv, downloadCsv } from '../l
 import { Mono } from './ui/Mono';
 import { MarketplaceTag } from './ui/MarketplaceTag';
 import { FileDropzone } from './ui/FileDropzone';
-import type {
-  ShippableItemsResponse,
-  ShippableCoverage,
-  ShippableOrderStatus,
-} from '../types';
+import type { ShippableItemsResponse, ShippableCoverage, ShippableOrderStatus } from '../types';
 
 interface ShippableItemsDialogProps {
   open: boolean;
@@ -218,7 +214,11 @@ export function ShippableItemsDialog({ open, onClose }: ShippableItemsDialogProp
   );
 
   const downloadLabel =
-    tab === 'orders' ? 'Download order list' : tab === 'items' ? 'Download item list' : 'Download list';
+    tab === 'orders'
+      ? 'Download order list'
+      : tab === 'items'
+        ? 'Download item list'
+        : 'Download list';
   const downloadDisabled =
     !result ||
     (tab === 'orders' && result.orders.length === 0) ||
@@ -276,7 +276,11 @@ export function ShippableItemsDialog({ open, onClose }: ShippableItemsDialogProp
         {phase === 'done' && result && (
           <>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mb: 1.5 }}>
-              <Chip size="small" color="success" label={`${result.ordersShippable} shippable now`} />
+              <Chip
+                size="small"
+                color="success"
+                label={`${result.ordersShippable} shippable now`}
+              />
               <Chip size="small" color="warning" label={`${result.ordersPartial} partial`} />
               <Chip size="small" color="error" label={`${result.ordersBlocked} blocked`} />
               {result.ordersNeedsCheck > 0 && (
@@ -352,7 +356,10 @@ export function ShippableItemsDialog({ open, onClose }: ShippableItemsDialogProp
                                     color="warning"
                                     variant="outlined"
                                     label="Priority"
-                                    sx={{ height: 18, '& .MuiChip-label': { px: 0.75, fontSize: '0.625rem' } }}
+                                    sx={{
+                                      height: 18,
+                                      '& .MuiChip-label': { px: 0.75, fontSize: '0.625rem' },
+                                    }}
                                   />
                                 )}
                               </Box>
