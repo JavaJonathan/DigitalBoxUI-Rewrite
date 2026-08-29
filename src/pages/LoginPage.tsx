@@ -85,7 +85,7 @@ export function LoginPage() {
             Sign in
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
-            Enter the shared warehouse credentials to continue.
+            Sign in with your DigitalBox account.
           </Typography>
 
           <Stack component="form" spacing={2} sx={{ mt: 3 }} onSubmit={submit}>

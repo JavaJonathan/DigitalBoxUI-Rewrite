@@ -6,6 +6,7 @@ import { LoginPage } from './pages/LoginPage';
 import { OrdersPage } from './pages/OrdersPage';
 import { HistoryPage } from './pages/HistoryPage';
 import { OrderDetailPage } from './pages/OrderDetailPage';
+import { UsersPage } from './pages/UsersPage';
 
 function App() {
   return (
@@ -35,6 +36,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <OrderDetailPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/users"
+              element={
+                <ProtectedRoute requireRole="Admin">
+                  <UsersPage />
                 </ProtectedRoute>
               }
             />

@@ -43,9 +43,9 @@ export function HistoryPage() {
   const toggleAll = (checked: boolean) =>
     setSelectedIds(checked ? new Set(orders.map((o) => o.id)) : new Set());
 
-  const runReopen = async (actionedBy: string) => {
+  const runReopen = async () => {
     try {
-      const result = await undoOrders(reopenIds, actionedBy);
+      const result = await undoOrders(reopenIds);
       notify(result.message, 'success');
       setSelectedIds(new Set());
       setConfirmOpen(false);

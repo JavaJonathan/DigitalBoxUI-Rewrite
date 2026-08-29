@@ -15,7 +15,7 @@ Backend is a separate repo (`DigitalBoxApi`). Stack and conventions mirror the
 ```bash
 npm run dev          # Vite dev server, http://localhost:5173 (strictPort — must match the API's CORS origin)
 npm run build        # tsc -b && vite build  — this is the real typecheck, NOT `tsc --noEmit`
-npm run lint         # oxlint  (currently 7 warnings, all known/accepted — don't let the count grow)
+npm run lint         # oxlint  (currently 8 warnings, all known/accepted — don't let the count grow)
 npm run format       # prettier --write .   (format:check for CI)
 npm run preview
 ```
@@ -95,12 +95,17 @@ can't send the token, so it fetches the PDF as a blob and returns an object URL 
 must revoke.
 
 **Auth** (`src/auth/`): `AuthContext` stores the JWT in `localStorage` under `digitalbox_token`,
-exposes `{ user, loading, login, logout }`. `ProtectedRoute` redirects to `/login` (with a
-`from` location) when not authenticated. There is one shared login and no roles.
+exposes `{ user, loading, login, logout }` where `user` is `{ id, username, displayName, role }`
+(`role` is `'User' | 'Admin'`). `ProtectedRoute` redirects to `/login` (with a `from` location)
+when not authenticated; pass `requireRole="Admin"` to bounce non-admins to `/`. Per-user
+accounts, admin-managed — there is no sign-up or self-service password reset in the UI.
 
 **Routes** (`src/App.tsx`): `/login`, `/` (open-order queue), `/history` (shipped/cancelled
-tabs), `/orders/:id` (detail + packing-slip viewer + correction form). Everything except
-`/login` is inside `ProtectedRoute`.
+tabs), `/orders/:id` (detail + packing-slip viewer + correction form), `/users` (admin-only —
+`UsersPage`: add users, reset passwords shown once, activate/deactivate, rename). Everything
+except `/login` is inside `ProtectedRoute`. The **Users** nav item (`AppShell` `ADMIN_NAV`)
+only renders for admins. Ship/cancel/reopen no longer collect a name — the actor is the
+signed-in user (`ConfirmActionDialog` has no fields).
 
 **Key components**:
 - `AppShell` — fixed left sidebar (`SIDEBAR_WIDTH` = 260, exported from `lib/layout.ts` and
@@ -137,8 +142,8 @@ tabs), `/orders/:id` (detail + packing-slip viewer + correction form). Everythin
 - `UploadDialog` / `ShippableItemsDialog` — both use the shared `ui/FileDropzone` for the
   drag-drop area. ShippableItems: drop CSV → map columns (auto-detected via `lib/csv.ts`) →
   preview → Download CSV (client-side, BOM + CRLF).
-- `ConfirmActionDialog` — `intent: 'ship' | 'cancel' | 'reopen'`, 3-way copy config; requires
-  operator name → `actionedBy`.
+- `ConfirmActionDialog` — `intent: 'ship' | 'cancel' | 'reopen'`, 3-way copy config; `onConfirm`
+  takes no args (the acting user comes from the JWT server-side).
 - `ToastProvider` / `useToast` — MUI Snackbar, **top-centre over the content**, a big solid
   `palette[severity].main` bar (28px icon, 16px/600 text, `contrastText`), slide-down with a
   back-out easing; errors linger (9s) longer than success (4.5s). Severity is passed explicitly,

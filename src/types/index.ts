@@ -1,12 +1,35 @@
+export type UserRole = 'User' | 'Admin';
+
+export interface AppUser {
+  id: string;
+  username: string;
+  displayName: string;
+  role: UserRole;
+}
+
 export interface LoginResponse {
   token: string;
   /** from the API; the UI relies on the JWT's own expiry, not this field */
   expiresAtUtc: string;
-  username: string;
+  user: AppUser;
 }
 
-export interface MeResponse {
+/** Shape of `GET /api/auth/me` — identical to {@link AppUser}. */
+export type MeResponse = AppUser;
+
+export interface AdminUserListItem {
+  id: string;
   username: string;
+  displayName: string;
+  role: UserRole;
+  isActive: boolean;
+  createdAt: string;
+  lastLoginAt: string | null;
+}
+
+export interface GeneratedPasswordResponse {
+  user: AdminUserListItem;
+  generatedPassword: string;
 }
 
 export type Marketplace = 'Unknown' | 'Amazon' | 'Ebay' | 'Walmart' | 'Shopify';

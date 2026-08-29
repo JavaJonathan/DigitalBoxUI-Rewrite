@@ -8,6 +8,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import InboxOutlinedIcon from '@mui/icons-material/InboxOutlined';
 import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
 import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
+import PeopleOutlinedIcon from '@mui/icons-material/PeopleOutlined';
 import { useAuth } from '../auth/AuthContext';
 import { SIDEBAR_WIDTH } from '../lib/layout';
 import { Logo, LogoMark } from './Logo';
@@ -25,6 +26,10 @@ const NAV: NavItem[] = [
   },
 ];
 
+const ADMIN_NAV: NavItem[] = [
+  { label: 'Users', to: '/users', icon: PeopleOutlinedIcon, match: (p) => p.startsWith('/users') },
+];
+
 interface AppShellProps {
   title: ReactNode;
   /** small element next to the title, e.g. a count */
@@ -37,6 +42,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const nav = user?.role === 'Admin' ? [...NAV, ...ADMIN_NAV] : NAV;
 
   const signOut = () => {
     logout();
@@ -75,7 +81,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           Warehouse
         </Typography>
 
-        {NAV.map((item) => (
+        {nav.map((item) => (
           <SidebarNavItem
             key={item.to}
             item={item}
@@ -99,7 +105,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         </Typography>
       </Box>
 
-      <SidebarFooter username={user?.username} onSignOut={signOut} />
+      <SidebarFooter displayName={user?.displayName} role={user?.role} onSignOut={signOut} />
     </Box>
   );
 }

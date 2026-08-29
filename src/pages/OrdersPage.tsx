@@ -68,11 +68,10 @@ export function OrdersPage() {
   const toggleAll = (checked: boolean) =>
     setSelectedIds(checked ? new Set(orders.map((o) => o.id)) : new Set());
 
-  const runAction = async (actionedBy: string) => {
+  const runAction = async () => {
     const ids = [...selectedIds];
     try {
-      const result =
-        action === 'ship' ? await shipOrders(ids, actionedBy) : await cancelOrders(ids, actionedBy);
+      const result = action === 'ship' ? await shipOrders(ids) : await cancelOrders(ids);
       notify(result.message, 'success');
       setSelectedIds(new Set());
       setAction(null);

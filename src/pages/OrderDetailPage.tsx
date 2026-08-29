@@ -61,15 +61,15 @@ export function OrderDetailPage() {
     load();
   }, [load]);
 
-  const runAction = async (actionedBy: string) => {
+  const runAction = async () => {
     if (!id) return;
     try {
       const result =
         action === 'ship'
-          ? await shipOrders([id], actionedBy)
+          ? await shipOrders([id])
           : action === 'cancel'
-            ? await cancelOrders([id], actionedBy)
-            : await undoOrders([id], actionedBy); // action === 'reopen'
+            ? await cancelOrders([id])
+            : await undoOrders([id]); // action === 'reopen'
       notify(result.message, 'success');
       setAction(null);
       load();

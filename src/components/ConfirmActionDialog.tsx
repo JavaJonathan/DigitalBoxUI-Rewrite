@@ -3,11 +3,9 @@ import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
-import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { pluralize } from '../lib/format';
-import { OPERATOR_NAME_MAX_LENGTH } from '../lib/constants';
 
 type Intent = 'ship' | 'cancel' | 'reopen';
 
@@ -16,7 +14,7 @@ interface ConfirmActionDialogProps {
   intent: Intent;
   count: number;
   onClose: () => void;
-  onConfirm: (actionedBy: string) => Promise<void> | void;
+  onConfirm: () => Promise<void> | void;
 }
 
 const CONFIG: Record<
@@ -55,7 +53,6 @@ export function ConfirmActionDialog({
   onClose,
   onConfirm,
 }: ConfirmActionDialogProps) {
-  const [name, setName] = useState('');
   const [busy, setBusy] = useState(false);
   const cfg = CONFIG[intent];
 
@@ -66,8 +63,7 @@ export function ConfirmActionDialog({
   const confirmAction = async () => {
     setBusy(true);
     try {
-      await onConfirm(name.trim());
-      setName('');
+      await onConfirm();
     } finally {
       setBusy(false);
     }
@@ -77,32 +73,15 @@ export function ConfirmActionDialog({
     <Dialog open={open} onClose={busy ? undefined : onClose} maxWidth="xs" fullWidth>
       <DialogTitle>{cfg.title}</DialogTitle>
       <DialogContent>
-        <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
-          {cfg.body(count)} Enter your name for the record.
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          {cfg.body(count)} It will be recorded under your name.
         </Typography>
-        <TextField
-          autoFocus
-          fullWidth
-          size="small"
-          label="Your name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          slotProps={{ htmlInput: { maxLength: OPERATOR_NAME_MAX_LENGTH } }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && name.trim()) confirmAction();
-          }}
-        />
       </DialogContent>
       <DialogActions>
         <Button variant="text" onClick={onClose} disabled={busy}>
           Back
         </Button>
-        <Button
-          variant="contained"
-          color={cfg.color}
-          disabled={busy || name.trim().length === 0}
-          onClick={confirmAction}
-        >
+        <Button variant="contained" color={cfg.color} disabled={busy} onClick={confirmAction}>
           {busy ? 'Working…' : `${cfg.verb} ${count}`}
         </Button>
       </DialogActions>

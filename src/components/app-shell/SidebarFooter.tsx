@@ -6,13 +6,24 @@ import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import { ColorModeToggle } from '../ColorModeToggle';
 import { PoweredByHsl } from '../PoweredByHsl';
 
+/** Two-letter avatar seed from a display name: first letters of the first two words, else first two chars. */
+function initials(name: string): string {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
+  return (name.trim().slice(0, 2) || '?').toUpperCase();
+}
+
 export function SidebarFooter({
-  username,
+  displayName,
+  role,
   onSignOut,
 }: {
-  username: string | undefined;
+  displayName: string | undefined;
+  role: string | undefined;
   onSignOut: () => void;
 }) {
+  const name = displayName || 'Signed in';
+  const roleLabel = role === 'Admin' ? 'Administrator' : 'Warehouse staff';
   return (
     <Box sx={{ p: 3, borderTop: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}` }}>
       <Box
@@ -42,17 +53,17 @@ export function SidebarFooter({
               flexShrink: 0,
             }}
           >
-            {(username ?? '?').slice(0, 2)}
+            {initials(name)}
           </Box>
           <Box sx={{ minWidth: 0, flex: 1 }}>
             <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, lineHeight: 1.3 }} noWrap>
-              {username}
+              {name}
             </Typography>
             <Typography
               sx={{ fontSize: '0.75rem', color: 'text.disabled', lineHeight: 1.3 }}
               noWrap
             >
-              Shared warehouse login
+              {roleLabel}
             </Typography>
           </Box>
         </Box>

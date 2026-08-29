@@ -40,10 +40,10 @@ export function setOrderNotes(id: string, notes: string | null) {
   });
 }
 
-export function undoOrders(orderIds: string[], actionedBy: string) {
+export function undoOrders(orderIds: string[]) {
   return apiFetch<ActionResult>('/api/orders/undo', {
     method: 'POST',
-    body: JSON.stringify({ orderIds, actionedBy }),
+    body: JSON.stringify({ orderIds }),
   });
 }
 
@@ -66,17 +66,17 @@ export function uploadPackingSlips(files: File[]) {
   });
 }
 
-export function shipOrders(orderIds: string[], actionedBy: string) {
+export function shipOrders(orderIds: string[]) {
   return apiFetch<ActionResult>('/api/orders/ship', {
     method: 'POST',
-    body: JSON.stringify({ orderIds, actionedBy }),
+    body: JSON.stringify({ orderIds }),
   });
 }
 
-export function cancelOrders(orderIds: string[], actionedBy: string) {
+export function cancelOrders(orderIds: string[]) {
   return apiFetch<ActionResult>('/api/orders/cancel', {
     method: 'POST',
-    body: JSON.stringify({ orderIds, actionedBy }),
+    body: JSON.stringify({ orderIds }),
   });
 }
 
