@@ -46,8 +46,5 @@ export function useRealtimeEvent<K extends keyof RealtimeEventMap>(
     handlerRef.current = handler;
   });
 
-  useEffect(
-    () => subscribe(name, (payload) => handlerRef.current(payload)),
-    [name, subscribe],
-  );
+  useEffect(() => subscribe(name, (payload) => handlerRef.current(payload)), [name, subscribe]);
 }

@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { HubConnectionState } from '@microsoft/signalr';
 import { useAuth } from '../auth/AuthContext';
-import { createActivityConnection, type ActivityEvent, type OnlineUser } from './activityConnection';
+import {
+  createActivityConnection,
+  type ActivityEvent,
+  type OnlineUser,
+} from './activityConnection';
 import { RealtimeContext, type RealtimeContextValue } from './RealtimeContext';
 
 /**

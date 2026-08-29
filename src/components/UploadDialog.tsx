@@ -30,11 +30,13 @@ interface UploadDialogProps {
 export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [result, setResult] = useState<UploadResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const reset = () => {
     setFiles([]);
+    setProgress(null);
     setResult(null);
     setError(null);
   };
@@ -58,8 +60,11 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
     if (files.length === 0) return;
     setBusy(true);
     setError(null);
+    setProgress({ done: 0, total: files.length });
     try {
-      const response = await uploadPackingSlips(files);
+      const response = await uploadPackingSlips(files, (done, total) =>
+        setProgress({ done, total }),
+      );
       setResult(response);
       setFiles([]);
       onUploaded();
@@ -67,6 +72,7 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
       setError(getApiErrorMessage(err, 'Upload failed.'));
     } finally {
       setBusy(false);
+      setProgress(null);
     }
   };
 
@@ -151,7 +157,19 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
           </Box>
         )}
 
-        {busy && <LinearProgress sx={{ mt: 2 }} />}
+        {busy && (
+          <Box sx={{ mt: 2 }}>
+            <LinearProgress
+              variant={progress ? 'determinate' : 'indeterminate'}
+              value={progress ? (progress.done / progress.total) * 100 : undefined}
+            />
+            {progress && (
+              <Typography sx={{ mt: 0.75, fontSize: '0.75rem', color: 'text.secondary' }}>
+                Uploading {progress.done} / {progress.total}
+              </Typography>
+            )}
+          </Box>
+        )}
         {error && (
           <Typography sx={{ mt: 2, fontSize: '0.8125rem', color: 'error.main' }}>
             {error}
