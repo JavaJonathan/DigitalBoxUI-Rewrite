@@ -1,4 +1,4 @@
-import { useRef, useState, type DragEvent } from 'react';
+import { useState } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
@@ -22,6 +22,7 @@ import { generateShippableItemsReport } from '../api/reports';
 import { getApiErrorMessage } from '../api/client';
 import { parseCsvHeaders, guessInventoryColumns, toCsv, downloadCsv } from '../lib/csv';
 import { Mono } from './ui/Mono';
+import { FileDropzone } from './ui/FileDropzone';
 import type { ShippableItemsResponse } from '../types';
 
 interface ShippableItemsDialogProps {
@@ -32,14 +33,12 @@ interface ShippableItemsDialogProps {
 type Phase = 'pick' | 'map' | 'done';
 
 export function ShippableItemsDialog({ open, onClose }: ShippableItemsDialogProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
   const [phase, setPhase] = useState<Phase>('pick');
   const [file, setFile] = useState<File | null>(null);
   const [headers, setHeaders] = useState<string[]>([]);
   const [mapping, setMapping] = useState({ sku: '', title: '', qty: '' });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [dragging, setDragging] = useState(false);
   const [result, setResult] = useState<ShippableItemsResponse | null>(null);
 
   const reset = () => {
@@ -144,41 +143,16 @@ export function ShippableItemsDialog({ open, onClose }: ShippableItemsDialogProp
               Upload an inventory-count CSV. DigitalBox cross-references it against open orders and
               tells you what you can pack now.
             </Typography>
-            <Box
-              onDragOver={(e: DragEvent) => {
-                e.preventDefault();
-                setDragging(true);
-              }}
-              onDragLeave={() => setDragging(false)}
-              onDrop={(e: DragEvent) => {
-                e.preventDefault();
-                setDragging(false);
-                accept(e.dataTransfer.files[0]);
-              }}
-              onClick={() => inputRef.current?.click()}
-              sx={{
-                border: '1.5px dashed',
-                borderColor: dragging ? 'primary.main' : 'surface.borderStrong',
-                borderRadius: 2.5,
-                px: 3,
-                py: 4,
-                textAlign: 'center',
-                cursor: 'pointer',
-                bgcolor: dragging ? 'primary.light' : 'surface.inset',
-              }}
+            <FileDropzone
+              accept=".csv,text/csv"
+              disabled={busy}
+              onFiles={(list) => accept(list[0])}
             >
               <UploadFileOutlinedIcon sx={{ fontSize: 32, color: 'text.secondary' }} />
               <Typography sx={{ fontSize: '0.875rem', fontWeight: 550, mt: 1 }}>
                 Drop a .csv here, or click to choose
               </Typography>
-              <input
-                ref={inputRef}
-                type="file"
-                accept=".csv,text/csv"
-                hidden
-                onChange={(e) => accept(e.target.files?.[0])}
-              />
-            </Box>
+            </FileDropzone>
           </>
         )}
 

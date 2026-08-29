@@ -1,4 +1,4 @@
-import { useRef, useState, type DragEvent } from 'react';
+import { useState } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
@@ -18,6 +18,7 @@ import { uploadPackingSlips } from '../api/orders';
 import { getApiErrorMessage } from '../api/client';
 import { formatBytes } from '../lib/format';
 import { Mono } from './ui/Mono';
+import { FileDropzone } from './ui/FileDropzone';
 import type { UploadResponse } from '../types';
 
 interface UploadDialogProps {
@@ -27,12 +28,10 @@ interface UploadDialogProps {
 }
 
 export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<UploadResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [dragging, setDragging] = useState(false);
 
   const reset = () => {
     setFiles([]);
@@ -45,8 +44,7 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
     onClose();
   };
 
-  const addFiles = (incoming: FileList | null) => {
-    if (!incoming) return;
+  const addFiles = (incoming: FileList) => {
     const pdfs = Array.from(incoming).filter(
       (f) => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'),
     );
@@ -54,12 +52,6 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
       const seen = new Set(prev.map((f) => f.name + f.size));
       return [...prev, ...pdfs.filter((f) => !seen.has(f.name + f.size))];
     });
-  };
-
-  const dropFiles = (e: DragEvent) => {
-    e.preventDefault();
-    setDragging(false);
-    addFiles(e.dataTransfer.files);
   };
 
   const upload = async () => {
@@ -89,26 +81,7 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
 
       <DialogContent>
         {!result && (
-          <Box
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDragging(true);
-            }}
-            onDragLeave={() => setDragging(false)}
-            onDrop={dropFiles}
-            onClick={() => inputRef.current?.click()}
-            sx={{
-              border: '1.5px dashed',
-              borderColor: dragging ? 'primary.main' : 'surface.borderStrong',
-              borderRadius: 2.5,
-              px: 3,
-              py: 4,
-              textAlign: 'center',
-              cursor: 'pointer',
-              bgcolor: dragging ? 'primary.light' : 'surface.inset',
-              transition: 'border-color 120ms ease, background-color 120ms ease',
-            }}
-          >
+          <FileDropzone accept="application/pdf,.pdf" multiple disabled={busy} onFiles={addFiles}>
             <Box
               sx={{
                 width: 40,
@@ -131,15 +104,7 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
             <Typography variant="caption" sx={{ color: 'text.disabled' }}>
               Up to 50 files · 15 MB each
             </Typography>
-            <input
-              ref={inputRef}
-              type="file"
-              accept="application/pdf,.pdf"
-              multiple
-              hidden
-              onChange={(e) => addFiles(e.target.files)}
-            />
-          </Box>
+          </FileDropzone>
         )}
 
         {files.length > 0 && !result && (

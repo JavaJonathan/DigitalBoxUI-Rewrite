@@ -1,10 +1,7 @@
 import { useEffect, useState } from 'react';
 import Popover from '@mui/material/Popover';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import { NOTE_MAX_LENGTH } from '../lib/constants';
+import { NoteEditor } from './ui/NoteEditor';
 
 interface NotePopoverProps {
   open: boolean;
@@ -52,39 +49,24 @@ export function NotePopover({
       transformOrigin={{ vertical: 'top', horizontal: 'left' }}
       slotProps={{ paper: { sx: { width: 320, p: 1.5 } } }}
     >
-      <Typography variant="caption" sx={{ color: 'text.disabled', px: 0.5 }}>
+      <Typography
+        variant="caption"
+        sx={{ color: 'text.disabled', px: 0.5, mb: 0.5, display: 'block' }}
+      >
         Note · {orderNumber || 'order'}
       </Typography>
-      <TextField
-        autoFocus
-        multiline
-        minRows={3}
-        maxRows={8}
-        fullWidth
-        size="small"
-        placeholder="e.g. fragile — call before ship"
+      <NoteEditor
         value={text}
-        onChange={(e) => setText(e.target.value)}
-        slotProps={{ htmlInput: { maxLength: NOTE_MAX_LENGTH } }}
+        onChange={setText}
+        onSave={save}
+        onCancel={onClose}
+        busy={busy}
+        autoFocus
         onKeyDown={(e) => {
           if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') save();
           if (e.key === 'Escape' && !busy) onClose();
         }}
-        sx={{ mt: 0.5 }}
       />
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1 }}>
-        <Typography variant="caption" sx={{ color: 'text.disabled' }}>
-          {text.length}/{NOTE_MAX_LENGTH}
-        </Typography>
-        <Box sx={{ display: 'flex', gap: 0.5 }}>
-          <Button size="small" variant="text" onClick={onClose} disabled={busy}>
-            Cancel
-          </Button>
-          <Button size="small" variant="contained" onClick={save} disabled={busy}>
-            {busy ? 'Saving…' : 'Save'}
-          </Button>
-        </Box>
-      </Box>
     </Popover>
   );
 }
