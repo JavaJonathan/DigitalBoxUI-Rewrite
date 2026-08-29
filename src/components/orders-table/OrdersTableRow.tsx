@@ -24,11 +24,6 @@ import { RelativeTime } from '../ui/RelativeTime';
 const STAGGER_STEP_MS = 22;
 const STAGGER_MAX_ROWS = 10;
 
-function isOverdue(order: OrderListItem) {
-  if (order.status !== 'Open' || !order.shipDate) return false;
-  return new Date(`${order.shipDate}T23:59:59`).getTime() < Date.now();
-}
-
 const stop = (e: MouseEvent) => e.stopPropagation();
 
 interface OrdersTableRowProps {
@@ -165,7 +160,6 @@ export function OrdersTableRow({
   onReopenRow,
 }: OrdersTableRowProps) {
   const navigate = useNavigate();
-  const overdue = isOverdue(order);
 
   return (
     <TableRow
@@ -230,22 +224,16 @@ export function OrdersTableRow({
       </TableCell>
 
       <TableCell>
-        <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75, whiteSpace: 'nowrap' }}>
-          <Typography
-            component="span"
-            sx={{
-              fontSize: '0.8125rem',
-              color: order.shipDate ? 'text.primary' : 'text.disabled',
-            }}
-          >
-            {formatDate(order.shipDate)}
-          </Typography>
-          {overdue && (
-            <Tooltip title="Ship date has passed" arrow>
-              <WarningAmberRoundedIcon sx={{ fontSize: 14, color: 'warning.main' }} />
-            </Tooltip>
-          )}
-        </Box>
+        <Typography
+          component="span"
+          sx={{
+            fontSize: '0.8125rem',
+            whiteSpace: 'nowrap',
+            color: order.shipDate ? 'text.primary' : 'text.disabled',
+          }}
+        >
+          {formatDate(order.shipDate)}
+        </Typography>
       </TableCell>
 
       {isHistory ? (

@@ -124,18 +124,56 @@ export interface OrderQuery {
   pageSize?: number;
 }
 
+export type ShippableCoverage = 'Covered' | 'Partial' | 'Blocked';
+
 export interface ShippableItemsRow {
   title: string;
   sku: string;
   orderedQty: number;
   onHandQty: number;
   shippableQty: number;
+  shortQty: number;
+  coverage: ShippableCoverage;
+}
+
+export interface UnmatchedDemandRow {
+  sku: string | null;
+  title: string;
+  orderedQty: number;
+  orderCount: number;
+}
+
+export type ShippableOrderStatus = 'Shippable' | 'Partial' | 'Blocked' | 'NeedsCheck';
+
+export interface ShippableOrderShortLine {
+  title: string;
+  sku: string | null;
+  orderedQty: number;
+  availableQty: number;
+}
+
+export interface ShippableOrderRow {
+  orderId: string;
+  orderNumber: string;
+  marketplace: Marketplace;
+  isPriority: boolean;
+  lineCount: number;
+  coveredLineCount: number;
+  status: ShippableOrderStatus;
+  shortLines: ShippableOrderShortLine[];
 }
 
 export interface ShippableItemsResponse {
   rows: ShippableItemsRow[];
+  unmatchedDemand: UnmatchedDemandRow[];
+  orders: ShippableOrderRow[];
   generatedAt: string;
   openOrderCount: number;
   csvRowCount: number;
   matchedRowCount: number;
+  ordersShippable: number;
+  ordersPartial: number;
+  ordersBlocked: number;
+  ordersNeedsCheck: number;
+  unitsShippable: number;
 }
