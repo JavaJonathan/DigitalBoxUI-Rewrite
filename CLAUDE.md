@@ -33,7 +33,14 @@ and reports success even with real errors. `npm run build` runs `tsc -b`, which 
 **Stack**: Vite + React 19 + TypeScript, MUI v9 + Emotion (**not** Tailwind),
 `react-router-dom` v7, self-hosted fonts (`@fontsource-variable/inter`, `@fontsource/geist-mono`).
 No Redux — the old four-slice store mostly cached one response shape; server data now lives in
-small hooks (`hooks/useOrders.ts`) around `apiFetch`, UI state in `useState`.
+small hooks (`hooks/useOrders.ts`) around `apiFetch`, UI state in `useState`. Prettier
+(`.prettierrc.json`) formats everything: `npm run format` / `format:check`.
+
+**Conventions**: local functions use bare imperative verbs (`save`, `load`, `submit`,
+`upload`, `close`); the `on…` / `handle…` prefix is reserved for props that are event
+handlers passed to children. Shared magic values live in `src/lib/constants.ts`. The
+reopen-a-shipped/cancelled-order operation is called **`reopen`** everywhere in the UI (the
+API function is `undoOrders`, hitting `POST /api/orders/undo` — that name mirrors the route).
 
 ### Design system (`src/theme.ts`)
 

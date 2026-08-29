@@ -78,7 +78,7 @@ export function OrderDetailPage() {
   const [shipDate, setShipDate] = useState('');
   const [lines, setLines] = useState<EditLine[]>([]);
   const [saving, setSaving] = useState(false);
-  const [action, setAction] = useState<'ship' | 'cancel' | 'undo' | null>(null);
+  const [action, setAction] = useState<'ship' | 'cancel' | 'reopen' | null>(null);
   const [editingNote, setEditingNote] = useState(false);
   const [noteDraft, setNoteDraft] = useState('');
   const [savingNote, setSavingNote] = useState(false);
@@ -164,7 +164,7 @@ export function OrderDetailPage() {
           ? await shipOrders([id], actionedBy)
           : action === 'cancel'
             ? await cancelOrders([id], actionedBy)
-            : await undoOrders([id], actionedBy);
+            : await undoOrders([id], actionedBy); // action === 'reopen'
       notify(result.message, 'success');
       setAction(null);
       load();
@@ -304,7 +304,7 @@ export function OrderDetailPage() {
                     size="small"
                     variant="outlined"
                     startIcon={<ReplayRoundedIcon sx={{ fontSize: 15 }} />}
-                    onClick={() => setAction('undo')}
+                    onClick={() => setAction('reopen')}
                   >
                     Reopen order
                   </Button>

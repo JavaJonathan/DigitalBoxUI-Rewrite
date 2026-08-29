@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography';
 import { pluralize } from '../lib/format';
 import { OPERATOR_NAME_MAX_LENGTH } from '../lib/constants';
 
-type Intent = 'ship' | 'cancel' | 'undo';
+type Intent = 'ship' | 'cancel' | 'reopen';
 
 interface ConfirmActionDialogProps {
   open: boolean;
@@ -40,7 +40,7 @@ const CONFIG: Record<
     verb: 'Cancel',
     body: (n) => `Cancel ${pluralize(n, 'order')} and move them to history.`,
   },
-  undo: {
+  reopen: {
     title: 'Reopen orders',
     color: 'primary',
     verb: 'Reopen',
@@ -63,7 +63,7 @@ export function ConfirmActionDialog({
     if (open) setBusy(false);
   }, [open]);
 
-  const handleConfirm = async () => {
+  const confirmAction = async () => {
     setBusy(true);
     try {
       await onConfirm(name.trim());
@@ -89,7 +89,7 @@ export function ConfirmActionDialog({
           onChange={(e) => setName(e.target.value)}
           slotProps={{ htmlInput: { maxLength: OPERATOR_NAME_MAX_LENGTH } }}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && name.trim()) handleConfirm();
+            if (e.key === 'Enter' && name.trim()) confirmAction();
           }}
         />
       </DialogContent>
@@ -101,7 +101,7 @@ export function ConfirmActionDialog({
           variant="contained"
           color={cfg.color}
           disabled={busy || name.trim().length === 0}
-          onClick={handleConfirm}
+          onClick={confirmAction}
         >
           {busy ? 'Working…' : `${cfg.verb} ${count}`}
         </Button>

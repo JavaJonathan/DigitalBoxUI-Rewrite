@@ -37,7 +37,7 @@ export function OrdersPage() {
   const [priority, setPriority] = useState(false);
   const [sort, setSort] = useState<'shipDate' | 'title'>('shipDate');
   const [page, setPage] = useState(1);
-  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [uploadOpen, setUploadOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [action, setAction] = useState<'ship' | 'cancel' | null>(null);
@@ -63,18 +63,18 @@ export function OrdersPage() {
     setPage(1);
   };
 
-  const toggle = (id: string) => setSelected((prev) => toggleInSet(prev, id));
+  const toggle = (id: string) => setSelectedIds((prev) => toggleInSet(prev, id));
 
   const toggleAll = (checked: boolean) =>
-    setSelected(checked ? new Set(orders.map((o) => o.id)) : new Set());
+    setSelectedIds(checked ? new Set(orders.map((o) => o.id)) : new Set());
 
   const runAction = async (actionedBy: string) => {
-    const ids = [...selected];
+    const ids = [...selectedIds];
     try {
       const result =
         action === 'ship' ? await shipOrders(ids, actionedBy) : await cancelOrders(ids, actionedBy);
       notify(result.message, 'success');
-      setSelected(new Set());
+      setSelectedIds(new Set());
       setAction(null);
       refresh();
     } catch (err) {
@@ -203,7 +203,7 @@ export function OrdersPage() {
             orders={orders}
             status="Open"
             selectable
-            selectedIds={selected}
+            selectedIds={selectedIds}
             onToggle={toggle}
             onToggleAll={toggleAll}
             sort={sort}
@@ -225,7 +225,7 @@ export function OrdersPage() {
         )}
       </Stack>
 
-      <SelectionBar count={selected.size} onClear={() => setSelected(new Set())}>
+      <SelectionBar count={selectedIds.size} onClear={() => setSelectedIds(new Set())}>
         <Button
           size="large"
           variant="contained"
@@ -253,7 +253,7 @@ export function OrdersPage() {
       <ConfirmActionDialog
         open={action !== null}
         intent={action ?? 'ship'}
-        count={selected.size}
+        count={selectedIds.size}
         onClose={() => setAction(null)}
         onConfirm={runAction}
       />

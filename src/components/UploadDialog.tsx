@@ -56,13 +56,13 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
     });
   };
 
-  const handleDrop = (e: DragEvent) => {
+  const dropFiles = (e: DragEvent) => {
     e.preventDefault();
     setDragging(false);
     addFiles(e.dataTransfer.files);
   };
 
-  const handleUpload = async () => {
+  const upload = async () => {
     if (files.length === 0) return;
     setBusy(true);
     setError(null);
@@ -95,7 +95,7 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
               setDragging(true);
             }}
             onDragLeave={() => setDragging(false)}
-            onDrop={handleDrop}
+            onDrop={dropFiles}
             onClick={() => inputRef.current?.click()}
             sx={{
               border: '1.5px dashed',
@@ -275,7 +275,7 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
           {result ? 'Done' : 'Cancel'}
         </Button>
         {!result && (
-          <Button variant="contained" onClick={handleUpload} disabled={busy || files.length === 0}>
+          <Button variant="contained" onClick={upload} disabled={busy || files.length === 0}>
             {files.length > 0 ? `Upload ${files.length}` : 'Upload'}
           </Button>
         )}

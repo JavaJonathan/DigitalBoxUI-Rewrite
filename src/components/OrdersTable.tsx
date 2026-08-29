@@ -29,6 +29,7 @@ type SortKey = 'shipDate' | 'title';
 
 interface OrdersTableProps {
   orders: OrderListItem[];
+  /** The order status being shown; also selects the view — `Open` = queue, else = history. */
   status: OrderStatus;
   selectable?: boolean;
   selectedIds?: Set<string>;
@@ -38,7 +39,7 @@ interface OrdersTableProps {
   onSortChange?: (sort: SortKey) => void;
   onTogglePriority?: (order: OrderListItem) => void;
   onEditNote?: (order: OrderListItem, anchor: HTMLElement) => void;
-  onUndoRow?: (order: OrderListItem) => void;
+  onReopenRow?: (order: OrderListItem) => void;
 }
 
 function isOverdue(order: OrderListItem) {
@@ -57,7 +58,7 @@ export function OrdersTable({
   onSortChange,
   onTogglePriority,
   onEditNote,
-  onUndoRow,
+  onReopenRow,
 }: OrdersTableProps) {
   const navigate = useNavigate();
   const isHistory = status !== 'Open';
@@ -374,12 +375,16 @@ export function OrdersTable({
                   </TableCell>
                 )}
 
-                <TableCell padding="checkbox" sx={{ pr: 1 }} onClick={onUndoRow ? stop : undefined}>
-                  {isHistory && onUndoRow ? (
+                <TableCell
+                  padding="checkbox"
+                  sx={{ pr: 1 }}
+                  onClick={onReopenRow ? stop : undefined}
+                >
+                  {isHistory && onReopenRow ? (
                     <Tooltip title="Reopen" arrow>
                       <IconButton
                         size="small"
-                        onClick={() => onUndoRow(order)}
+                        onClick={() => onReopenRow(order)}
                         aria-label="Reopen order"
                         className="db-row-hover"
                         sx={{ opacity: 0, transition: 'opacity 100ms ease' }}

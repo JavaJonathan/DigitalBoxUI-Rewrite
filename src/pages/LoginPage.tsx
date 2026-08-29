@@ -29,7 +29,7 @@ export function LoginPage() {
   const from = (location.state as { from?: string } | null)?.from ?? '/';
   if (user) return <Navigate to={from} replace />;
 
-  async function handleSubmit(event: FormEvent) {
+  async function submit(event: FormEvent) {
     event.preventDefault();
     setError(null);
     setSubmitting(true);
@@ -87,7 +87,7 @@ export function LoginPage() {
             Enter the shared warehouse credentials to continue.
           </Typography>
 
-          <Stack component="form" spacing={2} sx={{ mt: 3 }} onSubmit={handleSubmit}>
+          <Stack component="form" spacing={2} sx={{ mt: 3 }} onSubmit={submit}>
             <TextField
               label="Username"
               required

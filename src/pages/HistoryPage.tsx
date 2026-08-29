@@ -26,9 +26,9 @@ export function HistoryPage() {
   const { notify } = useToast();
   const [tab, setTab] = useState<Extract<OrderStatus, 'Shipped' | 'Cancelled'>>('Shipped');
   const [q, setQ] = useState('');
-  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [undoIds, setUndoIds] = useState<string[]>([]);
+  const [reopenIds, setReopenIds] = useState<string[]>([]);
 
   const query = useMemo(
     () => ({ status: tab, q, sort: 'shipDate' as const, page: 1, pageSize: PAGE_SIZE }),
@@ -37,17 +37,17 @@ export function HistoryPage() {
   const { data, loading, error, refresh } = useOrders(query);
   const orders = data?.items ?? [];
 
-  useEffect(() => setSelected(new Set()), [tab, q]);
+  useEffect(() => setSelectedIds(new Set()), [tab, q]);
 
-  const toggle = (id: string) => setSelected((prev) => toggleInSet(prev, id));
+  const toggle = (id: string) => setSelectedIds((prev) => toggleInSet(prev, id));
   const toggleAll = (checked: boolean) =>
-    setSelected(checked ? new Set(orders.map((o) => o.id)) : new Set());
+    setSelectedIds(checked ? new Set(orders.map((o) => o.id)) : new Set());
 
-  const runUndo = async (actionedBy: string) => {
+  const runReopen = async (actionedBy: string) => {
     try {
-      const result = await undoOrders(undoIds, actionedBy);
+      const result = await undoOrders(reopenIds, actionedBy);
       notify(result.message, 'success');
-      setSelected(new Set());
+      setSelectedIds(new Set());
       setConfirmOpen(false);
       refresh();
     } catch (err) {
@@ -106,24 +106,24 @@ export function HistoryPage() {
             orders={orders}
             status={tab}
             selectable
-            selectedIds={selected}
+            selectedIds={selectedIds}
             onToggle={toggle}
             onToggleAll={toggleAll}
-            onUndoRow={(order) => {
-              setUndoIds([order.id]);
+            onReopenRow={(order) => {
+              setReopenIds([order.id]);
               setConfirmOpen(true);
             }}
           />
         )}
       </Stack>
 
-      <SelectionBar count={selected.size} onClear={() => setSelected(new Set())}>
+      <SelectionBar count={selectedIds.size} onClear={() => setSelectedIds(new Set())}>
         <Button
           size="large"
           variant="contained"
           startIcon={<ReplayRoundedIcon sx={{ fontSize: 18 }} />}
           onClick={() => {
-            setUndoIds([...selected]);
+            setReopenIds([...selectedIds]);
             setConfirmOpen(true);
           }}
         >
@@ -133,10 +133,10 @@ export function HistoryPage() {
 
       <ConfirmActionDialog
         open={confirmOpen}
-        intent="undo"
-        count={undoIds.length}
+        intent="reopen"
+        count={reopenIds.length}
         onClose={() => setConfirmOpen(false)}
-        onConfirm={runUndo}
+        onConfirm={runReopen}
       />
     </AppShell>
   );
