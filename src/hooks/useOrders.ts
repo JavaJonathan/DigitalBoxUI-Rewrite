@@ -16,8 +16,11 @@ export function useOrders(query: OrderQuery): UseOrdersResult {
   const [error, setError] = useState<string | null>(null);
   const [nonce, setNonce] = useState(0);
 
+  // Bumping `nonce` is how `refresh()` forces a re-fetch without changing the query.
   const refresh = useCallback(() => setNonce((n) => n + 1), []);
 
+  // Serialise the query so the effect below has a stable primitive dependency even if the
+  // caller passes a fresh object each render.
   const key = JSON.stringify(query);
 
   useEffect(() => {
@@ -39,6 +42,7 @@ export function useOrders(query: OrderQuery): UseOrdersResult {
     return () => {
       cancelled = true;
     };
+    // `query` is intentionally omitted from the deps — `key` is its serialised form.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, nonce]);
 

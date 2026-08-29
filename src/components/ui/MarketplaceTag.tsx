@@ -5,11 +5,9 @@ import { MARKETPLACE_COLORS } from '../../theme';
 
 interface MarketplaceTagProps {
   marketplace: Marketplace;
-  /** dot only, no label */
-  compact?: boolean;
 }
 
-export function MarketplaceTag({ marketplace, compact = false }: MarketplaceTagProps) {
+export function MarketplaceTag({ marketplace }: MarketplaceTagProps) {
   const color = MARKETPLACE_COLORS[marketplace] ?? MARKETPLACE_COLORS.Unknown;
 
   return (
@@ -35,7 +33,7 @@ export function MarketplaceTag({ marketplace, compact = false }: MarketplaceTagP
           boxShadow: `0 0 0 3px ${color}1f`,
         }}
       />
-      {!compact && MARKETPLACE_LABELS[marketplace]}
+      {MARKETPLACE_LABELS[marketplace]}
     </Box>
   );
 }

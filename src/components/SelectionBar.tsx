@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { SIDEBAR_WIDTH } from '../lib/layout';
+import { EASE_BACK_OUT } from '../lib/constants';
 
 interface SelectionBarProps {
   count: number;
@@ -35,7 +36,7 @@ export function SelectionBar({ count, onClear, children }: SelectionBarProps) {
         mountOnEnter
         unmountOnExit
         timeout={{ enter: 340, exit: 180 }}
-        easing={{ enter: 'cubic-bezier(0.34, 1.5, 0.64, 1)', exit: 'ease-in' }}
+        easing={{ enter: EASE_BACK_OUT, exit: 'ease-in' }}
       >
         <Box
           sx={{

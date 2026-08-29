@@ -259,7 +259,6 @@ export const theme = createTheme({
           color: (t.vars ?? t).palette.text.primary,
           backgroundColor: (t.vars ?? t).palette.surface.panel,
           '&:hover': {
-            borderColor: (t.vars ?? t).palette.surface.borderStrong,
             backgroundColor: (t.vars ?? t).palette.surface.hover,
           },
         }),
@@ -584,11 +583,6 @@ export const theme = createTheme({
     MuiSelect: {
       styleOverrides: {
         select: { fontSize: '0.875rem' },
-      },
-    },
-    MuiSnackbar: {
-      styleOverrides: {
-        root: { '& .MuiPaper-root': { minWidth: 280 } },
       },
     },
   },

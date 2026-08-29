@@ -4,8 +4,7 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-
-const MAX = 500;
+import { NOTE_MAX_LENGTH } from '../lib/constants';
 
 interface NotePopoverProps {
   open: boolean;
@@ -66,7 +65,7 @@ export function NotePopover({
         placeholder="e.g. fragile — call before ship"
         value={text}
         onChange={(e) => setText(e.target.value)}
-        slotProps={{ htmlInput: { maxLength: MAX } }}
+        slotProps={{ htmlInput: { maxLength: NOTE_MAX_LENGTH } }}
         onKeyDown={(e) => {
           if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') save();
           if (e.key === 'Escape' && !busy) onClose();
@@ -75,7 +74,7 @@ export function NotePopover({
       />
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1 }}>
         <Typography variant="caption" sx={{ color: 'text.disabled' }}>
-          {text.length}/{MAX}
+          {text.length}/{NOTE_MAX_LENGTH}
         </Typography>
         <Box sx={{ display: 'flex', gap: 0.5 }}>
           <Button size="small" variant="text" onClick={onClose} disabled={busy}>

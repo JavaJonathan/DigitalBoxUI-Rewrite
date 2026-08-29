@@ -1,4 +1,5 @@
 import { apiFetch, apiUrl, ApiError, TOKEN_KEY } from './client';
+import { PAGE_SIZE } from '../lib/constants';
 import type {
   ActionResult,
   OrderDetail,
@@ -17,7 +18,7 @@ export function listOrders(query: OrderQuery) {
   if (query.priority) params.set('priority', 'true');
   if (query.sort) params.set('sort', query.sort);
   params.set('page', String(query.page ?? 1));
-  params.set('pageSize', String(query.pageSize ?? 50));
+  params.set('pageSize', String(query.pageSize ?? PAGE_SIZE));
   return apiFetch<PagedResult<OrderListItem>>(`/api/orders?${params.toString()}`);
 }
 

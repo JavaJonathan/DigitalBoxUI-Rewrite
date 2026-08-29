@@ -43,6 +43,7 @@ import {
 import { getApiErrorMessage } from '../api/client';
 import { useToast } from '../components/ToastProvider';
 import { formatDate, pluralize, MARKETPLACE_LABELS } from '../lib/format';
+import { NOTE_MAX_LENGTH } from '../lib/constants';
 import { MARKETPLACES, type Marketplace, type OrderDetail } from '../types';
 
 interface EditLine {
@@ -537,7 +538,7 @@ export function OrderDetailPage() {
                       placeholder="e.g. fragile — call before ship"
                       value={noteDraft}
                       onChange={(e) => setNoteDraft(e.target.value)}
-                      slotProps={{ htmlInput: { maxLength: 500 } }}
+                      slotProps={{ htmlInput: { maxLength: NOTE_MAX_LENGTH } }}
                     />
                     <Box
                       sx={{
@@ -547,7 +548,7 @@ export function OrderDetailPage() {
                       }}
                     >
                       <Typography variant="caption" sx={{ color: 'text.disabled' }}>
-                        {noteDraft.length}/500
+                        {noteDraft.length}/{NOTE_MAX_LENGTH}
                       </Typography>
                       <Stack direction="row" spacing={0.5}>
                         <Button

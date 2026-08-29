@@ -18,9 +18,9 @@ import { useOrders } from '../hooks/useOrders';
 import { undoOrders } from '../api/orders';
 import { getApiErrorMessage } from '../api/client';
 import { useToast } from '../components/ToastProvider';
+import { PAGE_SIZE } from '../lib/constants';
+import { toggleInSet } from '../lib/collections';
 import type { OrderStatus } from '../types';
-
-const PAGE_SIZE = 50;
 
 export function HistoryPage() {
   const { notify } = useToast();
@@ -39,13 +39,7 @@ export function HistoryPage() {
 
   useEffect(() => setSelected(new Set()), [tab, q]);
 
-  const toggle = (id: string) =>
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+  const toggle = (id: string) => setSelected((prev) => toggleInSet(prev, id));
   const toggleAll = (checked: boolean) =>
     setSelected(checked ? new Set(orders.map((o) => o.id)) : new Set());
 

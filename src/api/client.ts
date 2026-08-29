@@ -45,9 +45,10 @@ export async function apiFetch<T>(path: string, options: FetchOptions = {}): Pro
 
   if (!response.ok) {
     const body = await response.json().catch(() => null);
+    // `??` would stop at an empty `statusText` (common under HTTP/2); `||` falls through.
     throw new ApiError(
       response.status,
-      extractMessage(body) ?? response.statusText ?? 'Request failed',
+      extractMessage(body) || response.statusText || 'Request failed',
     );
   }
 

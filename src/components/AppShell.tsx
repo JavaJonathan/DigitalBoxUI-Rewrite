@@ -12,6 +12,7 @@ import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
 import { useAuth } from '../auth/AuthContext';
 import { SIDEBAR_WIDTH } from '../lib/layout';
+import { EASE_BACK_OUT } from '../lib/constants';
 import { Logo, LogoMark } from './Logo';
 import { ColorModeToggle } from './ColorModeToggle';
 
@@ -31,14 +32,6 @@ interface AppShellProps {
   titleMeta?: ReactNode;
   actions?: ReactNode;
   children: ReactNode;
-  /** disable the default content padding (full-bleed pages) */
-  disableGutters?: boolean;
-  /**
-   * Optional cap on the content width. Left undefined the content fills the
-   * viewport (minus the gutters) — an ops tool has no reason to waste the pixels
-   * on a wide monitor.
-   */
-  contentMax?: number;
 }
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
@@ -135,7 +128,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                   borderRadius: '0 3px 3px 0',
                   bgcolor: 'primary.main',
                   transform: `translateY(-50%) scaleY(${active ? 1 : 0})`,
-                  transition: 'transform 180ms cubic-bezier(0.34, 1.4, 0.64, 1)',
+                  transition: `transform 180ms ${EASE_BACK_OUT}`,
                 },
               }}
             >
@@ -261,14 +254,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-export function AppShell({
-  title,
-  titleMeta,
-  actions,
-  children,
-  disableGutters = false,
-  contentMax,
-}: AppShellProps) {
+export function AppShell({ title, titleMeta, actions, children }: AppShellProps) {
   const isDesktop = useMediaQuery('(min-width:900px)');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { pathname } = useLocation();
@@ -327,8 +313,6 @@ export function AppShell({
             sx={{
               height: 64,
               width: '100%',
-              maxWidth: contentMax ?? 'none',
-              mx: 'auto',
               px: { xs: 3, sm: 4, lg: 6 },
               display: 'flex',
               alignItems: 'center',
@@ -365,11 +349,9 @@ export function AppShell({
           className="db-fade-in"
           sx={{
             flex: 1,
-            px: disableGutters ? 0 : { xs: 3, sm: 4, lg: 6 },
-            py: disableGutters ? 0 : { xs: 3, sm: 4 },
+            px: { xs: 3, sm: 4, lg: 6 },
+            py: { xs: 3, sm: 4 },
             width: '100%',
-            maxWidth: disableGutters ? 'none' : (contentMax ?? 'none'),
-            mx: 'auto',
           }}
         >
           {children}

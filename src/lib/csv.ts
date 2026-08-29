@@ -33,12 +33,14 @@ export function parseCsvHeaders(text: string): string[] {
   return fields;
 }
 
-/** Best-guess column mapping for an inventory CSV — mirrors the server's original hard-coded names. */
+/** Best-guess column mapping for an inventory CSV; the operator can override it in the dialog. */
 export function guessInventoryColumns(headers: string[]): {
   sku: string;
   title: string;
   qty: string;
 } {
+  // `exact` is matched case-insensitively against the whole header; `contains` args are
+  // substring fallbacks.
   const pick = (exact: string, ...contains: string[]) => {
     const byExact = headers.find((h) => h.toLowerCase() === exact);
     if (byExact) return byExact;
@@ -48,7 +50,7 @@ export function guessInventoryColumns(headers: string[]): {
     sku: pick('sku', 'sku', 'upc'),
     title: pick('product_title', 'title', 'product', 'name', 'description'),
     qty: pick(
-      '26212b ridge rd',
+      'on_hand',
       'on hand',
       'onhand',
       'on-hand',

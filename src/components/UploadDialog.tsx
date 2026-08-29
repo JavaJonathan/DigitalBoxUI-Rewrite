@@ -16,6 +16,7 @@ import ErrorOutlineRoundedIcon from '@mui/icons-material/ErrorOutlineRounded';
 import RemoveCircleOutlineRoundedIcon from '@mui/icons-material/RemoveCircleOutlineRounded';
 import { uploadPackingSlips } from '../api/orders';
 import { getApiErrorMessage } from '../api/client';
+import { formatBytes } from '../lib/format';
 import { Mono } from './ui/Mono';
 import type { UploadResponse } from '../types';
 
@@ -23,10 +24,6 @@ interface UploadDialogProps {
   open: boolean;
   onClose: () => void;
   onUploaded: () => void;
-}
-
-function bytes(n: number) {
-  return n < 1024 * 1024 ? `${Math.round(n / 1024)} KB` : `${(n / 1024 / 1024).toFixed(1)} MB`;
 }
 
 export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
@@ -174,7 +171,7 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
                   {file.name}
                 </Typography>
                 <Typography sx={{ fontSize: '0.6875rem', color: 'text.disabled' }}>
-                  {bytes(file.size)}
+                  {formatBytes(file.size)}
                 </Typography>
                 <IconButton
                   size="small"

@@ -9,6 +9,7 @@ import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { SIDEBAR_WIDTH } from '../lib/layout';
+import { EASE_BACK_OUT } from '../lib/constants';
 
 type Severity = 'success' | 'error' | 'info' | 'warning';
 
@@ -25,11 +26,7 @@ interface ToastContextValue {
 const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 
 const SlideDown = (props: SlideProps) => (
-  <Slide
-    {...props}
-    direction="down"
-    easing={{ enter: 'cubic-bezier(0.34, 1.4, 0.64, 1)', exit: 'ease-in' }}
-  />
+  <Slide {...props} direction="down" easing={{ enter: EASE_BACK_OUT, exit: 'ease-in' }} />
 );
 
 const CONFIG: Record<Severity, { Icon: typeof CheckCircleRoundedIcon; bg: string; fg: string }> = {

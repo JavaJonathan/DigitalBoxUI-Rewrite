@@ -68,3 +68,8 @@ export const STATUS_LABELS: Record<OrderStatus, string> = {
 export function pluralize(n: number, singular: string, plural = `${singular}s`): string {
   return `${n.toLocaleString()} ${n === 1 ? singular : plural}`;
 }
+
+/** Human-readable file size, e.g. "48 KB" / "1.4 MB". */
+export function formatBytes(n: number): string {
+  return n < 1024 * 1024 ? `${Math.round(n / 1024)} KB` : `${(n / 1024 / 1024).toFixed(1)} MB`;
+}

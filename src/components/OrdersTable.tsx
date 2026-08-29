@@ -34,7 +34,7 @@ interface OrdersTableProps {
   selectedIds?: Set<string>;
   onToggle?: (id: string) => void;
   onToggleAll?: (checked: boolean) => void;
-  sort?: SortKey | 'created';
+  sort?: SortKey;
   onSortChange?: (sort: SortKey) => void;
   onTogglePriority?: (order: OrderListItem) => void;
   onEditNote?: (order: OrderListItem, anchor: HTMLElement) => void;

@@ -7,6 +7,7 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { pluralize } from '../lib/format';
+import { OPERATOR_NAME_MAX_LENGTH } from '../lib/constants';
 
 type Intent = 'ship' | 'cancel' | 'undo';
 
@@ -86,7 +87,7 @@ export function ConfirmActionDialog({
           label="Your name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          slotProps={{ htmlInput: { maxLength: 60 } }}
+          slotProps={{ htmlInput: { maxLength: OPERATOR_NAME_MAX_LENGTH } }}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && name.trim()) handleConfirm();
           }}

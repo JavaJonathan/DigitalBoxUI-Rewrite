@@ -7,9 +7,10 @@ import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import FlagRoundedIcon from '@mui/icons-material/FlagRounded';
 import IconButton from '@mui/material/IconButton';
-import type { Marketplace } from '../types';
+import { MARKETPLACES, type Marketplace } from '../types';
 import { MARKETPLACE_LABELS } from '../lib/format';
 import { MARKETPLACE_COLORS } from '../theme';
+import { SEARCH_DEBOUNCE_MS } from '../lib/constants';
 
 export interface ToolbarState {
   q: string;
@@ -22,8 +23,6 @@ interface QueueToolbarProps extends ToolbarState {
   showPriority?: boolean;
   onChange: (next: ToolbarState) => void;
 }
-
-const MARKETS: Marketplace[] = ['Amazon', 'Ebay', 'Walmart', 'Shopify', 'Unknown'];
 
 const isTypingTarget = (el: EventTarget | null) => {
   const node = el as HTMLElement | null;
@@ -41,16 +40,16 @@ export function QueueToolbar({
   onChange,
 }: QueueToolbarProps) {
   const [text, setText] = useState(q);
-  const [focused, setFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const latest = useRef({ marketplace, priority });
   latest.current = { marketplace, priority };
 
-  // Debounce the free-text field; the toggles below fire immediately.
+  // Debounce the free-text field; the toggles fire immediately. Intentionally keyed on
+  // `text` only — the current marketplace/priority are read via `latest.current`.
   useEffect(() => {
     const handle = setTimeout(() => {
       if (text !== q) onChange({ q: text, ...latest.current });
-    }, 300);
+    }, SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(handle);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [text]);
@@ -90,19 +89,19 @@ export function QueueToolbar({
           border: (t) => `1px solid ${(t.vars ?? t).palette.surface.borderStrong}`,
           bgcolor: 'surface.panel',
           transition: 'border-color 120ms ease, box-shadow 120ms ease',
+          '& .search-icon': { color: 'text.disabled', transition: 'color 120ms ease' },
           '&:focus-within': {
             borderColor: 'primary.main',
             boxShadow: (t) => `0 0 0 3px ${(t.vars ?? t).palette.primary.main}29`,
           },
+          '&:focus-within .search-icon': { color: 'primary.main' },
         }}
       >
-        <SearchIcon sx={{ fontSize: 19, color: focused ? 'primary.main' : 'text.disabled' }} />
+        <SearchIcon className="search-icon" sx={{ fontSize: 19 }} />
         <InputBase
           inputRef={inputRef}
           value={text}
           onChange={(e) => setText(e.target.value)}
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
           onKeyDown={(e) => {
             if (e.key === 'Escape' && text) {
               setText('');
@@ -215,7 +214,7 @@ export function QueueToolbar({
               }}
             >
               <ToggleButton value="all">All</ToggleButton>
-              {MARKETS.map((m) => (
+              {MARKETPLACES.map((m) => (
                 <ToggleButton key={m} value={m}>
                   <Box
                     component="span"

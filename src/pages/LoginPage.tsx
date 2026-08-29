@@ -125,11 +125,7 @@ export function LoginPage() {
               }}
             />
 
-            {error && (
-              <Alert severity="error" variant="standard">
-                {error}
-              </Alert>
-            )}
+            {error && <Alert severity="error">{error}</Alert>}
 
             <Button
               type="submit"

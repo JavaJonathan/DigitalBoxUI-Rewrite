@@ -1,5 +1,6 @@
 export interface LoginResponse {
   token: string;
+  /** from the API; the UI relies on the JWT's own expiry, not this field */
   expiresAtUtc: string;
   username: string;
 }
@@ -48,6 +49,7 @@ export interface OrderEvent {
 
 export interface OrderDetail extends OrderListItem {
   lineItems: LineItem[];
+  /** from the API; the slip is fetched separately via fetchPackingSlipObjectUrl */
   packingSlip: { id: string; fileName: string; byteSize: number };
   events: OrderEvent[];
 }
@@ -76,6 +78,7 @@ export interface UploadResponse {
 }
 
 export interface ActionResult {
+  /** from the API; the UI shows `message` and refetches rather than reading these */
   updated: number;
   skippedIds: string[];
   message: string;
@@ -93,7 +96,7 @@ export interface OrderQuery {
   marketplace?: Marketplace | '';
   priority?: boolean;
   status: OrderStatus;
-  sort?: 'shipDate' | 'title' | 'created';
+  sort?: 'shipDate' | 'title';
   page?: number;
   pageSize?: number;
 }

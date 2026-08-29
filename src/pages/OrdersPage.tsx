@@ -26,9 +26,9 @@ import { useOrders } from '../hooks/useOrders';
 import { cancelOrders, setOrderNotes, setOrderPriority, shipOrders } from '../api/orders';
 import { getApiErrorMessage } from '../api/client';
 import { useToast } from '../components/ToastProvider';
+import { PAGE_SIZE } from '../lib/constants';
+import { toggleInSet } from '../lib/collections';
 import type { Marketplace, OrderListItem } from '../types';
-
-const PAGE_SIZE = 50;
 
 export function OrdersPage() {
   const { notify } = useToast();
@@ -63,13 +63,7 @@ export function OrdersPage() {
     setPage(1);
   };
 
-  const toggle = (id: string) =>
-    setSelected((prev) => {
-      const nextSet = new Set(prev);
-      if (nextSet.has(id)) nextSet.delete(id);
-      else nextSet.add(id);
-      return nextSet;
-    });
+  const toggle = (id: string) => setSelected((prev) => toggleInSet(prev, id));
 
   const toggleAll = (checked: boolean) =>
     setSelected(checked ? new Set(orders.map((o) => o.id)) : new Set());
