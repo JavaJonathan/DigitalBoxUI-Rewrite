@@ -8,6 +8,7 @@ import ErrorRoundedIcon from '@mui/icons-material/ErrorRounded';
 import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import { SIDEBAR_WIDTH } from '../lib/layout';
 
 type Severity = 'success' | 'error' | 'info' | 'warning';
 
@@ -66,7 +67,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         slots={{ transition: SlideDown }}
         // nudge the centre past the sidebar so it sits over the content, like the SelectionBar
-        sx={{ top: { xs: 16, sm: 28 }, left: { md: 'calc(50% + 116px)' } }}
+        sx={{ top: { xs: 16, sm: 28 }, left: { md: `calc(50% + ${SIDEBAR_WIDTH / 2}px)` } }}
       >
         <Box
           role="alert"

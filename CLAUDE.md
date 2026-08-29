@@ -91,12 +91,20 @@ tabs), `/orders/:id` (detail + packing-slip viewer + correction form). Everythin
 `/login` is inside `ProtectedRoute`.
 
 **Key components**:
-- `AppShell` — fixed left sidebar (≥900px) / `Drawer` (<900px) + sticky blurred topbar with
-  page title + `actions` slot. Sidebar footer has the user chip, `ColorModeToggle`, sign-out.
+- `AppShell` — fixed left sidebar (`SIDEBAR_WIDTH` = 260, exported from `lib/layout.ts` and
+  reused by `SelectionBar` + the toast so they stay aligned) at ≥900px / `Drawer` (<900px),
+  plus a 64px sticky blurred topbar (page title + `actions` slot). Sidebar: 64px brand header,
+  an uppercase "Warehouse" label, tall 46px nav rows (icon in a rounded tile + an animated
+  `::before` accent bar on the active row, both primary-tinted via `color-mix`), a flex spacer,
+  a "Press / to search" hint, then a bordered footer card (avatar + username, then a divider row
+  with `ColorModeToggle` + sign-out).
 - `Logo` / `LogoMark` — inline-SVG isometric-box monogram.
-- `QueueToolbar` — debounced search (order # / item / **note**) + marketplace `ToggleButtonGroup`
-  + a "Priority" toggle (`showPriority`). `onChange` emits `ToolbarState { q, marketplace, priority }`;
-  the toggles fire immediately, the text field debounces.
+- `QueueToolbar` — a tall (44px) search field that grows to fill the row (with a `/` kbd hint
+  and a global `/`-to-focus / `Esc`-to-clear handler) + a right-aligned filter cluster:
+  marketplace `ToggleButtonGroup` and a "Priority" toggle (`showPriority`), both 40px. When
+  neither filter is shown (history) the cluster is omitted and the search runs full-width.
+  `onChange` emits `ToolbarState { q, marketplace, priority }`; the toggles fire immediately,
+  the text field debounces.
 - `OrdersTable` — one table for queue and history. Optional callbacks: `onTogglePriority` (flag
   cell, queue only), `onEditNote` (queue **Notes** column — click the cell to open the popover;
   empty cells hover-reveal an add icon), `onUndoRow` (per-row Reopen, history only). Hover-reveal

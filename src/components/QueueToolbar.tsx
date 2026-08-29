@@ -25,6 +25,13 @@ interface QueueToolbarProps extends ToolbarState {
 
 const MARKETS: Marketplace[] = ['Amazon', 'Ebay', 'Walmart', 'Shopify', 'Unknown'];
 
+const isTypingTarget = (el: EventTarget | null) => {
+  const node = el as HTMLElement | null;
+  if (!node) return false;
+  const tag = node.tagName;
+  return tag === 'INPUT' || tag === 'TEXTAREA' || node.isContentEditable;
+};
+
 export function QueueToolbar({
   q,
   marketplace,
@@ -34,6 +41,8 @@ export function QueueToolbar({
   onChange,
 }: QueueToolbarProps) {
   const [text, setText] = useState(q);
+  const [focused, setFocused] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   const latest = useRef({ marketplace, priority });
   latest.current = { marketplace, priority };
 
@@ -48,21 +57,36 @@ export function QueueToolbar({
 
   useEffect(() => setText(q), [q]);
 
+  // `/` from anywhere focuses the search.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === '/' && !e.metaKey && !e.ctrlKey && !e.altKey && !isTypingTarget(e.target)) {
+        e.preventDefault();
+        inputRef.current?.focus();
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, []);
+
   const emit = (patch: Partial<ToolbarState>) =>
     onChange({ q: text, marketplace, priority, ...patch });
 
+  const hasFilters = showMarketplace || showPriority;
+
   return (
-    <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
+    <Box sx={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
       <Box
         sx={{
           display: 'flex',
           alignItems: 'center',
-          gap: 1,
-          height: 34,
-          px: 1.25,
-          minWidth: { xs: '100%', sm: 300 },
-          flex: { sm: '0 1 340px' },
-          borderRadius: 1.75,
+          gap: '10px',
+          height: 44,
+          px: '14px',
+          flex: '1 1 300px',
+          maxWidth: hasFilters ? { md: 640 } : 'none',
+          minWidth: { xs: '100%', sm: 260 },
+          borderRadius: '10px',
           border: (t) => `1px solid ${(t.vars ?? t).palette.surface.borderStrong}`,
           bgcolor: 'surface.panel',
           transition: 'border-color 120ms ease, box-shadow 120ms ease',
@@ -72,93 +96,135 @@ export function QueueToolbar({
           },
         }}
       >
-        <SearchIcon sx={{ fontSize: 16, color: 'text.disabled' }} />
+        <SearchIcon sx={{ fontSize: 19, color: focused ? 'primary.main' : 'text.disabled' }} />
         <InputBase
+          inputRef={inputRef}
           value={text}
           onChange={(e) => setText(e.target.value)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape' && text) {
+              setText('');
+              e.stopPropagation();
+            }
+          }}
           placeholder="Search order number, item, or note…"
-          sx={{ flex: 1, fontSize: '0.8125rem' }}
+          sx={{ flex: 1, fontSize: '0.875rem' }}
         />
-        {text && (
-          <IconButton size="small" onClick={() => setText('')} aria-label="Clear search" sx={{ p: 0.25 }}>
-            <CloseIcon sx={{ fontSize: 14 }} />
+        {text ? (
+          <IconButton size="small" onClick={() => setText('')} aria-label="Clear search" sx={{ p: '2px' }}>
+            <CloseIcon sx={{ fontSize: 16 }} />
           </IconButton>
+        ) : (
+          <Box
+            component="kbd"
+            sx={{
+              display: { xs: 'none', sm: 'block' },
+              fontFamily: 'var(--db-mono)',
+              fontSize: '0.75rem',
+              lineHeight: 1,
+              px: '6px',
+              py: '3px',
+              borderRadius: '6px',
+              border: (t) => `1px solid ${(t.vars ?? t).palette.surface.borderStrong}`,
+              bgcolor: 'surface.sunken',
+              color: 'text.disabled',
+            }}
+          >
+            /
+          </Box>
         )}
       </Box>
 
-      {showPriority && (
-        <ToggleButton
-          value="priority"
-          size="small"
-          selected={priority}
-          onChange={() => emit({ priority: !priority })}
-          sx={{
-            border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
-            borderRadius: '7px !important',
-            px: 1.25,
-            height: 34,
-            fontSize: '0.75rem',
-            fontWeight: 500,
-            color: 'text.secondary',
-            textTransform: 'none',
-            gap: 0.75,
-            '&.Mui-selected': {
-              bgcolor: (t) => `${(t.vars ?? t).palette.primary.main}14`,
-              color: 'primary.main',
-              borderColor: 'primary.main',
-              '&:hover': { bgcolor: (t) => `${(t.vars ?? t).palette.primary.main}1f` },
-            },
-          }}
-        >
-          <FlagRoundedIcon sx={{ fontSize: 14 }} />
-          Priority
-        </ToggleButton>
-      )}
-
-      {showMarketplace && (
-        <ToggleButtonGroup
-          exclusive
-          size="small"
-          value={marketplace || 'all'}
-          onChange={(_, val) => emit({ marketplace: val === 'all' || !val ? '' : (val as Marketplace) })}
-          sx={{
-            gap: 0.5,
-            flexWrap: 'wrap',
-            maxWidth: '100%',
-            '& .MuiToggleButton-root': {
+      {hasFilters && (
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          flexWrap: 'wrap',
+          ml: { md: 'auto' },
+        }}
+      >
+        {showPriority && (
+          <ToggleButton
+            value="priority"
+            size="small"
+            selected={priority}
+            onChange={() => emit({ priority: !priority })}
+            sx={{
               border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
-              borderRadius: '7px !important',
-              px: 1.25,
-              height: 34,
-              fontSize: '0.75rem',
-              fontWeight: 500,
+              borderRadius: '9px !important',
+              px: '14px',
+              height: 40,
+              fontSize: '0.8125rem',
+              fontWeight: 550,
               color: 'text.secondary',
               textTransform: 'none',
+              gap: '8px',
               '&.Mui-selected': {
-                bgcolor: 'surface.sunken',
-                color: 'text.primary',
-                borderColor: (t) => (t.vars ?? t).palette.surface.borderStrong,
+                bgcolor: (t) => `color-mix(in srgb, ${(t.vars ?? t).palette.primary.main} 12%, transparent)`,
+                color: 'primary.main',
+                borderColor: 'primary.main',
+                '&:hover': {
+                  bgcolor: (t) => `color-mix(in srgb, ${(t.vars ?? t).palette.primary.main} 18%, transparent)`,
+                },
               },
-            },
-          }}
-        >
-          <ToggleButton value="all">All</ToggleButton>
-          {MARKETS.map((m) => (
-            <ToggleButton key={m} value={m}>
-              <Box
-                component="span"
-                sx={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: '50%',
-                  bgcolor: MARKETPLACE_COLORS[m],
-                  mr: 0.75,
-                }}
-              />
-              {MARKETPLACE_LABELS[m]}
-            </ToggleButton>
-          ))}
-        </ToggleButtonGroup>
+            }}
+          >
+            <FlagRoundedIcon sx={{ fontSize: 16 }} />
+            Priority
+          </ToggleButton>
+        )}
+
+        {showMarketplace && (
+          <ToggleButtonGroup
+            exclusive
+            size="small"
+            value={marketplace || 'all'}
+            onChange={(_, val) => emit({ marketplace: val === 'all' || !val ? '' : (val as Marketplace) })}
+            sx={{
+              gap: '6px',
+              flexWrap: 'wrap',
+              maxWidth: '100%',
+              '& .MuiToggleButton-root': {
+                border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
+                borderRadius: '9px !important',
+                px: '13px',
+                height: 40,
+                fontSize: '0.8125rem',
+                fontWeight: 550,
+                color: 'text.secondary',
+                textTransform: 'none',
+                '&.Mui-selected': {
+                  bgcolor: 'surface.sunken',
+                  color: 'text.primary',
+                  borderColor: (t) => (t.vars ?? t).palette.surface.borderStrong,
+                },
+              },
+            }}
+          >
+            <ToggleButton value="all">All</ToggleButton>
+            {MARKETS.map((m) => (
+              <ToggleButton key={m} value={m}>
+                <Box
+                  component="span"
+                  sx={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    bgcolor: MARKETPLACE_COLORS[m],
+                    mr: '8px',
+                    boxShadow: `0 0 0 3px ${MARKETPLACE_COLORS[m]}22`,
+                  }}
+                />
+                {MARKETPLACE_LABELS[m]}
+              </ToggleButton>
+            ))}
+          </ToggleButtonGroup>
+        )}
+      </Box>
       )}
     </Box>
   );

@@ -5,8 +5,7 @@ import Slide from '@mui/material/Slide';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
-
-const SIDEBAR_WIDTH = 232;
+import { SIDEBAR_WIDTH } from '../lib/layout';
 
 interface SelectionBarProps {
   count: number;

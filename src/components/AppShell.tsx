@@ -11,10 +11,9 @@ import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
 import { useAuth } from '../auth/AuthContext';
+import { SIDEBAR_WIDTH } from '../lib/layout';
 import { Logo, LogoMark } from './Logo';
 import { ColorModeToggle } from './ColorModeToggle';
-
-const SIDEBAR_WIDTH = 232;
 
 const NAV = [
   { label: 'Queue', to: '/', icon: InboxOutlinedIcon, match: (p: string) => p === '/' },
@@ -51,17 +50,34 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Box
         sx={{
-          height: 56,
-          px: 2,
+          height: 64,
+          px: '20px',
           display: 'flex',
           alignItems: 'center',
           borderBottom: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
         }}
       >
-        <Logo />
+        <Logo size={28} />
       </Box>
 
-      <Box component="nav" sx={{ flex: 1, p: 1.5, display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+      <Box
+        component="nav"
+        sx={{ flex: 1, px: '12px', pt: '16px', display: 'flex', flexDirection: 'column', gap: '4px' }}
+      >
+        <Typography
+          sx={{
+            px: '12px',
+            mb: '6px',
+            fontSize: '0.6875rem',
+            fontWeight: 700,
+            letterSpacing: '0.09em',
+            textTransform: 'uppercase',
+            color: 'text.disabled',
+          }}
+        >
+          Warehouse
+        </Typography>
+
         {NAV.map((item) => {
           const active = item.match(location.pathname);
           const Icon = item.icon;
@@ -71,63 +87,154 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
               component={RouterLink}
               to={item.to}
               onClick={onNavigate}
+              aria-current={active ? 'page' : undefined}
               sx={{
+                position: 'relative',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 1.25,
-                px: 1.25,
-                height: 34,
-                borderRadius: 1.75,
+                gap: '12px',
+                pl: '12px',
+                pr: '10px',
+                height: 46,
+                borderRadius: '12px',
                 textDecoration: 'none',
-                fontSize: '0.8125rem',
-                fontWeight: active ? 600 : 500,
-                color: active ? 'text.primary' : 'text.secondary',
-                bgcolor: active ? 'surface.sunken' : 'transparent',
-                transition: 'background-color 100ms ease, color 100ms ease',
-                '&:hover': { bgcolor: active ? 'surface.sunken' : 'surface.hover', color: 'text.primary' },
-                '& svg': { fontSize: 18, color: active ? 'primary.main' : 'inherit' },
+                fontSize: '0.9375rem',
+                fontWeight: active ? 650 : 500,
+                color: active ? 'primary.main' : 'text.secondary',
+                bgcolor: active
+                  ? (t) => `color-mix(in srgb, ${(t.vars ?? t).palette.primary.main} 12%, transparent)`
+                  : 'transparent',
+                transition: 'background-color 120ms ease, color 120ms ease',
+                '&:hover': {
+                  bgcolor: active
+                    ? (t) => `color-mix(in srgb, ${(t.vars ?? t).palette.primary.main} 17%, transparent)`
+                    : 'surface.hover',
+                  color: active ? 'primary.main' : 'text.primary',
+                },
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  left: -12,
+                  top: '50%',
+                  width: 3,
+                  height: 22,
+                  borderRadius: '0 3px 3px 0',
+                  bgcolor: 'primary.main',
+                  transform: `translateY(-50%) scaleY(${active ? 1 : 0})`,
+                  transition: 'transform 180ms cubic-bezier(0.34, 1.4, 0.64, 1)',
+                },
               }}
             >
-              <Icon />
+              <Box
+                sx={{
+                  width: 30,
+                  height: 30,
+                  flexShrink: 0,
+                  borderRadius: '9px',
+                  display: 'grid',
+                  placeItems: 'center',
+                  bgcolor: active
+                    ? (t) => `color-mix(in srgb, ${(t.vars ?? t).palette.primary.main} 20%, transparent)`
+                    : 'surface.sunken',
+                  color: active ? 'primary.main' : 'text.secondary',
+                  transition: 'background-color 120ms ease, color 120ms ease',
+                  '& svg': { fontSize: 19 },
+                }}
+              >
+                <Icon />
+              </Box>
               {item.label}
             </Box>
           );
         })}
-      </Box>
 
-      <Box sx={{ p: 1.5, borderTop: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}` }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, px: 0.75, py: 0.5 }}>
+        <Box sx={{ flex: 1 }} />
+
+        <Typography
+          sx={{
+            px: '12px',
+            pb: '4px',
+            fontSize: '0.6875rem',
+            color: 'text.disabled',
+            display: { xs: 'none', md: 'block' },
+          }}
+        >
+          Press{' '}
           <Box
+            component="kbd"
             sx={{
-              width: 28,
-              height: 28,
-              borderRadius: '50%',
-              display: 'grid',
-              placeItems: 'center',
+              fontFamily: 'var(--db-mono)',
+              fontSize: '0.6875rem',
+              px: '5px',
+              py: '1px',
+              borderRadius: '5px',
+              border: (t) => `1px solid ${(t.vars ?? t).palette.surface.borderStrong}`,
               bgcolor: 'surface.sunken',
               color: 'text.secondary',
-              fontSize: '0.75rem',
-              fontWeight: 650,
-              textTransform: 'uppercase',
-              flexShrink: 0,
             }}
           >
-            {(user?.username ?? '?').slice(0, 2)}
+            /
+          </Box>{' '}
+          to search
+        </Typography>
+      </Box>
+
+      <Box sx={{ p: '12px', borderTop: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}` }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+            p: '12px',
+            borderRadius: '12px',
+            border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
+            bgcolor: 'surface.sunken',
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Box
+              sx={{
+                width: 36,
+                height: 36,
+                borderRadius: '50%',
+                display: 'grid',
+                placeItems: 'center',
+                bgcolor: 'primary.main',
+                color: 'primary.contrastText',
+                fontSize: '0.8125rem',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                flexShrink: 0,
+              }}
+            >
+              {(user?.username ?? '?').slice(0, 2)}
+            </Box>
+            <Box sx={{ minWidth: 0, flex: 1 }}>
+              <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, lineHeight: 1.3 }} noWrap>
+                {user?.username}
+              </Typography>
+              <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled', lineHeight: 1.3 }} noWrap>
+                Shared warehouse login
+              </Typography>
+            </Box>
           </Box>
-          <Box sx={{ minWidth: 0, flex: 1 }}>
-            <Typography sx={{ fontSize: '0.8125rem', fontWeight: 550, lineHeight: 1.3 }} noWrap>
-              {user?.username}
-            </Typography>
-            <Typography sx={{ fontSize: '0.6875rem', color: 'text.disabled', lineHeight: 1.3 }} noWrap>
-              Shared warehouse login
-            </Typography>
+
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              pt: '8px',
+              borderTop: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
+            }}
+          >
+            <ColorModeToggle />
+            <Tooltip title="Sign out" placement="top" arrow>
+              <IconButton onClick={signOut} aria-label="Sign out">
+                <LogoutOutlinedIcon sx={{ fontSize: 19 }} />
+              </IconButton>
+            </Tooltip>
           </Box>
-          <ColorModeToggle />
-          <Tooltip title="Sign out" placement="top" arrow>
-            <IconButton size="small" onClick={signOut} aria-label="Sign out">
-              <LogoutOutlinedIcon sx={{ fontSize: 18 }} />
-            </IconButton>
-          </Tooltip>
         </Box>
       </Box>
     </Box>
@@ -186,7 +293,7 @@ export function AppShell({
         >
           <Box
             sx={{
-              height: 56,
+              height: 64,
               width: '100%',
               maxWidth: contentMax ?? 'none',
               mx: 'auto',
@@ -205,7 +312,7 @@ export function AppShell({
               </>
             )}
             <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1.25, minWidth: 0 }}>
-              <Typography variant="h4" component="h1" noWrap sx={{ fontSize: '0.9375rem' }}>
+              <Typography variant="h4" component="h1" noWrap sx={{ fontSize: '1.0625rem' }}>
                 {title}
               </Typography>
               {titleMeta}
