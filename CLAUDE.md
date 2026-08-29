@@ -13,13 +13,14 @@ Backend is a separate repo (`DigitalBoxApi`). Stack and conventions mirror the
 ## Commands
 
 ```bash
-npm run dev       # Vite dev server, http://localhost:5173 (strictPort — must match the API's CORS origin)
-npm run build     # tsc -b && vite build  — this is the real typecheck, NOT `tsc --noEmit`
-npm run lint      # oxlint
+npm run dev          # Vite dev server, http://localhost:5173 (strictPort — must match the API's CORS origin)
+npm run build        # tsc -b && vite build  — this is the real typecheck, NOT `tsc --noEmit`
+npm run lint         # oxlint  (currently 7 warnings, all known/accepted — don't let the count grow)
+npm run format       # prettier --write .   (format:check for CI)
 npm run preview
 ```
 
-No automated test suite.
+No automated test suite. Verification = `npm run build` + `npm run lint` + a manual browser pass.
 
 **Local prerequisite**: `.env.local` (gitignored) with `VITE_API_BASE_URL=http://localhost:5180`.
 
@@ -164,7 +165,14 @@ Walmart blue, Shopify green) — used only as small dots, never as fills.
 - MUI icon names differ by version; verify before importing a new one
   (`ls node_modules/@mui/icons-material | grep -i <name>`). `DeleteOutline` doesn't exist; it's `DeleteOutlined`.
 - After adding/removing npm packages while `npm run dev` is running, kill it, delete
-  `node_modules/.vite`, and restart, or you'll see phantom "Invalid hook call" errors.
+  `node_modules/.vite`, and restart, or you'll see phantom "Invalid hook call" errors. HMR also
+  wedges after a burst of edits — the console shows stale `ReferenceError`s for names you just
+  removed; a dev-server restart clears it (the build itself stays clean).
+- oxlint honours `// eslint-disable-next-line react-hooks/exhaustive-deps` (in `useOrders.ts` and
+  `QueueToolbar.tsx`) and it suppresses more than just that rule for the effect — **do not
+  remove those comments**, the warning count jumps if you do.
+- `oxlint` has only `react/rules-of-hooks` + `react/only-export-components` explicitly configured
+  but runs its default correctness set (that's where `set-state-in-effect` comes from).
 - The Claude Code browser-preview pane here is ~406 CSS px and scales larger emulated
   viewports down to an unreadable thumbnail — verify desktop layout via DOM measurements
   (`javascript_tool`), not screenshots.
