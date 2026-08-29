@@ -112,7 +112,14 @@ export function ShippableItemsDialog({ open, onClose }: ShippableItemsDialogProp
   };
 
   const mapField = (label: string, value: string, onChange: (v: string) => void) => (
-    <TextField select size="small" label={label} value={value} onChange={(e) => onChange(e.target.value)} fullWidth>
+    <TextField
+      select
+      size="small"
+      label={label}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      fullWidth
+    >
       {headers.map((h) => (
         <MenuItem key={h} value={h}>
           {h}
@@ -182,8 +189,12 @@ export function ShippableItemsDialog({ open, onClose }: ShippableItemsDialogProp
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               {mapField('SKU column', mapping.sku, (v) => setMapping((m) => ({ ...m, sku: v })))}
-              {mapField('Product title column', mapping.title, (v) => setMapping((m) => ({ ...m, title: v })))}
-              {mapField('On-hand quantity column', mapping.qty, (v) => setMapping((m) => ({ ...m, qty: v })))}
+              {mapField('Product title column', mapping.title, (v) =>
+                setMapping((m) => ({ ...m, title: v })),
+              )}
+              {mapField('On-hand quantity column', mapping.qty, (v) =>
+                setMapping((m) => ({ ...m, qty: v })),
+              )}
             </Box>
             {busy && <LinearProgress sx={{ mt: 2 }} />}
           </>
@@ -244,7 +255,10 @@ export function ShippableItemsDialog({ open, onClose }: ShippableItemsDialogProp
               </Table>
             </TableContainer>
             {result.rows.length > 100 && (
-              <Typography variant="caption" sx={{ color: 'text.disabled', mt: 1, display: 'block' }}>
+              <Typography
+                variant="caption"
+                sx={{ color: 'text.disabled', mt: 1, display: 'block' }}
+              >
                 Showing the first 100 rows — the download has all {result.rows.length}.
               </Typography>
             )}
@@ -252,7 +266,9 @@ export function ShippableItemsDialog({ open, onClose }: ShippableItemsDialogProp
         )}
 
         {error && (
-          <Typography sx={{ mt: 2, fontSize: '0.8125rem', color: 'error.main' }}>{error}</Typography>
+          <Typography sx={{ mt: 2, fontSize: '0.8125rem', color: 'error.main' }}>
+            {error}
+          </Typography>
         )}
       </DialogContent>
 

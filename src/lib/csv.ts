@@ -47,7 +47,17 @@ export function guessInventoryColumns(headers: string[]): {
   return {
     sku: pick('sku', 'sku', 'upc'),
     title: pick('product_title', 'title', 'product', 'name', 'description'),
-    qty: pick('26212b ridge rd', 'on hand', 'onhand', 'on-hand', 'qty', 'quantity', 'available', 'stock', 'inventory'),
+    qty: pick(
+      '26212b ridge rd',
+      'on hand',
+      'onhand',
+      'on-hand',
+      'qty',
+      'quantity',
+      'available',
+      'stock',
+      'inventory',
+    ),
   };
 }
 

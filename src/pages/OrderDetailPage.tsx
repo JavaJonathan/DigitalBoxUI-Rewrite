@@ -123,7 +123,11 @@ export function OrderDetailPage() {
     setShipDate(order.shipDate ?? '');
     setLines(
       order.lineItems.length > 0
-        ? order.lineItems.map((li) => ({ title: li.title, quantity: li.quantity, sku: li.sku ?? '' }))
+        ? order.lineItems.map((li) => ({
+            title: li.title,
+            quantity: li.quantity,
+            sku: li.sku ?? '',
+          }))
         : [{ title: '', quantity: 1, sku: '' }],
     );
     setEditing(true);
@@ -225,7 +229,11 @@ export function OrderDetailPage() {
           <Grid size={{ xs: 12, md: 5 }}>
             <Stack spacing={2.5}>
               <Box>
-                <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
+                <Stack
+                  direction="row"
+                  spacing={0.5}
+                  sx={{ alignItems: 'center', flexWrap: 'wrap' }}
+                >
                   <Mono copyable sx={{ fontSize: '1rem', fontWeight: 600 }}>
                     {order.orderNumber || 'No order number'}
                   </Mono>
@@ -244,7 +252,11 @@ export function OrderDetailPage() {
                     </IconButton>
                   </Tooltip>
                 </Stack>
-                <Stack direction="row" spacing={1} sx={{ mt: 1, alignItems: 'center', flexWrap: 'wrap' }}>
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{ mt: 1, alignItems: 'center', flexWrap: 'wrap' }}
+                >
                   <OrderStatusBadge status={order.status} />
                   <ParseStatusBadge status={order.parseStatus} />
                 </Stack>
@@ -253,7 +265,12 @@ export function OrderDetailPage() {
               {isOpen ? (
                 <Stack direction="row" spacing={1}>
                   {!editing && (
-                    <Button size="small" variant="outlined" startIcon={<EditOutlinedIcon sx={{ fontSize: 15 }} />} onClick={beginEdit}>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<EditOutlinedIcon sx={{ fontSize: 15 }} />}
+                      onClick={beginEdit}
+                    >
                       Edit
                     </Button>
                   )}
@@ -272,7 +289,10 @@ export function OrderDetailPage() {
                     color="error"
                     startIcon={<CancelOutlinedIcon sx={{ fontSize: 15 }} />}
                     onClick={() => setAction('cancel')}
-                    sx={{ color: 'error.main', borderColor: (t) => (t.vars ?? t).palette.error.light }}
+                    sx={{
+                      color: 'error.main',
+                      borderColor: (t) => (t.vars ?? t).palette.error.light,
+                    }}
                   >
                     Cancel
                   </Button>
@@ -290,7 +310,13 @@ export function OrderDetailPage() {
                 </Stack>
               )}
 
-              <Paper sx={{ p: 2.5, border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`, borderRadius: 3 }}>
+              <Paper
+                sx={{
+                  p: 2.5,
+                  border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
+                  borderRadius: 3,
+                }}
+              >
                 {editing ? (
                   <Stack spacing={2}>
                     <TextField
@@ -333,7 +359,11 @@ export function OrderDetailPage() {
                           fullWidth
                           value={line.title}
                           onChange={(e) =>
-                            setLines((prev) => prev.map((l, i) => (i === index ? { ...l, title: e.target.value } : l)))
+                            setLines((prev) =>
+                              prev.map((l, i) =>
+                                i === index ? { ...l, title: e.target.value } : l,
+                              ),
+                            )
                           }
                         />
                         <TextField
@@ -347,7 +377,13 @@ export function OrderDetailPage() {
                             setLines((prev) =>
                               prev.map((l, i) =>
                                 i === index
-                                  ? { ...l, quantity: Math.max(0, Math.floor(Number(e.target.value) || 0)) }
+                                  ? {
+                                      ...l,
+                                      quantity: Math.max(
+                                        0,
+                                        Math.floor(Number(e.target.value) || 0),
+                                      ),
+                                    }
                                   : l,
                               ),
                             )
@@ -367,7 +403,9 @@ export function OrderDetailPage() {
                       size="small"
                       variant="text"
                       startIcon={<AddRoundedIcon sx={{ fontSize: 16 }} />}
-                      onClick={() => setLines((prev) => [...prev, { title: '', quantity: 1, sku: '' }])}
+                      onClick={() =>
+                        setLines((prev) => [...prev, { title: '', quantity: 1, sku: '' }])
+                      }
                       sx={{ alignSelf: 'flex-start' }}
                     >
                       Add line item
@@ -378,7 +416,12 @@ export function OrderDetailPage() {
                       <Button variant="contained" size="small" onClick={save} disabled={saving}>
                         {saving ? 'Saving…' : 'Save changes'}
                       </Button>
-                      <Button variant="text" size="small" onClick={() => setEditing(false)} disabled={saving}>
+                      <Button
+                        variant="text"
+                        size="small"
+                        onClick={() => setEditing(false)}
+                        disabled={saving}
+                      >
                         Discard
                       </Button>
                     </Stack>
@@ -389,7 +432,12 @@ export function OrderDetailPage() {
                       <MarketplaceTag marketplace={order.marketplace} />
                     </FieldRow>
                     <FieldRow label="Ship date">
-                      <Typography sx={{ fontSize: '0.8125rem', color: order.shipDate ? 'text.primary' : 'text.disabled' }}>
+                      <Typography
+                        sx={{
+                          fontSize: '0.8125rem',
+                          color: order.shipDate ? 'text.primary' : 'text.disabled',
+                        }}
+                      >
                         {formatDate(order.shipDate)}
                       </Typography>
                     </FieldRow>
@@ -401,7 +449,10 @@ export function OrderDetailPage() {
                     </Typography>
                     <Stack spacing={1}>
                       {order.lineItems.map((li) => (
-                        <Box key={li.id} sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>
+                        <Box
+                          key={li.id}
+                          sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}
+                        >
                           <Box
                             sx={{
                               minWidth: 26,
@@ -422,7 +473,9 @@ export function OrderDetailPage() {
                             ×{li.quantity}
                           </Box>
                           <Box sx={{ minWidth: 0 }}>
-                            <Typography sx={{ fontSize: '0.8125rem', lineHeight: 1.4 }}>{li.title}</Typography>
+                            <Typography sx={{ fontSize: '0.8125rem', lineHeight: 1.4 }}>
+                              {li.title}
+                            </Typography>
                             {li.sku && (
                               <Mono muted sx={{ fontSize: '0.6875rem' }}>
                                 {li.sku}
@@ -441,8 +494,21 @@ export function OrderDetailPage() {
                 )}
               </Paper>
 
-              <Paper sx={{ p: 2.5, border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`, borderRadius: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+              <Paper
+                sx={{
+                  p: 2.5,
+                  border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
+                  borderRadius: 3,
+                }}
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    mb: 1,
+                  }}
+                >
                   <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
                     Note
                   </Typography>
@@ -473,15 +539,31 @@ export function OrderDetailPage() {
                       onChange={(e) => setNoteDraft(e.target.value)}
                       slotProps={{ htmlInput: { maxLength: 500 } }}
                     />
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                      }}
+                    >
                       <Typography variant="caption" sx={{ color: 'text.disabled' }}>
                         {noteDraft.length}/500
                       </Typography>
                       <Stack direction="row" spacing={0.5}>
-                        <Button size="small" variant="text" onClick={() => setEditingNote(false)} disabled={savingNote}>
+                        <Button
+                          size="small"
+                          variant="text"
+                          onClick={() => setEditingNote(false)}
+                          disabled={savingNote}
+                        >
                           Cancel
                         </Button>
-                        <Button size="small" variant="contained" onClick={saveNote} disabled={savingNote}>
+                        <Button
+                          size="small"
+                          variant="contained"
+                          onClick={saveNote}
+                          disabled={savingNote}
+                        >
                           {savingNote ? 'Saving…' : 'Save'}
                         </Button>
                       </Stack>
@@ -535,7 +617,13 @@ export function OrderDetailPage() {
                 </Typography>
                 {pdfUrl && (
                   <Tooltip title="Open in new tab" arrow>
-                    <IconButton size="small" component={Link} href={pdfUrl} target="_blank" rel="noreferrer">
+                    <IconButton
+                      size="small"
+                      component={Link}
+                      href={pdfUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
                       <OpenInNewRoundedIcon sx={{ fontSize: 16 }} />
                     </IconButton>
                   </Tooltip>
@@ -546,7 +634,13 @@ export function OrderDetailPage() {
                   component="iframe"
                   src={`${pdfUrl}#toolbar=0`}
                   title="Packing slip"
-                  sx={{ width: '100%', height: { xs: 460, md: 'calc(100vh - 180px)' }, border: 'none', display: 'block', bgcolor: 'surface.inset' }}
+                  sx={{
+                    width: '100%',
+                    height: { xs: 460, md: 'calc(100vh - 180px)' },
+                    border: 'none',
+                    display: 'block',
+                    bgcolor: 'surface.inset',
+                  }}
                 />
               ) : (
                 <Box sx={{ p: 4, textAlign: 'center' }}>

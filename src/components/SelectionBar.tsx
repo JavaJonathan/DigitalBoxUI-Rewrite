@@ -81,7 +81,12 @@ export function SelectionBar({ count, onClear, children }: SelectionBarProps) {
             >
               selected
             </Typography>
-            <IconButton size="small" onClick={onClear} aria-label="Clear selection" sx={{ ml: '2px' }}>
+            <IconButton
+              size="small"
+              onClick={onClear}
+              aria-label="Clear selection"
+              sx={{ ml: '2px' }}
+            >
               <CloseRoundedIcon sx={{ fontSize: 19 }} />
             </IconButton>
           </Box>

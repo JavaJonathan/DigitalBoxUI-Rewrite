@@ -80,11 +80,23 @@ export function HistoryPage() {
         {error && <Alert severity="error">{error}</Alert>}
 
         {loading ? (
-          <Box sx={{ border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`, borderRadius: 3, bgcolor: 'surface.panel' }}>
+          <Box
+            sx={{
+              border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
+              borderRadius: 3,
+              bgcolor: 'surface.panel',
+            }}
+          >
             <TableSkeleton rows={8} columns={7} />
           </Box>
         ) : orders.length === 0 ? (
-          <Box sx={{ border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`, borderRadius: 3, bgcolor: 'surface.panel' }}>
+          <Box
+            sx={{
+              border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
+              borderRadius: 3,
+              bgcolor: 'surface.panel',
+            }}
+          >
             <EmptyState
               icon={<HistoryOutlinedIcon />}
               title={`No ${tab.toLowerCase()} orders`}

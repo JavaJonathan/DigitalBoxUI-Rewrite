@@ -61,7 +61,8 @@ export function OrdersTable({
 }: OrdersTableProps) {
   const navigate = useNavigate();
   const isHistory = status !== 'Open';
-  const allSelected = selectable && orders.length > 0 && orders.every((o) => selectedIds?.has(o.id));
+  const allSelected =
+    selectable && orders.length > 0 && orders.every((o) => selectedIds?.has(o.id));
   const someSelected = selectable && orders.some((o) => selectedIds?.has(o.id)) && !allSelected;
   const showFlag = !isHistory && !!onTogglePriority;
 
@@ -176,7 +177,9 @@ export function OrdersTable({
                     <Checkbox
                       checked={selected}
                       onChange={() => onToggle?.(order.id)}
-                      slotProps={{ input: { 'aria-label': `Select order ${order.orderNumber || order.id}` } }}
+                      slotProps={{
+                        input: { 'aria-label': `Select order ${order.orderNumber || order.id}` },
+                      }}
                     />
                   </TableCell>
                 )}
@@ -207,9 +210,20 @@ export function OrdersTable({
                 )}
 
                 <TableCell sx={{ py: 0.75 }}>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.125, minWidth: 0, overflow: 'hidden' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 0.125,
+                      minWidth: 0,
+                      overflow: 'hidden',
+                    }}
+                  >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.625, minWidth: 0 }}>
-                      <Mono muted={!order.orderNumber} sx={{ fontWeight: 550, whiteSpace: 'nowrap' }}>
+                      <Mono
+                        muted={!order.orderNumber}
+                        sx={{ fontWeight: 550, whiteSpace: 'nowrap' }}
+                      >
                         {order.orderNumber || 'No order number'}
                       </Mono>
                       {!isHistory && order.parseStatus !== 'Parsed' && (
@@ -260,7 +274,11 @@ export function OrdersTable({
                   >
                     <Typography
                       component="span"
-                      sx={{ fontSize: '0.8125rem', fontVariantNumeric: 'tabular-nums', cursor: 'default' }}
+                      sx={{
+                        fontSize: '0.8125rem',
+                        fontVariantNumeric: 'tabular-nums',
+                        cursor: 'default',
+                      }}
                     >
                       {order.totalQuantity}
                     </Typography>
@@ -268,8 +286,21 @@ export function OrdersTable({
                 </TableCell>
 
                 <TableCell>
-                  <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75, whiteSpace: 'nowrap' }}>
-                    <Typography component="span" sx={{ fontSize: '0.8125rem', color: order.shipDate ? 'text.primary' : 'text.disabled' }}>
+                  <Box
+                    sx={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 0.75,
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: '0.8125rem',
+                        color: order.shipDate ? 'text.primary' : 'text.disabled',
+                      }}
+                    >
                       {formatDate(order.shipDate)}
                     </Typography>
                     {overdue && (
@@ -286,10 +317,17 @@ export function OrdersTable({
                       <OrderStatusBadge status={order.status} />
                     </TableCell>
                     <TableCell>
-                      <RelativeTime value={status === 'Shipped' ? order.shippedAt : order.cancelledAt} />
+                      <RelativeTime
+                        value={status === 'Shipped' ? order.shippedAt : order.cancelledAt}
+                      />
                     </TableCell>
                     <TableCell>
-                      <Typography sx={{ fontSize: '0.8125rem', color: order.actionedBy ? 'text.primary' : 'text.disabled' }}>
+                      <Typography
+                        sx={{
+                          fontSize: '0.8125rem',
+                          color: order.actionedBy ? 'text.primary' : 'text.disabled',
+                        }}
+                      >
                         {order.actionedBy ?? '—'}
                       </Typography>
                     </TableCell>

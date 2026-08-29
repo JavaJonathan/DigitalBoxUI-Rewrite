@@ -45,7 +45,10 @@ export async function apiFetch<T>(path: string, options: FetchOptions = {}): Pro
 
   if (!response.ok) {
     const body = await response.json().catch(() => null);
-    throw new ApiError(response.status, extractMessage(body) ?? response.statusText ?? 'Request failed');
+    throw new ApiError(
+      response.status,
+      extractMessage(body) ?? response.statusText ?? 'Request failed',
+    );
   }
 
   if (response.status === 204) {

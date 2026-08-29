@@ -20,7 +20,12 @@ interface ConfirmActionDialogProps {
 
 const CONFIG: Record<
   Intent,
-  { title: string; color: 'success' | 'error' | 'primary'; verb: string; body: (n: number) => string }
+  {
+    title: string;
+    color: 'success' | 'error' | 'primary';
+    verb: string;
+    body: (n: number) => string;
+  }
 > = {
   ship: {
     title: 'Ship orders',
@@ -42,7 +47,13 @@ const CONFIG: Record<
   },
 };
 
-export function ConfirmActionDialog({ open, intent, count, onClose, onConfirm }: ConfirmActionDialogProps) {
+export function ConfirmActionDialog({
+  open,
+  intent,
+  count,
+  onClose,
+  onConfirm,
+}: ConfirmActionDialogProps) {
   const [name, setName] = useState('');
   const [busy, setBusy] = useState(false);
   const cfg = CONFIG[intent];

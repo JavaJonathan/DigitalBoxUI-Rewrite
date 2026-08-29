@@ -10,7 +10,9 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
 
   if (loading) {
     return (
-      <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Box
+        sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      >
         <CircularProgress />
       </Box>
     );

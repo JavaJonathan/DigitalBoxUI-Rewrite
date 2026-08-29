@@ -22,7 +22,12 @@ export function LogoMark({ size = 26 }: { size?: number }) {
           strokeWidth="1.8"
           strokeLinejoin="round"
         />
-        <path d="M3 7l9 4.5L21 7M12 21.5v-10" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+        <path
+          d="M3 7l9 4.5L21 7M12 21.5v-10"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
       </svg>
     </Box>
   );

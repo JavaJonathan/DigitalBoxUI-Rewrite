@@ -113,7 +113,12 @@ export function QueueToolbar({
           sx={{ flex: 1, fontSize: '0.875rem' }}
         />
         {text ? (
-          <IconButton size="small" onClick={() => setText('')} aria-label="Clear search" sx={{ p: '2px' }}>
+          <IconButton
+            size="small"
+            onClick={() => setText('')}
+            aria-label="Clear search"
+            sx={{ p: '2px' }}
+          >
             <CloseIcon sx={{ fontSize: 16 }} />
           </IconButton>
         ) : (
@@ -138,93 +143,97 @@ export function QueueToolbar({
       </Box>
 
       {hasFilters && (
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          flexWrap: 'wrap',
-          ml: { md: 'auto' },
-        }}
-      >
-        {showPriority && (
-          <ToggleButton
-            value="priority"
-            size="small"
-            selected={priority}
-            onChange={() => emit({ priority: !priority })}
-            sx={{
-              border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
-              borderRadius: '9px !important',
-              px: '14px',
-              height: 40,
-              fontSize: '0.8125rem',
-              fontWeight: 550,
-              color: 'text.secondary',
-              textTransform: 'none',
-              gap: '8px',
-              '&.Mui-selected': {
-                bgcolor: (t) => `color-mix(in srgb, ${(t.vars ?? t).palette.primary.main} 12%, transparent)`,
-                color: 'primary.main',
-                borderColor: 'primary.main',
-                '&:hover': {
-                  bgcolor: (t) => `color-mix(in srgb, ${(t.vars ?? t).palette.primary.main} 18%, transparent)`,
-                },
-              },
-            }}
-          >
-            <FlagRoundedIcon sx={{ fontSize: 16 }} />
-            Priority
-          </ToggleButton>
-        )}
-
-        {showMarketplace && (
-          <ToggleButtonGroup
-            exclusive
-            size="small"
-            value={marketplace || 'all'}
-            onChange={(_, val) => emit({ marketplace: val === 'all' || !val ? '' : (val as Marketplace) })}
-            sx={{
-              gap: '6px',
-              flexWrap: 'wrap',
-              maxWidth: '100%',
-              '& .MuiToggleButton-root': {
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            flexWrap: 'wrap',
+            ml: { md: 'auto' },
+          }}
+        >
+          {showPriority && (
+            <ToggleButton
+              value="priority"
+              size="small"
+              selected={priority}
+              onChange={() => emit({ priority: !priority })}
+              sx={{
                 border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
                 borderRadius: '9px !important',
-                px: '13px',
+                px: '14px',
                 height: 40,
                 fontSize: '0.8125rem',
                 fontWeight: 550,
                 color: 'text.secondary',
                 textTransform: 'none',
+                gap: '8px',
                 '&.Mui-selected': {
-                  bgcolor: 'surface.sunken',
-                  color: 'text.primary',
-                  borderColor: (t) => (t.vars ?? t).palette.surface.borderStrong,
+                  bgcolor: (t) =>
+                    `color-mix(in srgb, ${(t.vars ?? t).palette.primary.main} 12%, transparent)`,
+                  color: 'primary.main',
+                  borderColor: 'primary.main',
+                  '&:hover': {
+                    bgcolor: (t) =>
+                      `color-mix(in srgb, ${(t.vars ?? t).palette.primary.main} 18%, transparent)`,
+                  },
                 },
-              },
-            }}
-          >
-            <ToggleButton value="all">All</ToggleButton>
-            {MARKETS.map((m) => (
-              <ToggleButton key={m} value={m}>
-                <Box
-                  component="span"
-                  sx={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: '50%',
-                    bgcolor: MARKETPLACE_COLORS[m],
-                    mr: '8px',
-                    boxShadow: `0 0 0 3px ${MARKETPLACE_COLORS[m]}22`,
-                  }}
-                />
-                {MARKETPLACE_LABELS[m]}
-              </ToggleButton>
-            ))}
-          </ToggleButtonGroup>
-        )}
-      </Box>
+              }}
+            >
+              <FlagRoundedIcon sx={{ fontSize: 16 }} />
+              Priority
+            </ToggleButton>
+          )}
+
+          {showMarketplace && (
+            <ToggleButtonGroup
+              exclusive
+              size="small"
+              value={marketplace || 'all'}
+              onChange={(_, val) =>
+                emit({ marketplace: val === 'all' || !val ? '' : (val as Marketplace) })
+              }
+              sx={{
+                gap: '6px',
+                flexWrap: 'wrap',
+                maxWidth: '100%',
+                '& .MuiToggleButton-root': {
+                  border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
+                  borderRadius: '9px !important',
+                  px: '13px',
+                  height: 40,
+                  fontSize: '0.8125rem',
+                  fontWeight: 550,
+                  color: 'text.secondary',
+                  textTransform: 'none',
+                  '&.Mui-selected': {
+                    bgcolor: 'surface.sunken',
+                    color: 'text.primary',
+                    borderColor: (t) => (t.vars ?? t).palette.surface.borderStrong,
+                  },
+                },
+              }}
+            >
+              <ToggleButton value="all">All</ToggleButton>
+              {MARKETS.map((m) => (
+                <ToggleButton key={m} value={m}>
+                  <Box
+                    component="span"
+                    sx={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
+                      bgcolor: MARKETPLACE_COLORS[m],
+                      mr: '8px',
+                      boxShadow: `0 0 0 3px ${MARKETPLACE_COLORS[m]}22`,
+                    }}
+                  />
+                  {MARKETPLACE_LABELS[m]}
+                </ToggleButton>
+              ))}
+            </ToggleButtonGroup>
+          )}
+        </Box>
       )}
     </Box>
   );

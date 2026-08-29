@@ -25,7 +25,11 @@ interface ToastContextValue {
 const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 
 const SlideDown = (props: SlideProps) => (
-  <Slide {...props} direction="down" easing={{ enter: 'cubic-bezier(0.34, 1.4, 0.64, 1)', exit: 'ease-in' }} />
+  <Slide
+    {...props}
+    direction="down"
+    easing={{ enter: 'cubic-bezier(0.34, 1.4, 0.64, 1)', exit: 'ease-in' }}
+  />
 );
 
 const CONFIG: Record<Severity, { Icon: typeof CheckCircleRoundedIcon; bg: string; fg: string }> = {

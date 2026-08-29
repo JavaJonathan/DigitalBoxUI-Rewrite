@@ -41,7 +41,10 @@ export function OrdersPage() {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [action, setAction] = useState<'ship' | 'cancel' | null>(null);
-  const [noteTarget, setNoteTarget] = useState<{ order: OrderListItem; anchor: HTMLElement } | null>(null);
+  const [noteTarget, setNoteTarget] = useState<{
+    order: OrderListItem;
+    anchor: HTMLElement;
+  } | null>(null);
 
   const query = useMemo(
     () => ({ status: 'Open' as const, q, marketplace, priority, sort, page, pageSize: PAGE_SIZE }),
@@ -110,7 +113,10 @@ export function OrdersPage() {
     <AppShell
       title="Queue"
       titleMeta={
-        <Typography component="span" sx={{ fontSize: '0.75rem', color: 'text.disabled', fontVariantNumeric: 'tabular-nums' }}>
+        <Typography
+          component="span"
+          sx={{ fontSize: '0.75rem', color: 'text.disabled', fontVariantNumeric: 'tabular-nums' }}
+        >
           {data?.total ?? 0} open
         </Typography>
       }
@@ -142,16 +148,34 @@ export function OrdersPage() {
       }
     >
       <Stack spacing={2}>
-        <QueueToolbar q={q} marketplace={marketplace} priority={priority} showPriority onChange={applyToolbar} />
+        <QueueToolbar
+          q={q}
+          marketplace={marketplace}
+          priority={priority}
+          showPriority
+          onChange={applyToolbar}
+        />
 
         {error && <Alert severity="error">{error}</Alert>}
 
         {loading ? (
-          <Box sx={{ border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`, borderRadius: 3, bgcolor: 'surface.panel' }}>
+          <Box
+            sx={{
+              border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
+              borderRadius: 3,
+              bgcolor: 'surface.panel',
+            }}
+          >
             <TableSkeleton rows={10} columns={6} />
           </Box>
         ) : orders.length === 0 ? (
-          <Box sx={{ border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`, borderRadius: 3, bgcolor: 'surface.panel' }}>
+          <Box
+            sx={{
+              border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
+              borderRadius: 3,
+              bgcolor: 'surface.panel',
+            }}
+          >
             {filtered ? (
               <EmptyState
                 icon={<Inventory2OutlinedIcon />}
@@ -197,7 +221,12 @@ export function OrdersPage() {
 
         {pageCount > 1 && (
           <Box sx={{ display: 'flex', justifyContent: 'center', pt: 0.5 }}>
-            <Pagination count={pageCount} page={page} onChange={(_, p) => setPage(p)} size="small" />
+            <Pagination
+              count={pageCount}
+              page={page}
+              onChange={(_, p) => setPage(p)}
+              size="small"
+            />
           </Box>
         )}
       </Stack>

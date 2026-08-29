@@ -146,7 +146,16 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
         )}
 
         {files.length > 0 && !result && (
-          <Box sx={{ mt: 1.5, maxHeight: 220, overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+          <Box
+            sx={{
+              mt: 1.5,
+              maxHeight: 220,
+              overflow: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 0.5,
+            }}
+          >
             {files.map((file) => (
               <Box
                 key={file.name + file.size}
@@ -164,7 +173,9 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
                 <Typography sx={{ flex: 1, fontSize: '0.8125rem' }} noWrap>
                   {file.name}
                 </Typography>
-                <Typography sx={{ fontSize: '0.6875rem', color: 'text.disabled' }}>{bytes(file.size)}</Typography>
+                <Typography sx={{ fontSize: '0.6875rem', color: 'text.disabled' }}>
+                  {bytes(file.size)}
+                </Typography>
                 <IconButton
                   size="small"
                   onClick={() => setFiles((prev) => prev.filter((f) => f !== file))}
@@ -180,7 +191,9 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
 
         {busy && <LinearProgress sx={{ mt: 2 }} />}
         {error && (
-          <Typography sx={{ mt: 2, fontSize: '0.8125rem', color: 'error.main' }}>{error}</Typography>
+          <Typography sx={{ mt: 2, fontSize: '0.8125rem', color: 'error.main' }}>
+            {error}
+          </Typography>
         )}
 
         {result && (
@@ -189,14 +202,24 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
               <Box component="span" sx={{ color: 'success.main', fontWeight: 600 }}>
                 {result.created} added
               </Box>
-              <Box component="span" sx={{ color: 'text.secondary' }}>{result.duplicates} duplicate</Box>
+              <Box component="span" sx={{ color: 'text.secondary' }}>
+                {result.duplicates} duplicate
+              </Box>
               {result.errors > 0 && (
                 <Box component="span" sx={{ color: 'error.main', fontWeight: 600 }}>
                   {result.errors} failed
                 </Box>
               )}
             </Box>
-            <Box sx={{ maxHeight: 260, overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+            <Box
+              sx={{
+                maxHeight: 260,
+                overflow: 'auto',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 0.5,
+              }}
+            >
               {result.files.map((f, i) => {
                 const ok = f.outcome === 'created';
                 const dup = f.outcome === 'duplicate';
@@ -214,11 +237,17 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
                     }}
                   >
                     {ok ? (
-                      <CheckCircleRoundedIcon sx={{ fontSize: 16, color: 'success.main', mt: 0.25 }} />
+                      <CheckCircleRoundedIcon
+                        sx={{ fontSize: 16, color: 'success.main', mt: 0.25 }}
+                      />
                     ) : dup ? (
-                      <RemoveCircleOutlineRoundedIcon sx={{ fontSize: 16, color: 'text.disabled', mt: 0.25 }} />
+                      <RemoveCircleOutlineRoundedIcon
+                        sx={{ fontSize: 16, color: 'text.disabled', mt: 0.25 }}
+                      />
                     ) : (
-                      <ErrorOutlineRoundedIcon sx={{ fontSize: 16, color: 'error.main', mt: 0.25 }} />
+                      <ErrorOutlineRoundedIcon
+                        sx={{ fontSize: 16, color: 'error.main', mt: 0.25 }}
+                      />
                     )}
                     <Box sx={{ minWidth: 0, flex: 1 }}>
                       <Typography sx={{ fontSize: '0.8125rem' }} noWrap>

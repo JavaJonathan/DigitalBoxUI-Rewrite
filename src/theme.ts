@@ -89,10 +89,30 @@ export const theme = createTheme({
           light: alpha('#4f8bff', 0.16),
           contrastText: '#0a0a0b',
         },
-        success: { main: '#3ecf8e', light: alpha('#3ecf8e', 0.16), dark: '#2fae76', contrastText: '#0a0a0b' },
-        error: { main: '#ff6369', light: alpha('#ff6369', 0.16), dark: '#e5484d', contrastText: '#0a0a0b' },
-        warning: { main: '#f5b545', light: alpha('#f5b545', 0.16), dark: '#d99530', contrastText: '#0a0a0b' },
-        info: { main: '#4f8bff', light: alpha('#4f8bff', 0.16), dark: '#3d78ea', contrastText: '#0a0a0b' },
+        success: {
+          main: '#3ecf8e',
+          light: alpha('#3ecf8e', 0.16),
+          dark: '#2fae76',
+          contrastText: '#0a0a0b',
+        },
+        error: {
+          main: '#ff6369',
+          light: alpha('#ff6369', 0.16),
+          dark: '#e5484d',
+          contrastText: '#0a0a0b',
+        },
+        warning: {
+          main: '#f5b545',
+          light: alpha('#f5b545', 0.16),
+          dark: '#d99530',
+          contrastText: '#0a0a0b',
+        },
+        info: {
+          main: '#4f8bff',
+          light: alpha('#4f8bff', 0.16),
+          dark: '#3d78ea',
+          contrastText: '#0a0a0b',
+        },
         text: {
           primary: '#f2f2f3',
           secondary: '#9d9da6',
@@ -175,7 +195,10 @@ export const theme = createTheme({
         '*, *::before, *::after': { boxSizing: 'border-box' },
         '::selection': { backgroundColor: alpha(brand[500], 0.22) },
         // quiet, thin scrollbars
-        '*': { scrollbarColor: `${(t.vars ?? t).palette.surface.borderStrong} transparent`, scrollbarWidth: 'thin' },
+        '*': {
+          scrollbarColor: `${(t.vars ?? t).palette.surface.borderStrong} transparent`,
+          scrollbarWidth: 'thin',
+        },
         '*::-webkit-scrollbar': { width: 10, height: 10 },
         '*::-webkit-scrollbar-thumb': {
           backgroundColor: 'transparent',
@@ -242,7 +265,10 @@ export const theme = createTheme({
         }),
         text: ({ theme: t }) => ({
           color: (t.vars ?? t).palette.text.secondary,
-          '&:hover': { backgroundColor: (t.vars ?? t).palette.surface.hover, color: (t.vars ?? t).palette.text.primary },
+          '&:hover': {
+            backgroundColor: (t.vars ?? t).palette.surface.hover,
+            color: (t.vars ?? t).palette.text.primary,
+          },
         }),
       },
     },
@@ -252,7 +278,10 @@ export const theme = createTheme({
           borderRadius: 7,
           color: (t.vars ?? t).palette.text.secondary,
           transition: 'background-color 120ms ease, color 120ms ease',
-          '&:hover': { backgroundColor: (t.vars ?? t).palette.surface.hover, color: (t.vars ?? t).palette.text.primary },
+          '&:hover': {
+            backgroundColor: (t.vars ?? t).palette.surface.hover,
+            color: (t.vars ?? t).palette.text.primary,
+          },
         }),
         sizeSmall: { padding: 5 },
       },
@@ -281,7 +310,9 @@ export const theme = createTheme({
           borderRadius: 7,
           backgroundColor: (t.vars ?? t).palette.surface.panel,
           transition: 'border-color 120ms ease, box-shadow 120ms ease',
-          '& .MuiOutlinedInput-notchedOutline': { borderColor: (t.vars ?? t).palette.surface.borderStrong },
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: (t.vars ?? t).palette.surface.borderStrong,
+          },
           '&:hover .MuiOutlinedInput-notchedOutline': {
             borderColor: (t.vars ?? t).palette.text.disabled,
           },
@@ -395,7 +426,11 @@ export const theme = createTheme({
           minHeight: 40,
           borderBottom: `1px solid ${(t.vars ?? t).palette.surface.border}`,
         }),
-        indicator: ({ theme: t }) => ({ height: 2, borderRadius: 2, backgroundColor: (t.vars ?? t).palette.primary.main }),
+        indicator: ({ theme: t }) => ({
+          height: 2,
+          borderRadius: 2,
+          backgroundColor: (t.vars ?? t).palette.primary.main,
+        }),
       },
     },
     MuiTab: {
@@ -501,7 +536,11 @@ export const theme = createTheme({
     },
     MuiLinearProgress: {
       styleOverrides: {
-        root: ({ theme: t }) => ({ borderRadius: 999, height: 4, backgroundColor: (t.vars ?? t).palette.surface.sunken }),
+        root: ({ theme: t }) => ({
+          borderRadius: 999,
+          height: 4,
+          backgroundColor: (t.vars ?? t).palette.surface.sunken,
+        }),
         bar: { borderRadius: 999 },
       },
     },
@@ -536,7 +575,10 @@ export const theme = createTheme({
     },
     MuiSkeleton: {
       styleOverrides: {
-        root: ({ theme: t }) => ({ backgroundColor: (t.vars ?? t).palette.surface.sunken, borderRadius: 6 }),
+        root: ({ theme: t }) => ({
+          backgroundColor: (t.vars ?? t).palette.surface.sunken,
+          borderRadius: 6,
+        }),
       },
     },
     MuiSelect: {

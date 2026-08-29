@@ -17,7 +17,12 @@ import { ColorModeToggle } from './ColorModeToggle';
 
 const NAV = [
   { label: 'Queue', to: '/', icon: InboxOutlinedIcon, match: (p: string) => p === '/' },
-  { label: 'History', to: '/history', icon: HistoryOutlinedIcon, match: (p: string) => p.startsWith('/history') },
+  {
+    label: 'History',
+    to: '/history',
+    icon: HistoryOutlinedIcon,
+    match: (p: string) => p.startsWith('/history'),
+  },
 ];
 
 interface AppShellProps {
@@ -62,7 +67,14 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
       <Box
         component="nav"
-        sx={{ flex: 1, px: '12px', pt: '16px', display: 'flex', flexDirection: 'column', gap: '4px' }}
+        sx={{
+          flex: 1,
+          px: '12px',
+          pt: '16px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '4px',
+        }}
       >
         <Typography
           sx={{
@@ -102,12 +114,14 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                 fontWeight: active ? 650 : 500,
                 color: active ? 'primary.main' : 'text.secondary',
                 bgcolor: active
-                  ? (t) => `color-mix(in srgb, ${(t.vars ?? t).palette.primary.main} 12%, transparent)`
+                  ? (t) =>
+                      `color-mix(in srgb, ${(t.vars ?? t).palette.primary.main} 12%, transparent)`
                   : 'transparent',
                 transition: 'background-color 120ms ease, color 120ms ease',
                 '&:hover': {
                   bgcolor: active
-                    ? (t) => `color-mix(in srgb, ${(t.vars ?? t).palette.primary.main} 17%, transparent)`
+                    ? (t) =>
+                        `color-mix(in srgb, ${(t.vars ?? t).palette.primary.main} 17%, transparent)`
                     : 'surface.hover',
                   color: active ? 'primary.main' : 'text.primary',
                 },
@@ -134,7 +148,8 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                   display: 'grid',
                   placeItems: 'center',
                   bgcolor: active
-                    ? (t) => `color-mix(in srgb, ${(t.vars ?? t).palette.primary.main} 20%, transparent)`
+                    ? (t) =>
+                        `color-mix(in srgb, ${(t.vars ?? t).palette.primary.main} 20%, transparent)`
                     : 'surface.sunken',
                   color: active ? 'primary.main' : 'text.secondary',
                   transition: 'background-color 120ms ease, color 120ms ease',
@@ -179,7 +194,9 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         </Typography>
       </Box>
 
-      <Box sx={{ p: '12px', borderTop: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}` }}>
+      <Box
+        sx={{ p: '12px', borderTop: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}` }}
+      >
         <Box
           sx={{
             display: 'flex',
@@ -213,7 +230,10 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
               <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, lineHeight: 1.3 }} noWrap>
                 {user?.username}
               </Typography>
-              <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled', lineHeight: 1.3 }} noWrap>
+              <Typography
+                sx={{ fontSize: '0.75rem', color: 'text.disabled', lineHeight: 1.3 }}
+                noWrap
+              >
                 Shared warehouse login
               </Typography>
             </Box>
@@ -273,20 +293,32 @@ export function AppShell({
         <Drawer
           open={drawerOpen}
           onClose={() => setDrawerOpen(false)}
-          slotProps={{ paper: { sx: { width: SIDEBAR_WIDTH, bgcolor: 'surface.panel', backgroundImage: 'none' } } }}
+          slotProps={{
+            paper: {
+              sx: { width: SIDEBAR_WIDTH, bgcolor: 'surface.panel', backgroundImage: 'none' },
+            },
+          }}
         >
           <SidebarContent onNavigate={() => setDrawerOpen(false)} />
         </Drawer>
       )}
 
-      <Box sx={{ pl: isDesktop ? `${SIDEBAR_WIDTH}px` : 0, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <Box
+        sx={{
+          pl: isDesktop ? `${SIDEBAR_WIDTH}px` : 0,
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: '100vh',
+        }}
+      >
         <Box
           component="header"
           sx={{
             position: 'sticky',
             top: 0,
             zIndex: (t) => t.zIndex.appBar - 1,
-            bgcolor: (t) => `color-mix(in srgb, ${(t.vars ?? t).palette.surface.canvas} 82%, transparent)`,
+            bgcolor: (t) =>
+              `color-mix(in srgb, ${(t.vars ?? t).palette.surface.canvas} 82%, transparent)`,
             backdropFilter: 'saturate(180%) blur(8px)',
             borderBottom: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
           }}
@@ -305,7 +337,12 @@ export function AppShell({
           >
             {!isDesktop && (
               <>
-                <IconButton size="small" edge="start" onClick={() => setDrawerOpen(true)} aria-label="Open navigation">
+                <IconButton
+                  size="small"
+                  edge="start"
+                  onClick={() => setDrawerOpen(true)}
+                  aria-label="Open navigation"
+                >
                   <MenuOutlinedIcon sx={{ fontSize: 20 }} />
                 </IconButton>
                 <LogoMark size={22} />
