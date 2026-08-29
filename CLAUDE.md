@@ -142,6 +142,13 @@ signed-in user (`ConfirmActionDialog` has no fields).
 - `UploadDialog` / `ShippableItemsDialog` — both use the shared `ui/FileDropzone` for the
   drag-drop area. ShippableItems: drop CSV → map columns (auto-detected via `lib/csv.ts`) →
   preview → Download CSV (client-side, BOM + CRLF).
+  `UploadDialog` is expected to take **large multi-file selections** — a warehouse operator
+  drops a week at once (hundreds, up to ~1000 PDFs). `api/orders.ts#uploadPackingSlips` sends
+  them in sequential 6-file batches (`UPLOAD_CHUNK_SIZE` — keep at 6: 6 × the 15 MB file cap =
+  90 MB, under the API's 100 MB `RequestSizeLimit`; 8 would overflow it) so the server never
+  sees a big request and only one PDF parses at a time. The staged-file list and the
+  per-file result list both `.map` the full array — keep those rows cheap (or virtualise /
+  collapse to a summary) so a ~1000-file selection doesn't jank the dialog.
 - `ConfirmActionDialog` — `intent: 'ship' | 'cancel' | 'reopen'`, 3-way copy config; `onConfirm`
   takes no args (the acting user comes from the JWT server-side).
 - `ToastProvider` / `useToast` — MUI Snackbar, **top-centre over the content**, a big solid

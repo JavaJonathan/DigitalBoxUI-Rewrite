@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
@@ -17,6 +17,7 @@ import RemoveCircleOutlineRoundedIcon from '@mui/icons-material/RemoveCircleOutl
 import { uploadPackingSlips } from '../api/orders';
 import { getApiErrorMessage } from '../api/client';
 import { formatBytes } from '../lib/format';
+import { UPLOAD_MAX_FILES, UPLOAD_LIST_PREVIEW } from '../lib/constants';
 import { Mono } from './ui/Mono';
 import { FileDropzone } from './ui/FileDropzone';
 import type { UploadResponse } from '../types';
@@ -52,9 +53,30 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
     );
     setFiles((prev) => {
       const seen = new Set(prev.map((f) => f.name + f.size));
-      return [...prev, ...pdfs.filter((f) => !seen.has(f.name + f.size))];
+      const next = [...prev, ...pdfs.filter((f) => !seen.has(f.name + f.size))];
+      // Client-side guard — anything past the cap is dropped; the render shows a note when hit.
+      return next.length > UPLOAD_MAX_FILES ? next.slice(0, UPLOAD_MAX_FILES) : next;
     });
   };
+
+  const totalBytes = useMemo(() => files.reduce((n, f) => n + f.size, 0), [files]);
+
+  // Surface problems (errors, then duplicates) ahead of the created rows, so the ones that
+  // need attention stay visible even when the list is capped at UPLOAD_LIST_PREVIEW.
+  const orderedResults = useMemo(() => {
+    if (!result) return [];
+    const rank = (outcome: string) => (outcome === 'created' ? 2 : outcome === 'duplicate' ? 1 : 0);
+    return [...result.files].sort((a, b) => rank(a.outcome) - rank(b.outcome));
+  }, [result]);
+
+  // A large upload runs for many minutes of sequential batches; warn before a tab close /
+  // navigation throws away the batches still in flight (the committed ones are safe).
+  useEffect(() => {
+    if (!busy) return;
+    const warn = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [busy]);
 
   const upload = async () => {
     if (files.length === 0) return;
@@ -108,52 +130,79 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
               Drop PDFs here, or click to browse
             </Typography>
             <Typography variant="caption" sx={{ color: 'text.disabled' }}>
-              Up to 50 files · 15 MB each
+              Up to {UPLOAD_MAX_FILES.toLocaleString()} files · 15 MB each
             </Typography>
           </FileDropzone>
         )}
 
         {files.length > 0 && !result && (
-          <Box
-            sx={{
-              mt: 1.5,
-              maxHeight: 220,
-              overflow: 'auto',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 0.5,
-            }}
-          >
-            {files.map((file) => (
-              <Box
-                key={file.name + file.size}
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1.25,
-                  px: 1.25,
-                  py: 0.875,
-                  borderRadius: 1.75,
-                  bgcolor: 'surface.sunken',
-                }}
-              >
-                <PictureAsPdfOutlinedIcon sx={{ fontSize: 17, color: 'text.disabled' }} />
-                <Typography sx={{ flex: 1, fontSize: '0.8125rem' }} noWrap>
-                  {file.name}
+          <Box sx={{ mt: 1.5 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'baseline',
+                mb: 0.75,
+              }}
+            >
+              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                {files.length.toLocaleString()} {files.length === 1 ? 'file' : 'files'} ·{' '}
+                {formatBytes(totalBytes)}
+              </Typography>
+              {files.length >= UPLOAD_MAX_FILES && (
+                <Typography variant="caption" sx={{ color: 'warning.main' }}>
+                  Maximum of {UPLOAD_MAX_FILES.toLocaleString()} reached
                 </Typography>
-                <Typography sx={{ fontSize: '0.6875rem', color: 'text.disabled' }}>
-                  {formatBytes(file.size)}
-                </Typography>
-                <IconButton
-                  size="small"
-                  onClick={() => setFiles((prev) => prev.filter((f) => f !== file))}
-                  aria-label="Remove file"
-                  sx={{ p: 0.25 }}
+              )}
+            </Box>
+            <Box
+              sx={{
+                maxHeight: 220,
+                overflow: 'auto',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 0.5,
+              }}
+            >
+              {files.slice(0, UPLOAD_LIST_PREVIEW).map((file) => (
+                <Box
+                  key={file.name + file.size}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.25,
+                    px: 1.25,
+                    py: 0.875,
+                    borderRadius: 1.75,
+                    bgcolor: 'surface.sunken',
+                  }}
                 >
-                  <RemoveCircleOutlineRoundedIcon sx={{ fontSize: 16 }} />
-                </IconButton>
-              </Box>
-            ))}
+                  <PictureAsPdfOutlinedIcon sx={{ fontSize: 17, color: 'text.disabled' }} />
+                  <Typography sx={{ flex: 1, fontSize: '0.8125rem' }} noWrap>
+                    {file.name}
+                  </Typography>
+                  <Typography sx={{ fontSize: '0.6875rem', color: 'text.disabled' }}>
+                    {formatBytes(file.size)}
+                  </Typography>
+                  <IconButton
+                    size="small"
+                    onClick={() => setFiles((prev) => prev.filter((f) => f !== file))}
+                    aria-label="Remove file"
+                    sx={{ p: 0.25 }}
+                  >
+                    <RemoveCircleOutlineRoundedIcon sx={{ fontSize: 16 }} />
+                  </IconButton>
+                </Box>
+              ))}
+              {files.length > UPLOAD_LIST_PREVIEW && (
+                <Typography
+                  variant="caption"
+                  sx={{ color: 'text.disabled', textAlign: 'center', py: 0.75 }}
+                >
+                  + {(files.length - UPLOAD_LIST_PREVIEW).toLocaleString()} more not shown
+                </Typography>
+              )}
+            </Box>
           </Box>
         )}
 
@@ -200,7 +249,7 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
                 gap: 0.5,
               }}
             >
-              {result.files.map((f, i) => {
+              {orderedResults.slice(0, UPLOAD_LIST_PREVIEW).map((f, i) => {
                 const ok = f.outcome === 'created';
                 const dup = f.outcome === 'duplicate';
                 return (
@@ -248,6 +297,14 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
                   </Box>
                 );
               })}
+              {orderedResults.length > UPLOAD_LIST_PREVIEW && (
+                <Typography
+                  variant="caption"
+                  sx={{ color: 'text.disabled', textAlign: 'center', py: 0.75 }}
+                >
+                  + {(orderedResults.length - UPLOAD_LIST_PREVIEW).toLocaleString()} more
+                </Typography>
+              )}
             </Box>
           </Box>
         )}
