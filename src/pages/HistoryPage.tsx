@@ -15,6 +15,7 @@ import { SelectionBar } from '../components/SelectionBar';
 import { ConfirmActionDialog } from '../components/ConfirmActionDialog';
 import { EmptyState } from '../components/ui/EmptyState';
 import { TableSkeleton } from '../components/ui/TableSkeleton';
+import { PaginationBar } from '../components/ui/PaginationBar';
 import { useOrders } from '../hooks/useOrders';
 import { undoOrders } from '../api/orders';
 import { getApiErrorMessage } from '../api/client';
@@ -30,19 +31,30 @@ export function HistoryPage() {
   const { notify } = useToast();
   const [tab, setTab] = useState<Extract<OrderStatus, 'Shipped' | 'Cancelled'>>('Shipped');
   const [q, setQ] = useState('');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(PAGE_SIZE);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [reopenIds, setReopenIds] = useState<string[]>([]);
   const { busy: slipBusy, deliver: deliverSlips } = useSlipDelivery();
 
   const query = useMemo(
-    () => ({ status: tab, q, sort: 'shipDate' as const, page: 1, pageSize: PAGE_SIZE }),
-    [tab, q],
+    () => ({ status: tab, q, sort: 'shipDate' as const, page, pageSize }),
+    [tab, q, page, pageSize],
   );
   const { data, loading, error, refresh } = useOrders(query);
   const orders = data?.items ?? [];
 
-  useEffect(() => setSelectedIds(new Set()), [tab, q]);
+  // Switching tab or changing the search resets to the first page and clears the selection.
+  useEffect(() => {
+    setPage(1);
+    setSelectedIds(new Set());
+  }, [tab, q]);
+
+  const changePageSize = (size: number) => {
+    setPageSize(size);
+    setPage(1);
+  };
 
   // Reflect a coworker's ship / cancel / reopen in the history tabs too, debounced.
   const syncTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -128,6 +140,17 @@ export function HistoryPage() {
               setReopenIds([order.id]);
               setConfirmOpen(true);
             }}
+          />
+        )}
+
+        {orders.length > 0 && (
+          <PaginationBar
+            page={page}
+            pageSize={pageSize}
+            total={data?.total ?? 0}
+            noun={tab === 'Shipped' ? 'shipped order' : 'cancelled order'}
+            onPageChange={setPage}
+            onPageSizeChange={changePageSize}
           />
         )}
       </Stack>

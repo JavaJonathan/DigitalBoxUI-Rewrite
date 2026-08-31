@@ -5,7 +5,6 @@ import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import Pagination from '@mui/material/Pagination';
 import Alert from '@mui/material/Alert';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
@@ -26,6 +25,7 @@ import { SlipFolderField } from '../components/SlipFolderField';
 import { NotePopover } from '../components/NotePopover';
 import { EmptyState } from '../components/ui/EmptyState';
 import { TableSkeleton } from '../components/ui/TableSkeleton';
+import { PaginationBar } from '../components/ui/PaginationBar';
 import { useAuth } from '../auth/AuthContext';
 import { useOrders } from '../hooks/useOrders';
 import { cancelOrders, setOrderNotes, setOrderPriority, shipOrders } from '../api/orders';
@@ -48,6 +48,7 @@ export function OrdersPage() {
   const [priority, setPriority] = useState(false);
   const [sort, setSort] = useState<'shipDate' | 'title'>('shipDate');
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(PAGE_SIZE);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [uploadOpen, setUploadOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
@@ -60,8 +61,8 @@ export function OrdersPage() {
   } | null>(null);
 
   const query = useMemo(
-    () => ({ status: 'Open' as const, q, marketplace, priority, sort, page, pageSize: PAGE_SIZE }),
-    [q, marketplace, priority, sort, page],
+    () => ({ status: 'Open' as const, q, marketplace, priority, sort, page, pageSize }),
+    [q, marketplace, priority, sort, page, pageSize],
   );
   const { data, loading, error, refresh } = useOrders(query);
 
@@ -74,8 +75,12 @@ export function OrdersPage() {
   useEffect(() => () => clearTimeout(syncTimer.current), []);
 
   const orders = data?.items ?? [];
-  const pageCount = data ? Math.max(1, Math.ceil(data.total / data.pageSize)) : 1;
   const filtered = q.length > 0 || marketplace !== '' || priority;
+
+  const changePageSize = (size: number) => {
+    setPageSize(size);
+    setPage(1);
+  };
 
   const applyToolbar = (next: ToolbarState) => {
     setQ(next.q);
@@ -247,15 +252,14 @@ export function OrdersPage() {
           />
         )}
 
-        {pageCount > 1 && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', pt: 0.5 }}>
-            <Pagination
-              count={pageCount}
-              page={page}
-              onChange={(_, p) => setPage(p)}
-              size="small"
-            />
-          </Box>
+        {orders.length > 0 && (
+          <PaginationBar
+            page={page}
+            pageSize={pageSize}
+            total={data?.total ?? 0}
+            onPageChange={setPage}
+            onPageSizeChange={changePageSize}
+          />
         )}
       </Stack>
 

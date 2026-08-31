@@ -1,7 +1,14 @@
 /** App-wide constants shared across pages and components. */
 
-/** Orders per page in the queue and history lists. */
-export const PAGE_SIZE = 50;
+/** Default orders per page in the queue and history lists. */
+export const PAGE_SIZE = 25;
+
+/**
+ * Page-size choices offered in the pagination bar. The largest must stay <= the server's
+ * ship/cancel/reopen cap (`ShipOrCancelRequestModel.OrderIds` MaxLength) so "select all" on a
+ * full page never exceeds it, and <= the API's `pageSize` clamp (currently 200).
+ */
+export const PAGE_SIZE_OPTIONS = [25, 50, 100];
 
 /** Debounce before a search keystroke triggers a refetch. */
 export const SEARCH_DEBOUNCE_MS = 300;
