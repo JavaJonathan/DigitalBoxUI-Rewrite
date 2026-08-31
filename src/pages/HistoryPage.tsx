@@ -7,6 +7,7 @@ import Tabs from '@mui/material/Tabs';
 import Alert from '@mui/material/Alert';
 import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
 import ReplayRoundedIcon from '@mui/icons-material/ReplayRounded';
+import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import { AppShell } from '../components/AppShell';
 import { QueueToolbar } from '../components/QueueToolbar';
 import { OrdersTable } from '../components/OrdersTable';
@@ -18,8 +19,10 @@ import { useOrders } from '../hooks/useOrders';
 import { undoOrders } from '../api/orders';
 import { getApiErrorMessage } from '../api/client';
 import { useToast } from '../components/ToastProvider';
+import { useSlipDelivery } from '../hooks/useSlipDelivery';
 import { useRealtimeEvent } from '../realtime/RealtimeContext';
 import { PAGE_SIZE } from '../lib/constants';
+import { buildSlipRefs } from '../lib/slipFolder';
 import { toggleInSet } from '../lib/collections';
 import type { OrderStatus } from '../types';
 
@@ -30,6 +33,7 @@ export function HistoryPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [reopenIds, setReopenIds] = useState<string[]>([]);
+  const { busy: slipBusy, deliver: deliverSlips } = useSlipDelivery();
 
   const query = useMemo(
     () => ({ status: tab, q, sort: 'shipDate' as const, page: 1, pageSize: PAGE_SIZE }),
@@ -51,6 +55,8 @@ export function HistoryPage() {
   const toggle = (id: string) => setSelectedIds((prev) => toggleInSet(prev, id));
   const toggleAll = (checked: boolean) =>
     setSelectedIds(checked ? new Set(orders.map((o) => o.id)) : new Set());
+
+  const findOrder = (id: string) => orders.find((o) => o.id === id);
 
   const runReopen = async () => {
     try {
@@ -137,6 +143,15 @@ export function HistoryPage() {
           }}
         >
           Reopen
+        </Button>
+        <Button
+          size="large"
+          variant="text"
+          startIcon={<FileDownloadOutlinedIcon sx={{ fontSize: 18 }} />}
+          onClick={() => deliverSlips(buildSlipRefs([...selectedIds], findOrder), true)}
+          disabled={slipBusy}
+        >
+          {slipBusy ? 'Preparing…' : 'Download slips'}
         </Button>
       </SelectionBar>
 

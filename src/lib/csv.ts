@@ -1,3 +1,5 @@
+import { downloadBlob } from './download';
+
 /** Parse just the header row of a CSV (first non-empty line), respecting quoted fields. */
 export function parseCsvHeaders(text: string): string[] {
   const clean = text.replace(/^﻿/, '');
@@ -79,13 +81,5 @@ export function toCsv<T>(rows: T[], columns: { key: keyof T; header: string }[])
 
 /** Trigger a browser download of a text file. */
 export function downloadCsv(filename: string, csv: string): void {
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  downloadBlob(filename, new Blob([csv], { type: 'text/csv;charset=utf-8' }));
 }

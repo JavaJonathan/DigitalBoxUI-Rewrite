@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
@@ -15,6 +15,8 @@ interface ConfirmActionDialogProps {
   count: number;
   onClose: () => void;
   onConfirm: () => Promise<void> | void;
+  /** Extra controls rendered under the body text (e.g. the ship dialog's "download slips" toggle). */
+  children?: ReactNode;
 }
 
 const CONFIG: Record<
@@ -52,6 +54,7 @@ export function ConfirmActionDialog({
   count,
   onClose,
   onConfirm,
+  children,
 }: ConfirmActionDialogProps) {
   const [busy, setBusy] = useState(false);
   const cfg = CONFIG[intent];
@@ -76,6 +79,7 @@ export function ConfirmActionDialog({
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
           {cfg.body(count)} It will be recorded under your name.
         </Typography>
+        {children}
       </DialogContent>
       <DialogActions>
         <Button variant="text" onClick={onClose} disabled={busy}>

@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Pagination from '@mui/material/Pagination';
@@ -12,6 +14,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
+import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import { AppShell } from '../components/AppShell';
 import { QueueToolbar, type ToolbarState } from '../components/QueueToolbar';
 import { OrdersTable } from '../components/OrdersTable';
@@ -19,6 +22,7 @@ import { UploadDialog } from '../components/UploadDialog';
 import { ShippableItemsDialog } from '../components/ShippableItemsDialog';
 import { ConfirmActionDialog } from '../components/ConfirmActionDialog';
 import { SelectionBar } from '../components/SelectionBar';
+import { SlipFolderField } from '../components/SlipFolderField';
 import { NotePopover } from '../components/NotePopover';
 import { EmptyState } from '../components/ui/EmptyState';
 import { TableSkeleton } from '../components/ui/TableSkeleton';
@@ -27,8 +31,11 @@ import { useOrders } from '../hooks/useOrders';
 import { cancelOrders, setOrderNotes, setOrderPriority, shipOrders } from '../api/orders';
 import { getApiErrorMessage } from '../api/client';
 import { useToast } from '../components/ToastProvider';
+import { useDownloadSlipsOnShip } from '../hooks/useDownloadSlipsOnShip';
+import { useSlipDelivery } from '../hooks/useSlipDelivery';
 import { useRealtimeEvent } from '../realtime/RealtimeContext';
 import { PAGE_SIZE } from '../lib/constants';
+import { buildSlipRefs } from '../lib/slipFolder';
 import { toggleInSet } from '../lib/collections';
 import type { Marketplace, OrderListItem } from '../types';
 
@@ -45,6 +52,8 @@ export function OrdersPage() {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [action, setAction] = useState<'ship' | 'cancel' | null>(null);
+  const [downloadSlips, setDownloadSlips] = useDownloadSlipsOnShip();
+  const { folder: slipFolder, busy: slipBusy, deliver: deliverSlips } = useSlipDelivery();
   const [noteTarget, setNoteTarget] = useState<{
     order: OrderListItem;
     anchor: HTMLElement;
@@ -80,14 +89,20 @@ export function OrdersPage() {
   const toggleAll = (checked: boolean) =>
     setSelectedIds(checked ? new Set(orders.map((o) => o.id)) : new Set());
 
+  const findOrder = (id: string) => orders.find((o) => o.id === id);
+
   const runAction = async () => {
     const ids = [...selectedIds];
+    const shipping = action === 'ship';
+    // Snapshot the slips to grab before the ship refreshes the list out from under us.
+    const refs = shipping && downloadSlips ? buildSlipRefs(ids, findOrder) : [];
     try {
-      const result = action === 'ship' ? await shipOrders(ids) : await cancelOrders(ids);
+      const result = shipping ? await shipOrders(ids) : await cancelOrders(ids);
       notify(result.message, 'success');
       setSelectedIds(new Set());
       setAction(null);
       refresh();
+      if (refs.length) await deliverSlips(refs);
     } catch (err) {
       notify(getApiErrorMessage(err, 'Action failed.'), 'error');
     }
@@ -264,6 +279,15 @@ export function OrdersPage() {
         >
           Cancel
         </Button>
+        <Button
+          size="large"
+          variant="text"
+          startIcon={<FileDownloadOutlinedIcon sx={{ fontSize: 18 }} />}
+          onClick={() => deliverSlips(buildSlipRefs([...selectedIds], findOrder), true)}
+          disabled={slipBusy}
+        >
+          {slipBusy ? 'Preparing…' : 'Download slips'}
+        </Button>
       </SelectionBar>
 
       <UploadDialog open={uploadOpen} onClose={() => setUploadOpen(false)} onUploaded={refresh} />
@@ -275,7 +299,35 @@ export function OrdersPage() {
         count={selectedIds.size}
         onClose={() => setAction(null)}
         onConfirm={runAction}
-      />
+      >
+        {action === 'ship' && (
+          <Box sx={{ mt: 1.5 }}>
+            <FormControlLabel
+              sx={{ display: 'flex' }}
+              control={
+                <Checkbox
+                  size="small"
+                  checked={downloadSlips}
+                  onChange={(e) => setDownloadSlips(e.target.checked)}
+                />
+              }
+              label={
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  Save packing slips after shipping
+                </Typography>
+              }
+            />
+            {downloadSlips && (
+              <SlipFolderField
+                supported={slipFolder.supported}
+                name={slipFolder.name}
+                onChoose={slipFolder.choose}
+                onForget={slipFolder.forget}
+              />
+            )}
+          </Box>
+        )}
+      </ConfirmActionDialog>
 
       <NotePopover
         open={noteTarget !== null}

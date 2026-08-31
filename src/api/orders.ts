@@ -139,6 +139,21 @@ export function cancelOrders(orderIds: string[]) {
 }
 
 /**
+ * Fetch one order's packing slip as a blob, with the bearer token (the endpoint is auth-gated,
+ * so a plain link can't load it). Used by the bulk "download slips" / save-to-folder flow.
+ */
+export async function fetchPackingSlipBlob(orderId: string): Promise<Blob> {
+  const token = localStorage.getItem(TOKEN_KEY);
+  const response = await fetch(apiUrl(`/api/orders/${orderId}/packing-slip`), {
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  });
+  if (!response.ok) {
+    throw new ApiError(response.status, 'Could not load a packing slip.');
+  }
+  return response.blob();
+}
+
+/**
  * The packing-slip endpoint is auth-gated, so a plain link can't load it. Fetch the PDF with
  * the bearer token and hand back an object URL the caller is responsible for revoking.
  */
