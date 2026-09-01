@@ -14,3 +14,33 @@ frontend:
   cache:
     paths:
       - node_modules/**/*
+customHeaders:
+  - pattern: '**'
+    headers:
+      # The JWT rides every request and lives in localStorage, so lock the page down hard.
+      # connect-src / the CSP host below MUST be changed to the deployed API origin — it has to
+      # match VITE_API_BASE_URL's scheme+host (and the wss: form for the SignalR hub).
+      - key: 'Content-Security-Policy'
+        value: >-
+          default-src 'self';
+          script-src 'self';
+          style-src 'self' 'unsafe-inline';
+          font-src 'self' data:;
+          img-src 'self' data:;
+          connect-src 'self' https://api.digitalbox.example.com wss://api.digitalbox.example.com;
+          frame-src 'self' blob:;
+          object-src 'self' blob:;
+          base-uri 'self';
+          form-action 'self';
+          frame-ancestors 'none';
+          upgrade-insecure-requests
+      - key: 'Strict-Transport-Security'
+        value: 'max-age=31536000; includeSubDomains'
+      - key: 'X-Frame-Options'
+        value: 'DENY'
+      - key: 'X-Content-Type-Options'
+        value: 'nosniff'
+      - key: 'Referrer-Policy'
+        value: 'no-referrer'
+      - key: 'Permissions-Policy'
+        value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()'

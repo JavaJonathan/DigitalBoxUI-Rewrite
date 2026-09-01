@@ -57,7 +57,12 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
       if (evt.actorUserId && evt.actorUserId === selfId) return;
       emit('activity', evt);
     });
-    connection.on('QueueChanged', () => emit('queueChanged', undefined));
+    connection.on('QueueChanged', (actorUserId?: string) => {
+      // The initiator already re-fetches explicitly after its own HTTP call — don't make it
+      // refetch a second time on the echo of its own change. (Guid.Empty / no id → not us.)
+      if (actorUserId && actorUserId === selfId) return;
+      emit('queueChanged', undefined);
+    });
 
     const connect = async () => {
       while (!disposed && connection.state === HubConnectionState.Disconnected) {
