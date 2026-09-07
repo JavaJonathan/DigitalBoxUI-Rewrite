@@ -13,6 +13,12 @@ export const PAGE_SIZE_OPTIONS = [25, 50, 100];
 /** Debounce before a search keystroke triggers a refetch. */
 export const SEARCH_DEBOUNCE_MS = 300;
 
+/**
+ * Debounce before a realtime `queueChanged` nudge triggers a background refetch of the queue /
+ * history list — coalesces a burst (e.g. a coworker shipping orders one at a time) into one call.
+ */
+export const QUEUE_SYNC_DEBOUNCE_MS = 1200;
+
 /** Max length of an order note (matches the server-side cap). */
 export const NOTE_MAX_LENGTH = 500;
 

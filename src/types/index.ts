@@ -177,3 +177,73 @@ export interface ShippableItemsResponse {
   ordersNeedsCheck: number;
   unitsShippable: number;
 }
+
+// --- Admin order lookup (admin-only, hidden feature) ----------------------
+
+/** Which reference list an inventory upload populates. */
+export type InventoryKind = 'inStock' | 'purchaseOrders';
+
+/** Per-line-item cross-reference against the reference lists. */
+export type InventoryLineStatus = 'InStock' | 'PreOrdered' | 'Unknown';
+
+export interface LookupLineItem {
+  title: string;
+  quantity: number;
+  sku: string | null;
+  /** Only set when the order is awaiting shipment. */
+  inventoryStatus: InventoryLineStatus | null;
+}
+
+export interface LookupDigitalBox {
+  orderId: string;
+  status: OrderStatus;
+  marketplace: Marketplace;
+  shipDate: string | null;
+  isPriority: boolean;
+  notes: string | null;
+  parseStatus: ParseStatus;
+  summary: string;
+  lineItems: LookupLineItem[];
+  duplicateCount: number;
+}
+
+export interface LookupShipTo {
+  name: string | null;
+  street1: string | null;
+  street2: string | null;
+  city: string | null;
+  state: string | null;
+  postalCode: string | null;
+  country: string | null;
+}
+
+export interface LookupShipStation {
+  orderStatus: string;
+  orderDate: string | null;
+  trackingNumber: string | null;
+  carrier: string | null;
+  shipTo: LookupShipTo | null;
+  items: LookupLineItem[];
+}
+
+export interface LookupResult {
+  found: boolean;
+  source: 'DigitalBox' | 'ShipStation' | null;
+  orderNumber: string;
+  digitalBox: LookupDigitalBox | null;
+  shipStation: LookupShipStation | null;
+  shipStationConfigured: boolean;
+  shipStationError: string | null;
+}
+
+export interface InventorySnapshot {
+  fileName: string;
+  rowCount: number;
+  uploadedAt: string;
+  uploadedBy: string | null;
+}
+
+export interface InventoryStatus {
+  inStock: InventorySnapshot | null;
+  purchaseOrders: InventorySnapshot | null;
+}

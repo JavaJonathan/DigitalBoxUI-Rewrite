@@ -34,7 +34,7 @@ import { useToast } from '../components/ToastProvider';
 import { useDownloadSlipsOnShip } from '../hooks/useDownloadSlipsOnShip';
 import { useSlipDelivery } from '../hooks/useSlipDelivery';
 import { useRealtimeEvent } from '../realtime/RealtimeContext';
-import { PAGE_SIZE } from '../lib/constants';
+import { PAGE_SIZE, QUEUE_SYNC_DEBOUNCE_MS } from '../lib/constants';
 import { buildSlipRefs } from '../lib/slipFolder';
 import { toggleInSet } from '../lib/collections';
 import type { Marketplace, OrderListItem } from '../types';
@@ -49,7 +49,7 @@ export function OrdersPage() {
   const [sort, setSort] = useState<'shipDate' | 'title'>('shipDate');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(PAGE_SIZE);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [selectedRaw, setSelectedRaw] = useState<Set<string>>(new Set());
   const [uploadOpen, setUploadOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [action, setAction] = useState<'ship' | 'cancel' | null>(null);
@@ -66,15 +66,26 @@ export function OrdersPage() {
   );
   const { data, loading, error, refresh } = useOrders(query);
 
-  // A coworker shipped / cancelled / uploaded — re-fetch, coalescing bursts into one call.
+  // A coworker shipped / cancelled / uploaded — re-fetch in the background (no skeleton, no
+  // scroll jump), coalescing bursts into one call.
   const syncTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useRealtimeEvent('queueChanged', () => {
     clearTimeout(syncTimer.current);
-    syncTimer.current = setTimeout(refresh, 1200);
+    syncTimer.current = setTimeout(() => refresh({ background: true }), QUEUE_SYNC_DEBOUNCE_MS);
   });
   useEffect(() => () => clearTimeout(syncTimer.current), []);
 
-  const orders = data?.items ?? [];
+  const orders = useMemo(() => data?.items ?? [], [data]);
+
+  // What the user ticked, minus anything no longer on the page — e.g. a coworker shipped it out
+  // from under us. Selection is always within one page, so intersecting with the current items
+  // is safe; deriving it (rather than pruning state in an effect) keeps the drop silent.
+  const selectedIds = useMemo(() => {
+    if (selectedRaw.size === 0) return selectedRaw;
+    const alive = new Set([...selectedRaw].filter((id) => orders.some((o) => o.id === id)));
+    return alive.size === selectedRaw.size ? selectedRaw : alive;
+  }, [selectedRaw, orders]);
+
   const filtered = q.length > 0 || marketplace !== '' || priority;
 
   const changePageSize = (size: number) => {
@@ -89,10 +100,10 @@ export function OrdersPage() {
     setPage(1);
   };
 
-  const toggle = (id: string) => setSelectedIds((prev) => toggleInSet(prev, id));
+  const toggle = (id: string) => setSelectedRaw((prev) => toggleInSet(prev, id));
 
   const toggleAll = (checked: boolean) =>
-    setSelectedIds(checked ? new Set(orders.map((o) => o.id)) : new Set());
+    setSelectedRaw(checked ? new Set(orders.map((o) => o.id)) : new Set());
 
   const findOrder = (id: string) => orders.find((o) => o.id === id);
 
@@ -104,7 +115,7 @@ export function OrdersPage() {
     try {
       const result = shipping ? await shipOrders(ids) : await cancelOrders(ids);
       notify(result.message, 'success');
-      setSelectedIds(new Set());
+      setSelectedRaw(new Set());
       setAction(null);
       refresh();
       if (refs.length) await deliverSlips(refs);
@@ -148,7 +159,7 @@ export function OrdersPage() {
       actions={
         <>
           <Tooltip title="Refresh" arrow>
-            <IconButton size="small" onClick={refresh} aria-label="Refresh">
+            <IconButton size="small" onClick={() => refresh()} aria-label="Refresh">
               <RefreshIcon sx={{ fontSize: 18 }} />
             </IconButton>
           </Tooltip>
@@ -263,7 +274,7 @@ export function OrdersPage() {
         )}
       </Stack>
 
-      <SelectionBar count={selectedIds.size} onClear={() => setSelectedIds(new Set())}>
+      <SelectionBar count={selectedIds.size} onClear={() => setSelectedRaw(new Set())}>
         <Button
           size="large"
           variant="contained"

@@ -102,10 +102,15 @@ accounts, admin-managed — there is no sign-up or self-service password reset i
 
 **Routes** (`src/App.tsx`): `/login`, `/` (open-order queue), `/history` (shipped/cancelled
 tabs), `/orders/:id` (detail + packing-slip viewer + correction form), `/users` (admin-only —
-`UsersPage`: add users, reset passwords shown once, activate/deactivate, rename). Everything
-except `/login` is inside `ProtectedRoute`. The **Users** nav item (`AppShell` `ADMIN_NAV`)
-only renders for admins. Ship/cancel/reopen no longer collect a name — the actor is the
-signed-in user (`ConfirmActionDialog` has no fields).
+`UsersPage`: add users, reset passwords shown once, activate/deactivate, rename), `/lookup`
+(admin-only — `LookupPage`: customer-service order lookup — DB status + in-stock/pre-order
+badges + ShipStation tracking; `pages/`, `components/lookup/`, `api/lookup.ts`). Everything
+except `/login` is inside `ProtectedRoute`; `/users` and `/lookup` add `requireRole="Admin"`,
+which bounces a non-admin to `/` — indistinguishable from the `path="*"` catch-all, so those
+routes read as non-existent (the API backs this: `/api/lookup/*` 404s for non-admins). The
+**Users** and **Lookup** nav items (`AppShell` `ADMIN_NAV`) only render for admins.
+Ship/cancel/reopen no longer collect a name — the actor is the signed-in user
+(`ConfirmActionDialog` has no fields).
 
 **Key components**:
 - `AppShell` — fixed left sidebar (`SIDEBAR_WIDTH` = 260, exported from `lib/layout.ts` and

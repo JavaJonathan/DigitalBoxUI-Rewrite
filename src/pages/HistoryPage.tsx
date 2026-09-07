@@ -22,7 +22,7 @@ import { getApiErrorMessage } from '../api/client';
 import { useToast } from '../components/ToastProvider';
 import { useSlipDelivery } from '../hooks/useSlipDelivery';
 import { useRealtimeEvent } from '../realtime/RealtimeContext';
-import { PAGE_SIZE } from '../lib/constants';
+import { PAGE_SIZE, QUEUE_SYNC_DEBOUNCE_MS } from '../lib/constants';
 import { buildSlipRefs } from '../lib/slipFolder';
 import { toggleInSet } from '../lib/collections';
 import type { OrderStatus } from '../types';
@@ -33,7 +33,7 @@ export function HistoryPage() {
   const [q, setQ] = useState('');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(PAGE_SIZE);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [selectedRaw, setSelectedRaw] = useState<Set<string>>(new Set());
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [reopenIds, setReopenIds] = useState<string[]>([]);
   const { busy: slipBusy, deliver: deliverSlips } = useSlipDelivery();
@@ -43,12 +43,12 @@ export function HistoryPage() {
     [tab, q, page, pageSize],
   );
   const { data, loading, error, refresh } = useOrders(query);
-  const orders = data?.items ?? [];
+  const orders = useMemo(() => data?.items ?? [], [data]);
 
   // Switching tab or changing the search resets to the first page and clears the selection.
   useEffect(() => {
     setPage(1);
-    setSelectedIds(new Set());
+    setSelectedRaw(new Set());
   }, [tab, q]);
 
   const changePageSize = (size: number) => {
@@ -56,17 +56,27 @@ export function HistoryPage() {
     setPage(1);
   };
 
-  // Reflect a coworker's ship / cancel / reopen in the history tabs too, debounced.
+  // Reflect a coworker's ship / cancel / reopen in the history tabs too — background re-fetch
+  // (no skeleton, no scroll jump), coalescing bursts into one call.
   const syncTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useRealtimeEvent('queueChanged', () => {
     clearTimeout(syncTimer.current);
-    syncTimer.current = setTimeout(refresh, 1200);
+    syncTimer.current = setTimeout(() => refresh({ background: true }), QUEUE_SYNC_DEBOUNCE_MS);
   });
   useEffect(() => () => clearTimeout(syncTimer.current), []);
 
-  const toggle = (id: string) => setSelectedIds((prev) => toggleInSet(prev, id));
+  // What the user ticked, minus anything no longer on the page — e.g. a coworker reopened it.
+  // Selection is always within one page, so intersecting with the current items is safe;
+  // deriving it (rather than pruning state in an effect) keeps the drop silent.
+  const selectedIds = useMemo(() => {
+    if (selectedRaw.size === 0) return selectedRaw;
+    const alive = new Set([...selectedRaw].filter((id) => orders.some((o) => o.id === id)));
+    return alive.size === selectedRaw.size ? selectedRaw : alive;
+  }, [selectedRaw, orders]);
+
+  const toggle = (id: string) => setSelectedRaw((prev) => toggleInSet(prev, id));
   const toggleAll = (checked: boolean) =>
-    setSelectedIds(checked ? new Set(orders.map((o) => o.id)) : new Set());
+    setSelectedRaw(checked ? new Set(orders.map((o) => o.id)) : new Set());
 
   const findOrder = (id: string) => orders.find((o) => o.id === id);
 
@@ -74,7 +84,7 @@ export function HistoryPage() {
     try {
       const result = await undoOrders(reopenIds);
       notify(result.message, 'success');
-      setSelectedIds(new Set());
+      setSelectedRaw(new Set());
       setConfirmOpen(false);
       refresh();
     } catch (err) {
@@ -155,7 +165,7 @@ export function HistoryPage() {
         )}
       </Stack>
 
-      <SelectionBar count={selectedIds.size} onClear={() => setSelectedIds(new Set())}>
+      <SelectionBar count={selectedIds.size} onClear={() => setSelectedRaw(new Set())}>
         <Button
           size="large"
           variant="contained"

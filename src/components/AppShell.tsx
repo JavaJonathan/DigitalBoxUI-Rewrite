@@ -9,6 +9,7 @@ import InboxOutlinedIcon from '@mui/icons-material/InboxOutlined';
 import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
 import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
 import PeopleOutlinedIcon from '@mui/icons-material/PeopleOutlined';
+import ManageSearchOutlinedIcon from '@mui/icons-material/ManageSearchOutlined';
 import { useAuth } from '../auth/AuthContext';
 import { SIDEBAR_WIDTH } from '../lib/layout';
 import { Logo, LogoMark } from './Logo';
@@ -29,6 +30,12 @@ const NAV: NavItem[] = [
 ];
 
 const ADMIN_NAV: NavItem[] = [
+  {
+    label: 'Lookup',
+    to: '/lookup',
+    icon: ManageSearchOutlinedIcon,
+    match: (p) => p.startsWith('/lookup'),
+  },
   { label: 'Users', to: '/users', icon: PeopleOutlinedIcon, match: (p) => p.startsWith('/users') },
 ];
 

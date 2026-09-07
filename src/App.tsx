@@ -9,6 +9,7 @@ import { OrdersPage } from './pages/OrdersPage';
 import { HistoryPage } from './pages/HistoryPage';
 import { OrderDetailPage } from './pages/OrderDetailPage';
 import { UsersPage } from './pages/UsersPage';
+import { LookupPage } from './pages/LookupPage';
 
 function App() {
   return (
@@ -39,6 +40,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <OrderDetailPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/lookup"
+                element={
+                  <ProtectedRoute requireRole="Admin">
+                    <LookupPage />
                   </ProtectedRoute>
                 }
               />
