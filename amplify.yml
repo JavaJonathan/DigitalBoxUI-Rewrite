@@ -18,8 +18,9 @@ customHeaders:
   - pattern: '**'
     headers:
       # The JWT rides every request and lives in localStorage, so lock the page down hard.
-      # connect-src / the CSP host below MUST be changed to the deployed API origin — it has to
-      # match VITE_API_BASE_URL's scheme+host (and the wss: form for the SignalR hub).
+      # connect-src below is the deployed API origin; it must match VITE_API_BASE_URL's
+      # scheme+host (Amplify branch env var = https://digitalbox-api.hendersonsoftwarelabs.com)
+      # plus the wss: form for the SignalR hub.
       - key: 'Content-Security-Policy'
         value: >-
           default-src 'self';
@@ -27,7 +28,7 @@ customHeaders:
           style-src 'self' 'unsafe-inline';
           font-src 'self' data:;
           img-src 'self' data:;
-          connect-src 'self' https://api.digitalbox.example.com wss://api.digitalbox.example.com;
+          connect-src 'self' https://digitalbox-api.hendersonsoftwarelabs.com wss://digitalbox-api.hendersonsoftwarelabs.com;
           frame-src 'self' blob:;
           object-src 'self' blob:;
           base-uri 'self';
