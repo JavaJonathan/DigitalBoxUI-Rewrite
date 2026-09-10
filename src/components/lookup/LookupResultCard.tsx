@@ -206,7 +206,7 @@ export function LookupResultCard({ result }: { result: LookupResult }) {
 
           {db.duplicateCount > 1 && (
             <Typography sx={{ mt: 1.5, fontSize: '0.75rem', color: 'warning.dark' }}>
-              {db.duplicateCount} orders in DigitalBox share this number — showing the most recent.
+              {db.duplicateCount} orders in DigitalBox share this number; showing the most recent.
             </Typography>
           )}
 
@@ -258,7 +258,7 @@ export function LookupResultCard({ result }: { result: LookupResult }) {
       ) : (
         !result.shipStationConfigured && (
           <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>
-            ShipStation isn’t configured — showing DigitalBox data only.
+            ShipStation isn’t configured; showing DigitalBox data only.
           </Typography>
         )
       )}

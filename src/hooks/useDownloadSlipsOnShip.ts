@@ -4,7 +4,7 @@ const KEY = 'digitalbox_download_slips_on_ship';
 
 /**
  * Per-browser preference: save the packing slips (to the chosen folder, or as downloads) right
- * after shipping. Defaults on — only an explicit opt-out is stored. Surfaced as a checkbox in
+ * after shipping. Defaults on; only an explicit opt-out is stored. Surfaced as a checkbox in
  * the ship confirm dialog.
  */
 export function useDownloadSlipsOnShip(): [boolean, (value: boolean) => void] {
@@ -21,7 +21,7 @@ export function useDownloadSlipsOnShip(): [boolean, (value: boolean) => void] {
     try {
       localStorage.setItem(KEY, String(value));
     } catch {
-      /* ignore — the preference just won't persist */
+      /* ignore; the preference just won't persist */
     }
   }, []);
 

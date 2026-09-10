@@ -81,7 +81,7 @@ export function LookupPage() {
         if (!cancelled) setInventory(status);
       })
       .catch(() => {
-        /* non-critical — the search still works without the panel */
+        /* non-critical; the search still works without the panel */
       });
     return () => {
       cancelled = true;
@@ -109,7 +109,7 @@ export function LookupPage() {
     <AppShell title="Lookup">
       <Stack spacing={3} sx={{ maxWidth: 900 }}>
         <Typography variant="body2" sx={{ color: 'text.secondary', maxWidth: 640 }}>
-          Check where an order stands — its status in DigitalBox, whether its items are in stock or
+          Check where an order stands: its status in DigitalBox, whether its items are in stock or
           on order, and live tracking and shipping details from ShipStation.
         </Typography>
 

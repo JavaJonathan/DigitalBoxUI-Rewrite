@@ -11,7 +11,7 @@ export interface NavItem {
   match: (pathname: string) => boolean;
 }
 
-/** primary colour at `pct%` opacity — the shared tint for the active nav row. */
+/** primary colour at `pct%` opacity: the shared tint for the active nav row. */
 const tint = (t: Theme, pct: number) =>
   `color-mix(in srgb, ${(t.vars ?? t).palette.primary.main} ${pct}%, transparent)`;
 
@@ -69,7 +69,7 @@ export function SidebarNavItem({
           width: 30,
           height: 30,
           flexShrink: 0,
-          borderRadius: '9px', // odd value on the 8px grid — kept explicit
+          borderRadius: '9px', // odd value on the 8px grid, kept explicit
           display: 'grid',
           placeItems: 'center',
           bgcolor: active ? (t) => tint(t, 20) : 'surface.sunken',

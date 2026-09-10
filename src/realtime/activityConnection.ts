@@ -37,7 +37,7 @@ export function createActivityConnection(): HubConnection {
         // WebSocket-only keeps the CORS surface (and reconnect behaviour) simple.
         transport: HttpTransportType.WebSockets,
       })
-      // Retry forever — a warehouse screen left open overnight should reconnect on its own.
+      // Retry forever; a warehouse screen left open overnight should reconnect on its own.
       .withAutomaticReconnect({
         nextRetryDelayInMilliseconds: (ctx) => (ctx.previousRetryCount < 5 ? 2_000 : 15_000),
       })

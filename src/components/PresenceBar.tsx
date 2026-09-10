@@ -14,7 +14,7 @@ const MAX_SHOWN = 5;
 
 /**
  * A small overlapping avatar stack in the topbar showing who else is on. Renders nothing when
- * the current user is alone — there's no collaboration to signal.
+ * the current user is alone and there's no collaboration to signal.
  */
 export function PresenceBar() {
   const online = useOnlineUsers();

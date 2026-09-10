@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box';
 
 /**
- * DigitalBox mark — an isometric box whose top face is split into a 2×2 pixel
+ * DigitalBox mark: an isometric box whose top face is split into a 2×2 pixel
  * grid (box + "digital"). Strokes use currentColor so the glyph adapts to
  * context; `LogoMark` sets it on the primary tile, matching the favicon.
  */
@@ -30,7 +30,7 @@ export function LogoMark({ size = 26 }: { size?: number }) {
         strokeLinejoin="round"
         strokeLinecap="round"
       >
-        {/* lit "pixels" on the top face — the digital half of the mark */}
+        {/* lit "pixels" on the top face: the digital half of the mark */}
         <path
           d="M16 3.5 21.75 6.75 16 10 10.25 6.75Z M10.25 13.25 16 10 21.75 13.25 16 16.5Z"
           fill="currentColor"

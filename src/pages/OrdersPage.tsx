@@ -66,7 +66,7 @@ export function OrdersPage() {
   );
   const { data, loading, error, refresh } = useOrders(query);
 
-  // A coworker shipped / cancelled / uploaded — re-fetch in the background (no skeleton, no
+  // A coworker shipped / cancelled / uploaded; re-fetch in the background (no skeleton, no
   // scroll jump), coalescing bursts into one call.
   const syncTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useRealtimeEvent('queueChanged', () => {
@@ -77,7 +77,7 @@ export function OrdersPage() {
 
   const orders = useMemo(() => data?.items ?? [], [data]);
 
-  // What the user ticked, minus anything no longer on the page — e.g. a coworker shipped it out
+  // What the user ticked, minus anything no longer on the page, e.g. a coworker shipped it out
   // from under us. Selection is always within one page, so intersecting with the current items
   // is safe; deriving it (rather than pruning state in an effect) keeps the drop silent.
   const selectedIds = useMemo(() => {

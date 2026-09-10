@@ -11,7 +11,7 @@ interface MonoProps {
   sx?: SxProps<Theme>;
 }
 
-/** Monospaced technical text — order numbers, SKUs, IDs. */
+/** Monospaced technical text: order numbers, SKUs, IDs. */
 export function Mono({ children, copyable = false, muted = false, sx }: MonoProps) {
   const [copied, setCopied] = useState(false);
 
@@ -22,7 +22,7 @@ export function Mono({ children, copyable = false, muted = false, sx }: MonoProp
       setCopied(true);
       setTimeout(() => setCopied(false), 1200);
     } catch {
-      /* clipboard unavailable — no-op */
+      /* clipboard unavailable, no-op */
     }
   };
 

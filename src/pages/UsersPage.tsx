@@ -146,7 +146,7 @@ export function UsersPage() {
       <Stack spacing={2}>
         <Typography variant="body2" sx={{ color: 'text.secondary', maxWidth: 640 }}>
           Everyone who uses DigitalBox needs their own account. Passwords are generated here and
-          shown once — hand them to the person directly. Admin accounts are created from the server
+          shown once; hand them to the person directly. Admin accounts are created from the server
           and can't be made here.
         </Typography>
 
@@ -357,7 +357,7 @@ function AddUserDialog({
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               slotProps={{ htmlInput: { maxLength: 64 } }}
-              helperText="Letters, digits, dot, dash or underscore. Used to sign in — can't be changed later."
+              helperText="Letters, digits, dot, dash or underscore. Used to sign in; can't be changed later."
             />
             {error && <Alert severity="error">{error}</Alert>}
           </Stack>
@@ -452,7 +452,7 @@ function GeneratedPasswordDialog({
       await navigator.clipboard.writeText(credential.generatedPassword);
       setCopied(true);
     } catch {
-      /* clipboard unavailable — the passphrase is still visible to type out */
+      /* clipboard unavailable; the passphrase is still visible to type out */
     }
   };
 
@@ -462,7 +462,7 @@ function GeneratedPasswordDialog({
       <DialogContent>
         <Stack spacing={2}>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            Give this to <strong>{credential.user.username}</strong> now. It won't be shown again —
+            Give this to <strong>{credential.user.username}</strong> now. It won't be shown again;
             if it's lost, generate a new one.
           </Typography>
           <Box

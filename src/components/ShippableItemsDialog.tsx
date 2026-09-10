@@ -500,7 +500,7 @@ export function ShippableItemsDialog({ open, onClose }: ShippableItemsDialogProp
                     variant="caption"
                     sx={{ color: 'text.disabled', mt: 1, display: 'block' }}
                   >
-                    Showing the first 100 rows — the download has all {result.rows.length}.
+                    Showing the first 100 rows; the download has all {result.rows.length}.
                   </Typography>
                 )}
               </>
@@ -509,7 +509,7 @@ export function ShippableItemsDialog({ open, onClose }: ShippableItemsDialogProp
             {tab === 'unmatched' && (
               <>
                 <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1.5 }}>
-                  Open-order demand with no matching row in your upload — out of stock, a SKU
+                  Open-order demand with no matching row in your upload: out of stock, a SKU
                   mismatch, or a variant SKU the report skips.
                 </Typography>
                 {result.unmatchedDemand.length === 0 ? (

@@ -15,7 +15,7 @@ export const SEARCH_DEBOUNCE_MS = 300;
 
 /**
  * Debounce before a realtime `queueChanged` nudge triggers a background refetch of the queue /
- * history list — coalesces a burst (e.g. a coworker shipping orders one at a time) into one call.
+ * history list; coalesces a burst (e.g. a coworker shipping orders one at a time) into one call.
  */
 export const QUEUE_SYNC_DEBOUNCE_MS = 1200;
 
@@ -23,7 +23,7 @@ export const QUEUE_SYNC_DEBOUNCE_MS = 1200;
 export const NOTE_MAX_LENGTH = 500;
 
 /**
- * Max PDFs accepted in one upload selection. Client-side guard only — the server caps each
+ * Max PDFs accepted in one upload selection. Client-side guard only; the server caps each
  * *request* separately (`MaxUploadFiles`), and the uploader sends these in small sequential
  * batches. Sized for "an operator drops a week of slips at once".
  */

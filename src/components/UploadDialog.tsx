@@ -54,7 +54,7 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
     setFiles((prev) => {
       const seen = new Set(prev.map((f) => f.name + f.size));
       const next = [...prev, ...pdfs.filter((f) => !seen.has(f.name + f.size))];
-      // Client-side guard — anything past the cap is dropped; the render shows a note when hit.
+      // Client-side guard; anything past the cap is dropped, and the render shows a note when hit.
       return next.length > UPLOAD_MAX_FILES ? next.slice(0, UPLOAD_MAX_FILES) : next;
     });
   };

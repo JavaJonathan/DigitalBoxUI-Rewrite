@@ -5,7 +5,7 @@ import { deliverSlips, type SlipRef } from '../lib/slipFolder';
 import { useSlipFolder } from './useSlipFolder';
 
 /**
- * Bulk "save these packing slips" — into the operator's chosen folder if the browser supports
+ * Bulk "save these packing slips" into the operator's chosen folder if the browser supports
  * one and it's set, otherwise as individual downloads. Used by the ship flow and the standalone
  * "Download slips" button on both the queue and history.
  */

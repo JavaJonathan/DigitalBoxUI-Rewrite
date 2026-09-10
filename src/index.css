@@ -17,7 +17,7 @@ body,
 }
 
 /* ------------------------------------------------------------------ *
- * Motion — lightweight, one easing curve, all opt-in via class.
+ * Motion: lightweight, one easing curve, all opt-in via class.
  * Everything here collapses to a no-op under prefers-reduced-motion.
  * ------------------------------------------------------------------ */
 @keyframes db-fade-in {
@@ -51,7 +51,7 @@ body,
   }
 }
 
-/* Soft expanding ring on the "online" dot — the one bit of ambient motion in the UI. */
+/* Soft expanding ring on the "online" dot: the one bit of ambient motion in the UI. */
 @keyframes db-presence-pulse {
   0% {
     box-shadow: 0 0 0 0 color-mix(in srgb, var(--mui-palette-success-main) 45%, transparent);
@@ -65,7 +65,7 @@ body,
 }
 
 /*
- * Page / panel entrance — opacity only, deliberately no `transform`: <main>
+ * Page / panel entrance: opacity only, deliberately no `transform`. <main>
  * carries this class and also contains the `position: fixed` SelectionBar; any
  * transform on an ancestor would re-anchor the fixed child to it. No fill-mode
  * either, so a paused/never-run animation leaves the element at its base

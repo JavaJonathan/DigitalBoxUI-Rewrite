@@ -47,7 +47,7 @@ export function QueueToolbar({
   latest.current = { marketplace, priority };
 
   // Debounce the free-text field; the toggles fire immediately. Intentionally keyed on
-  // `text` only — the current marketplace/priority are read via `latest.current`.
+  // `text` only; the current marketplace/priority are read via `latest.current`.
   useEffect(() => {
     const handle = setTimeout(() => {
       if (text !== q) onChange({ q: text, ...latest.current });

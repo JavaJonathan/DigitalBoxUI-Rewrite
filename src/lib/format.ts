@@ -55,8 +55,8 @@ export const PARSE_STATUS_LABELS: Record<ParseStatus, string> = {
 export const PARSE_STATUS_HINTS: Record<ParseStatus, string> = {
   Parsed: '',
   NeedsReview:
-    'Some details may be wrong — open the order and check against the slip before shipping.',
-  Failed: "Couldn't read this packing slip — open the order to enter the details manually.",
+    'Some details may be wrong. Open the order and check against the slip before shipping.',
+  Failed: "Couldn't read this packing slip. Open the order to enter the details manually.",
 };
 
 export const STATUS_LABELS: Record<OrderStatus, string> = {

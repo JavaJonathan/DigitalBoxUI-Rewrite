@@ -22,7 +22,7 @@ const VERB_DOT: Record<string, string> = {
 
 /**
  * Quiet, self-dismissing popups in the bottom-right corner when a coworker ships / cancels /
- * reopens / uploads. Deliberately understated — the opposite of the loud centre toast and
+ * reopens / uploads. Deliberately understated: the opposite of the loud centre toast and
  * selection bar, which demand action; this is ambient awareness.
  */
 export function ActivityFeed() {

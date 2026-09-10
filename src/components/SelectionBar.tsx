@@ -16,7 +16,7 @@ interface SelectionBarProps {
 
 export function SelectionBar({ count, onClear, children }: SelectionBarProps) {
   return (
-    // Full-width strip that only centres the pill — MUI's <Slide> writes an inline
+    // Full-width strip that only centres the pill; MUI's <Slide> writes an inline
     // `transform`, so centring the pill itself via `translateX(-50%)` doesn't survive.
     <Box
       sx={{

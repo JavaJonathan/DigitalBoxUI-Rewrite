@@ -11,7 +11,7 @@ interface PaginationBarProps {
   pageSize: number;
   /** Total matching rows across all pages (from the server's `PagedResult.total`). */
   total: number;
-  /** Singular noun for the range label — `order` → "Showing 1–25 of 42 orders". */
+  /** Singular noun for the range label: `order` → "Showing 1–25 of 42 orders". */
   noun?: string;
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;

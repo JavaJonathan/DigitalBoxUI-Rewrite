@@ -14,7 +14,7 @@ export interface LoginResponse {
   user: AppUser;
 }
 
-/** Shape of `GET /api/auth/me` — identical to {@link AppUser}. */
+/** Shape of `GET /api/auth/me`, identical to {@link AppUser}. */
 export type MeResponse = AppUser;
 
 export interface AdminUserListItem {

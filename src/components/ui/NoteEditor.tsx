@@ -38,7 +38,7 @@ export function NoteEditor({
         maxRows={8}
         size="small"
         fullWidth
-        placeholder="e.g. fragile — call before ship"
+        placeholder="e.g. fragile, call before ship"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={onKeyDown}

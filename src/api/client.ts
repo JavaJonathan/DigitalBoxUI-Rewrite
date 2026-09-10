@@ -36,7 +36,7 @@ export async function apiFetch<T>(path: string, options: FetchOptions = {}): Pro
 
   const response = await fetch(`${API_BASE_URL}${path}`, { ...init, headers });
 
-  // A 401 while authenticated means the token went stale — sign the user out. A 401 on a
+  // A 401 while authenticated means the token went stale, so sign the user out. A 401 on a
   // request we sent without a token (i.e. the login call) is just bad credentials.
   if (response.status === 401 && token) {
     onUnauthorized?.();

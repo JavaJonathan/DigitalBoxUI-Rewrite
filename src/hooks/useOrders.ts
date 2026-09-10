@@ -69,7 +69,7 @@ export function useOrders(query: OrderQuery): UseOrdersResult {
     return () => {
       cancelled = true;
     };
-    // `query` is intentionally omitted from the deps — `key` is its serialised form.
+    // `query` is intentionally omitted from the deps; `key` is its serialised form.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, nonce]);
 

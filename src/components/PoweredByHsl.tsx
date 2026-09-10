@@ -41,7 +41,7 @@ export function HslMark({ size = 18 }: { size?: number }) {
   );
 }
 
-/** "Powered by Henderson Software Labs" credit — mark + text, links to the HSL site. */
+/** "Powered by Henderson Software Labs" credit: mark + text, links to the HSL site. */
 export function PoweredByHsl({
   size = 18,
   fontSize = '0.6875rem',

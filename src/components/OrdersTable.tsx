@@ -14,7 +14,7 @@ type SortKey = 'shipDate' | 'title';
 
 interface OrdersTableProps {
   orders: OrderListItem[];
-  /** The order status being shown; also selects the view — `Open` = queue, else = history. */
+  /** The order status being shown; also selects the view: `Open` = queue, else = history. */
   status: OrderStatus;
   selectable?: boolean;
   selectedIds?: Set<string>;

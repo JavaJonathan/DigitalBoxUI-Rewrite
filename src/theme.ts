@@ -4,13 +4,13 @@ import type { Marketplace } from './types';
 /* ------------------------------------------------------------------ *
  * DigitalBox design system
  *
- * An operations tool, not a marketing site — the bar for "premium" here
+ * An operations tool, not a marketing site. The bar for "premium" here
  * is Linear / Vercel / Stripe dashboard: flat surfaces, 1px borders,
  * tight type, one confident accent, real dark mode. No gradients, no
  * glass, no hover-lift theatrics.
  * ------------------------------------------------------------------ */
 
-/** Brand blue — the one DigitalBox identity colour, modernised. */
+/** Brand blue: the one DigitalBox identity colour, modernised. */
 const brand = {
   50: '#eef4ff',
   100: '#dbe7ff',

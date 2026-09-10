@@ -56,7 +56,7 @@ export function HistoryPage() {
     setPage(1);
   };
 
-  // Reflect a coworker's ship / cancel / reopen in the history tabs too — background re-fetch
+  // Reflect a coworker's ship / cancel / reopen in the history tabs too; background re-fetch
   // (no skeleton, no scroll jump), coalescing bursts into one call.
   const syncTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useRealtimeEvent('queueChanged', () => {
@@ -65,7 +65,7 @@ export function HistoryPage() {
   });
   useEffect(() => () => clearTimeout(syncTimer.current), []);
 
-  // What the user ticked, minus anything no longer on the page — e.g. a coworker reopened it.
+  // What the user ticked, minus anything no longer on the page, e.g. a coworker reopened it.
   // Selection is always within one page, so intersecting with the current items is safe;
   // deriving it (rather than pruning state in an effect) keeps the drop silent.
   const selectedIds = useMemo(() => {

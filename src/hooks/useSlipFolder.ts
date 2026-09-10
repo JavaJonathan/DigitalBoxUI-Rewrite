@@ -8,7 +8,7 @@ import {
 
 /**
  * The folder packing slips are saved into on ship (File System Access API). `handle` is null
- * when none is set or the browser can't do this — callers then fall back to plain downloads.
+ * when none is set or the browser can't do this; callers then fall back to plain downloads.
  */
 export function useSlipFolder() {
   const supported = folderPickerSupported();

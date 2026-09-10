@@ -64,7 +64,7 @@ const UPLOAD_CHUNK_SIZE = 6;
 /**
  * Upload packing slips in sequential batches rather than one large request. Each batch commits
  * its own orders server-side (and re-uploads are deduped by hash), so a failed batch doesn't
- * lose the ones before it — its files are just reported as errors and the rest continue.
+ * lose the ones before it; its files are just reported as errors and the rest continue.
  * A single "someone uploaded N orders" popup is broadcast at the end, not one per batch.
  */
 export async function uploadPackingSlips(
@@ -77,7 +77,7 @@ export async function uploadPackingSlips(
     const batch = files.slice(start, start + UPLOAD_CHUNK_SIZE);
     const form = new FormData();
     for (const file of batch) form.append('files', file);
-    // Hold the activity popup — we fire one summary broadcast once every batch is in.
+    // Hold the activity popup; we fire one summary broadcast once every batch is in.
     form.append('announce', 'false');
 
     try {
@@ -91,7 +91,7 @@ export async function uploadPackingSlips(
       merged.errors += result.errors;
       merged.files.push(...result.files);
     } catch (err) {
-      // A stale token won't recover on the next batch — stop and let the caller sign out.
+      // A stale token won't recover on the next batch; stop and let the caller sign out.
       if (err instanceof ApiError && err.status === 401) throw err;
       merged.errors += batch.length;
       merged.files.push(

@@ -3,13 +3,13 @@ import { downloadBlob } from './download';
 import type { Marketplace } from '../types';
 
 /**
- * "Where do the packing slips go when I ship?" — the rewrite's answer to the old app's
+ * "Where do the packing slips go when I ship?" This is the rewrite's answer to the old app's
  * `botConfigs.json` `DownloadFolderPath`. When the browser supports the File System Access API
  * (Chrome/Edge) the operator picks a folder once; every ship then writes the PDFs straight into
  * it. Everywhere else we fall back to individual downloads into the browser's Downloads folder.
  */
 
-// --- the remembered directory handle (one, in IndexedDB — handles aren't localStorage-safe) ---
+// --- the remembered directory handle (one, in IndexedDB; handles aren't localStorage-safe) ---
 
 const DB_NAME = 'digitalbox';
 const STORE = 'handles';
@@ -61,7 +61,7 @@ export async function chooseSlipFolder(): Promise<FileSystemDirectoryHandle | nu
     await idbRun('readwrite', (s) => s.put(handle, KEY)).catch(() => {});
     return handle;
   } catch {
-    // The operator dismissed the picker (AbortError) — leave the current folder as-is.
+    // The operator dismissed the picker (AbortError); leave the current folder as-is.
     return null;
   }
 }
@@ -76,7 +76,7 @@ async function canWrite(handle: FileSystemDirectoryHandle): Promise<boolean> {
     if ((await handle.queryPermission(opts)) === 'granted') return true;
     return (await handle.requestPermission(opts)) === 'granted';
   } catch {
-    // requestPermission throws without a live user gesture — treat as "not now".
+    // requestPermission throws without a live user gesture; treat as "not now".
     return false;
   }
 }

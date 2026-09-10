@@ -53,12 +53,12 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
       setOnlineUsers(Array.isArray(online) ? online : []);
     });
     connection.on('Activity', (evt: ActivityEvent) => {
-      // The actor already got a success toast for their own action — don't echo it back.
+      // The actor already got a success toast for their own action, so don't echo it back.
       if (evt.actorUserId && evt.actorUserId === selfId) return;
       emit('activity', evt);
     });
     connection.on('QueueChanged', (actorUserId?: string) => {
-      // The initiator already re-fetches explicitly after its own HTTP call — don't make it
+      // The initiator already re-fetches explicitly after its own HTTP call, so don't make it
       // refetch a second time on the echo of its own change. (Guid.Empty / no id → not us.)
       if (actorUserId && actorUserId === selfId) return;
       emit('queueChanged', undefined);
@@ -80,7 +80,7 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
     return () => {
       disposed = true;
       setOnlineUsers([]);
-      // Never call stop() while start() is still negotiating (that throws) — wait it out.
+      // Never call stop() while start() is still negotiating (that throws); wait it out.
       void running.then(() => connection.stop()).catch(() => {});
     };
   }, [user, selfId, emit]);

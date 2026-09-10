@@ -31,7 +31,7 @@ export function orderColumns({ isHistory, selectable, showFlag }: ColumnArgs): {
     cols.push({ width: '17%' }); // Notes
   }
   cols.push({ width: 44 }); // chevron / reopen
-  cols.push(undefined); // trailing spacer — absorbs slack on wide screens
+  cols.push(undefined); // trailing spacer, absorbs slack on wide screens
 
   return { minWidth: isHistory ? 1100 : 1080, cols };
 }
