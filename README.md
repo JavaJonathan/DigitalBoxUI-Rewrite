@@ -10,7 +10,7 @@ Backend: [DigitalBox API](https://github.com/JavaJonathan/DigitalBoxAPI-Rewrite)
 ```bash
 npm install
 echo "VITE_API_BASE_URL=http://localhost:5180" > .env.local
-npm run dev        # http://localhost:5173
+npm run dev        # http://localhost:5183
 ```
 
 Sign in with the shared warehouse credentials configured on the API.

@@ -13,7 +13,7 @@ Backend is a separate repo (`DigitalBoxApi`). Stack and conventions mirror the
 ## Commands
 
 ```bash
-npm run dev          # Vite dev server, http://localhost:5173 (strictPort, must match the API's CORS origin)
+npm run dev          # Vite dev server, http://localhost:5183 (strictPort, must match the API's CORS origin)
 npm run build        # tsc -b && vite build; this is the real typecheck, NOT `tsc --noEmit`
 npm run lint         # oxlint  (currently 8 warnings, all known/accepted; don't let the count grow)
 npm run format       # prettier --write .   (format:check for CI)
