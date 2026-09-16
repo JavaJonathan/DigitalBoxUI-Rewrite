@@ -11,6 +11,7 @@ import IconButton from '@mui/material/IconButton';
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
+import ChecklistOutlinedIcon from '@mui/icons-material/ChecklistOutlined';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
@@ -18,6 +19,7 @@ import { AppShell } from '../components/AppShell';
 import { QueueToolbar, type ToolbarState } from '../components/QueueToolbar';
 import { OrdersTable } from '../components/OrdersTable';
 import { UploadDialog } from '../components/UploadDialog';
+import { ShippableOrdersDialog } from '../components/ShippableOrdersDialog';
 import { ShippableItemsDialog } from '../components/ShippableItemsDialog';
 import { ConfirmActionDialog } from '../components/ConfirmActionDialog';
 import { SelectionBar } from '../components/SelectionBar';
@@ -51,7 +53,8 @@ export function OrdersPage() {
   const [pageSize, setPageSize] = useState(PAGE_SIZE);
   const [selectedRaw, setSelectedRaw] = useState<Set<string>>(new Set());
   const [uploadOpen, setUploadOpen] = useState(false);
-  const [reportOpen, setReportOpen] = useState(false);
+  const [ordersReportOpen, setOrdersReportOpen] = useState(false);
+  const [itemsReportOpen, setItemsReportOpen] = useState(false);
   const [action, setAction] = useState<'ship' | 'cancel' | null>(null);
   const [downloadSlips, setDownloadSlips] = useDownloadSlipsOnShip();
   const { folder: slipFolder, busy: slipBusy, deliver: deliverSlips } = useSlipDelivery();
@@ -167,10 +170,19 @@ export function OrdersPage() {
             variant="outlined"
             size="small"
             startIcon={<Inventory2OutlinedIcon sx={{ fontSize: 16 }} />}
-            onClick={() => setReportOpen(true)}
+            onClick={() => setOrdersReportOpen(true)}
             sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
           >
-            Shippable items
+            Shippable Orders
+          </Button>
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<ChecklistOutlinedIcon sx={{ fontSize: 16 }} />}
+            onClick={() => setItemsReportOpen(true)}
+            sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
+          >
+            Shippable Items
           </Button>
           {isAdmin && (
             <Button
@@ -306,7 +318,8 @@ export function OrdersPage() {
       </SelectionBar>
 
       <UploadDialog open={uploadOpen} onClose={() => setUploadOpen(false)} onUploaded={refresh} />
-      <ShippableItemsDialog open={reportOpen} onClose={() => setReportOpen(false)} />
+      <ShippableOrdersDialog open={ordersReportOpen} onClose={() => setOrdersReportOpen(false)} />
+      <ShippableItemsDialog open={itemsReportOpen} onClose={() => setItemsReportOpen(false)} />
 
       <ConfirmActionDialog
         open={action !== null}

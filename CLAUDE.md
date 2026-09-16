@@ -144,9 +144,15 @@ Ship/cancel/reopen no longer collect a name; the actor is the signed-in user
   action buttons (queue: Ship/Cancel; history: Reopen). This and the toast are the two
   intentional exceptions to the quiet-UI rule: a warehouse operator must not miss them.
 - `NotePopover`: anchored popover around the shared `ui/NoteEditor` (Cmd/Ctrl+Enter saves).
-- `UploadDialog` / `ShippableItemsDialog`: both use the shared `ui/FileDropzone` for the
-  drag-drop area. ShippableItems: drop CSV → map columns (auto-detected via `lib/csv.ts`) →
-  preview → Download CSV (client-side, BOM + CRLF).
+- `UploadDialog` / `ShippableOrdersDialog` / `ShippableItemsDialog`: all three use the shared
+  `ui/FileDropzone` for the drag-drop area. Both Shippable dialogs share the same flow: drop
+  CSV → map columns (auto-detected via `lib/csv.ts`) → preview → Download CSV (client-side,
+  BOM + CRLF). `ShippableOrdersDialog` (button "Shippable Orders") shows three tabs (by
+  order / by item / not in inventory) and calls `POST /api/reports/shippable-orders`.
+  `ShippableItemsDialog` (button "Shippable Items", the original item-centric report restored
+  alongside the order-centric one) shows just items + not-in-inventory and calls
+  `POST /api/reports/shippable-items` — same matching engine on the backend
+  (`InventoryMatching`), so their per-item numbers always agree.
   `UploadDialog` is expected to take **large multi-file selections**: a warehouse operator
   drops a week at once (hundreds, up to ~1000 PDFs). `api/orders.ts#uploadPackingSlips` sends
   them in sequential 6-file batches (`UPLOAD_CHUNK_SIZE`; keep at 6: 6 × the 15 MB file cap =

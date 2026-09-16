@@ -124,7 +124,8 @@ export interface OrderQuery {
   pageSize?: number;
 }
 
-export type ShippableCoverage = 'Covered' | 'Partial' | 'Blocked';
+// Fully out-of-stock ("Blocked") items aren't reported at all.
+export type ShippableCoverage = 'Covered' | 'Partial';
 
 export interface ShippableItemsRow {
   title: string;
@@ -143,7 +144,8 @@ export interface UnmatchedDemandRow {
   orderCount: number;
 }
 
-export type ShippableOrderStatus = 'Shippable' | 'Partial' | 'Blocked' | 'NeedsCheck';
+// Fully out-of-stock ("Blocked") orders aren't reported at all.
+export type ShippableOrderStatus = 'Shippable' | 'Partial' | 'NeedsCheck';
 
 export interface ShippableOrderShortLine {
   title: string;
@@ -163,7 +165,7 @@ export interface ShippableOrderRow {
   shortLines: ShippableOrderShortLine[];
 }
 
-export interface ShippableItemsResponse {
+export interface ShippableOrdersResponse {
   rows: ShippableItemsRow[];
   unmatchedDemand: UnmatchedDemandRow[];
   orders: ShippableOrderRow[];
@@ -173,8 +175,18 @@ export interface ShippableItemsResponse {
   matchedRowCount: number;
   ordersShippable: number;
   ordersPartial: number;
-  ordersBlocked: number;
   ordersNeedsCheck: number;
+  unitsShippable: number;
+}
+
+// The original, item-centric report: no order-level fields at all.
+export interface ShippableItemsResponse {
+  rows: ShippableItemsRow[];
+  unmatchedDemand: UnmatchedDemandRow[];
+  generatedAt: string;
+  openOrderCount: number;
+  csvRowCount: number;
+  matchedRowCount: number;
   unitsShippable: number;
 }
 
