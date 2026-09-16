@@ -108,7 +108,9 @@ export function InventoryUploadDialog({ kind, onClose, onUploaded }: InventoryUp
   );
 
   const canSubmit =
-    !busy && Boolean(mapping.sku) && (!needsAllColumns || (Boolean(mapping.title) && Boolean(mapping.qty)));
+    !busy &&
+    Boolean(mapping.sku) &&
+    (!needsAllColumns || (Boolean(mapping.title) && Boolean(mapping.qty)));
 
   return (
     <Dialog open onClose={close} maxWidth="sm" fullWidth>
@@ -125,7 +127,11 @@ export function InventoryUploadDialog({ kind, onClose, onUploaded }: InventoryUp
             <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1.5 }}>
               {KIND_COPY[kind].blurb}
             </Typography>
-            <FileDropzone accept=".csv,text/csv" disabled={busy} onFiles={(list) => accept(list[0])}>
+            <FileDropzone
+              accept=".csv,text/csv"
+              disabled={busy}
+              onFiles={(list) => accept(list[0])}
+            >
               <UploadFileOutlinedIcon sx={{ fontSize: 32, color: 'text.secondary' }} />
               <Typography sx={{ fontSize: '0.875rem', fontWeight: 550, mt: 1 }}>
                 Drop a .csv here, or click to choose
@@ -157,7 +163,9 @@ export function InventoryUploadDialog({ kind, onClose, onUploaded }: InventoryUp
         )}
 
         {error && (
-          <Typography sx={{ mt: 2, fontSize: '0.8125rem', color: 'error.main' }}>{error}</Typography>
+          <Typography sx={{ mt: 2, fontSize: '0.8125rem', color: 'error.main' }}>
+            {error}
+          </Typography>
         )}
       </DialogContent>
 

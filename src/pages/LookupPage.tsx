@@ -50,7 +50,8 @@ function InventoryRow({
         <Typography sx={{ fontSize: '0.8125rem', color: 'text.secondary' }}>
           {snapshot ? (
             <>
-              {pluralize(snapshot.rowCount, 'SKU')} · updated <RelativeTime value={snapshot.uploadedAt} />
+              {pluralize(snapshot.rowCount, 'SKU')} · updated{' '}
+              <RelativeTime value={snapshot.uploadedAt} />
               {snapshot.uploadedBy ? ` by ${snapshot.uploadedBy}` : ''}
             </>
           ) : (
@@ -121,7 +122,11 @@ export function LookupPage() {
             value={orderNumber}
             onChange={(e) => setOrderNumber(e.target.value)}
             autoFocus
-            slotProps={{ input: { startAdornment: <SearchIcon sx={{ fontSize: 18, mr: 1, color: 'text.disabled' }} /> } }}
+            slotProps={{
+              input: {
+                startAdornment: <SearchIcon sx={{ fontSize: 18, mr: 1, color: 'text.disabled' }} />,
+              },
+            }}
           />
           <Button type="submit" variant="contained" disabled={loading || !orderNumber.trim()}>
             Search
