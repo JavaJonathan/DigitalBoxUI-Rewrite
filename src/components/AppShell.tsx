@@ -194,13 +194,13 @@ export function AppShell({ title, titleMeta, actions, children }: AppShellProps)
                   onClick={() => setDrawerOpen(true)}
                   aria-label="Open navigation"
                 >
-                  <MenuOutlinedIcon sx={{ fontSize: 20 }} />
+                  <MenuOutlinedIcon />
                 </IconButton>
                 <LogoMark size={22} />
               </>
             )}
             <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1.25, minWidth: 0 }}>
-              <Typography variant="h4" component="h1" noWrap sx={{ fontSize: '1.0625rem' }}>
+              <Typography variant="h4" component="h1" noWrap>
                 {title}
               </Typography>
               {titleMeta}

@@ -52,7 +52,7 @@ export function OrderInfoPanel({ order }: { order: OrderDetail }) {
                 height: 20,
                 px: 0.5,
                 mt: 0.125,
-                borderRadius: 1,
+                borderRadius: 'var(--db-radius-md)',
                 bgcolor: 'surface.sunken',
                 color: 'text.secondary',
                 fontSize: '0.6875rem',

@@ -7,20 +7,13 @@ import type { SxProps, Theme } from '@mui/material/styles';
 interface PriorityToggleProps {
   isPriority: boolean;
   onToggle: () => void;
-  iconSize?: number;
   /** merged onto the IconButton (the table passes its hover-reveal transition here) */
   sx?: SxProps<Theme>;
   className?: string;
 }
 
 /** Flag icon button that toggles an order's priority. Tooltip + aria label handled here. */
-export function PriorityToggle({
-  isPriority,
-  onToggle,
-  iconSize = 16,
-  sx,
-  className,
-}: PriorityToggleProps) {
+export function PriorityToggle({ isPriority, onToggle, sx, className }: PriorityToggleProps) {
   const label = isPriority ? 'Remove priority' : 'Mark priority';
   return (
     <Tooltip title={label} arrow>
@@ -31,11 +24,7 @@ export function PriorityToggle({
         className={className}
         sx={{ color: isPriority ? 'primary.main' : 'text.disabled', ...sx }}
       >
-        {isPriority ? (
-          <FlagRoundedIcon sx={{ fontSize: iconSize }} />
-        ) : (
-          <OutlinedFlagIcon sx={{ fontSize: iconSize }} />
-        )}
+        {isPriority ? <FlagRoundedIcon fontSize="small" /> : <OutlinedFlagIcon fontSize="small" />}
       </IconButton>
     </Tooltip>
   );

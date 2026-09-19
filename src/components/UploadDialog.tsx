@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
@@ -8,7 +7,6 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import LinearProgress from '@mui/material/LinearProgress';
 import IconButton from '@mui/material/IconButton';
-import CloseIcon from '@mui/icons-material/Close';
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
 import PictureAsPdfOutlinedIcon from '@mui/icons-material/PictureAsPdfOutlined';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
@@ -21,6 +19,7 @@ import { UPLOAD_MAX_FILES, UPLOAD_LIST_PREVIEW } from '../lib/constants';
 import { Mono } from './ui/Mono';
 import { FileDropzone } from './ui/FileDropzone';
 import type { UploadResponse } from '../types';
+import { DialogHeader } from './ui/DialogHeader';
 
 interface UploadDialogProps {
   open: boolean;
@@ -100,12 +99,7 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
 
   return (
     <Dialog open={open} onClose={close} maxWidth="sm" fullWidth>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pr: 1 }}>
-        <DialogTitle>Upload packing slips</DialogTitle>
-        <IconButton size="small" onClick={close} disabled={busy} aria-label="Close">
-          <CloseIcon sx={{ fontSize: 18 }} />
-        </IconButton>
-      </Box>
+      <DialogHeader title={'Upload packing slips'} onClose={close} disabled={busy} />
 
       <DialogContent>
         {!result && (
@@ -116,7 +110,7 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
                 height: 40,
                 mx: 'auto',
                 mb: 1.25,
-                borderRadius: 2,
+                borderRadius: 'var(--db-radius-md)',
                 display: 'grid',
                 placeItems: 'center',
                 bgcolor: 'surface.panel',
@@ -124,11 +118,9 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
                 color: 'text.secondary',
               }}
             >
-              <UploadFileOutlinedIcon sx={{ fontSize: 20 }} />
+              <UploadFileOutlinedIcon />
             </Box>
-            <Typography sx={{ fontSize: '0.875rem', fontWeight: 550 }}>
-              Drop PDFs here, or click to browse
-            </Typography>
+            <Typography sx={{ fontWeight: 550 }}>Drop PDFs here, or click to browse</Typography>
             <Typography variant="caption" sx={{ color: 'text.disabled' }}>
               Up to {UPLOAD_MAX_FILES.toLocaleString()} files · 15 MB each
             </Typography>
@@ -173,11 +165,11 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
                     gap: 1.25,
                     px: 1.25,
                     py: 0.875,
-                    borderRadius: 1.75,
+                    borderRadius: 'var(--db-radius-md)',
                     bgcolor: 'surface.sunken',
                   }}
                 >
-                  <PictureAsPdfOutlinedIcon sx={{ fontSize: 17, color: 'text.disabled' }} />
+                  <PictureAsPdfOutlinedIcon fontSize="small" sx={{ color: 'text.disabled' }} />
                   <Typography sx={{ flex: 1, fontSize: '0.8125rem' }} noWrap>
                     {file.name}
                   </Typography>
@@ -190,7 +182,7 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
                     aria-label="Remove file"
                     sx={{ p: 0.25 }}
                   >
-                    <RemoveCircleOutlineRoundedIcon sx={{ fontSize: 16 }} />
+                    <RemoveCircleOutlineRoundedIcon fontSize="small" />
                   </IconButton>
                 </Box>
               ))}
@@ -261,21 +253,24 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
                       gap: 1.25,
                       px: 1.25,
                       py: 0.875,
-                      borderRadius: 1.75,
+                      borderRadius: 'var(--db-radius-md)',
                       bgcolor: 'surface.sunken',
                     }}
                   >
                     {ok ? (
                       <CheckCircleRoundedIcon
-                        sx={{ fontSize: 16, color: 'success.main', mt: 0.25 }}
+                        fontSize="small"
+                        sx={{ color: 'success.main', mt: 0.25 }}
                       />
                     ) : dup ? (
                       <RemoveCircleOutlineRoundedIcon
-                        sx={{ fontSize: 16, color: 'text.disabled', mt: 0.25 }}
+                        fontSize="small"
+                        sx={{ color: 'text.disabled', mt: 0.25 }}
                       />
                     ) : (
                       <ErrorOutlineRoundedIcon
-                        sx={{ fontSize: 16, color: 'error.main', mt: 0.25 }}
+                        fontSize="small"
+                        sx={{ color: 'error.main', mt: 0.25 }}
                       />
                     )}
                     <Box sx={{ minWidth: 0, flex: 1 }}>

@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useAuth } from './AuthContext';
+import { NotFoundPage } from '../pages/NotFoundPage';
 import type { UserRole } from '../types';
 
 export function ProtectedRoute({
@@ -10,7 +11,10 @@ export function ProtectedRoute({
   requireRole,
 }: {
   children: ReactNode;
-  /** When set, a signed-in user without this role is bounced to the queue. */
+  /**
+   * When set, a signed-in user without this role gets the 404 page: the same thing an unknown
+   * URL renders, so /users and /lookup stay indistinguishable from routes that don't exist.
+   */
   requireRole?: UserRole;
 }) {
   const { user, loading } = useAuth();
@@ -31,7 +35,7 @@ export function ProtectedRoute({
   }
 
   if (requireRole && user.role !== requireRole) {
-    return <Navigate to="/" replace />;
+    return <NotFoundPage />;
   }
 
   return <>{children}</>;

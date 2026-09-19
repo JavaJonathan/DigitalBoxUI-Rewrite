@@ -35,7 +35,7 @@ export function Mono({ children, copyable = false, muted = false, sx }: MonoProp
         fontSize: '0.8125rem',
         color: muted ? 'text.secondary' : 'text.primary',
         cursor: copyable ? 'pointer' : 'inherit',
-        borderRadius: 1,
+        borderRadius: 'var(--db-radius-md)',
         px: copyable ? 0.5 : 0,
         mx: copyable ? -0.5 : 0,
         transition: 'background-color 100ms ease',

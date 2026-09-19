@@ -1,6 +1,5 @@
 import { Fragment, useState } from 'react';
 import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
@@ -9,7 +8,6 @@ import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import LinearProgress from '@mui/material/LinearProgress';
-import IconButton from '@mui/material/IconButton';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -20,7 +18,6 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Chip from '@mui/material/Chip';
 import Collapse from '@mui/material/Collapse';
-import CloseIcon from '@mui/icons-material/Close';
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { generateShippableOrdersReport } from '../api/reports';
@@ -30,6 +27,7 @@ import { Mono } from './ui/Mono';
 import { MarketplaceTag } from './ui/MarketplaceTag';
 import { FileDropzone } from './ui/FileDropzone';
 import type { ShippableOrdersResponse, ShippableCoverage, ShippableOrderStatus } from '../types';
+import { DialogHeader } from './ui/DialogHeader';
 
 interface ShippableOrdersDialogProps {
   open: boolean;
@@ -225,12 +223,7 @@ export function ShippableOrdersDialog({ open, onClose }: ShippableOrdersDialogPr
 
   return (
     <Dialog open={open} onClose={close} maxWidth={phase === 'done' ? 'md' : 'sm'} fullWidth>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pr: 1 }}>
-        <DialogTitle>Shippable orders report</DialogTitle>
-        <IconButton size="small" onClick={close} disabled={busy} aria-label="Close">
-          <CloseIcon sx={{ fontSize: 18 }} />
-        </IconButton>
-      </Box>
+      <DialogHeader title={'Shippable orders report'} onClose={close} disabled={busy} />
 
       <DialogContent>
         {phase === 'pick' && (
@@ -245,8 +238,8 @@ export function ShippableOrdersDialog({ open, onClose }: ShippableOrdersDialogPr
               disabled={busy}
               onFiles={(list) => accept(list[0])}
             >
-              <UploadFileOutlinedIcon sx={{ fontSize: 32, color: 'text.secondary' }} />
-              <Typography sx={{ fontSize: '0.875rem', fontWeight: 550, mt: 1 }}>
+              <UploadFileOutlinedIcon fontSize="large" sx={{ color: 'text.secondary' }} />
+              <Typography sx={{ fontWeight: 550, mt: 1 }}>
                 Drop a .csv here, or click to choose
               </Typography>
             </FileDropzone>
@@ -306,8 +299,6 @@ export function ShippableOrdersDialog({ open, onClose }: ShippableOrdersDialogPr
             {tab === 'orders' && (
               <TableContainer
                 sx={{
-                  border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
-                  borderRadius: 2,
                   maxHeight: 360,
                 }}
               >
@@ -335,8 +326,8 @@ export function ShippableOrdersDialog({ open, onClose }: ShippableOrdersDialogPr
                             <TableCell sx={{ px: 0.5 }}>
                               {canExpand && (
                                 <KeyboardArrowRightIcon
+                                  fontSize="small"
                                   sx={{
-                                    fontSize: 18,
                                     color: 'text.secondary',
                                     transition: 'transform 120ms ease',
                                     transform: isOpen ? 'rotate(90deg)' : 'none',
@@ -428,8 +419,6 @@ export function ShippableOrdersDialog({ open, onClose }: ShippableOrdersDialogPr
               <>
                 <TableContainer
                   sx={{
-                    border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
-                    borderRadius: 2,
                     maxHeight: 360,
                   }}
                 >
@@ -516,8 +505,6 @@ export function ShippableOrdersDialog({ open, onClose }: ShippableOrdersDialogPr
                 ) : (
                   <TableContainer
                     sx={{
-                      border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
-                      borderRadius: 2,
                       maxHeight: 320,
                     }}
                   >

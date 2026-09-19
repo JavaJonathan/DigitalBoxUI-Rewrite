@@ -10,7 +10,7 @@ import FlagRoundedIcon from '@mui/icons-material/FlagRounded';
 import { alpha } from '@mui/material/styles';
 import { MARKETPLACES, type Marketplace } from '../types';
 import { MARKETPLACE_LABELS } from '../lib/format';
-import { MARKETPLACE_COLORS } from '../theme';
+import { CONTROL_HEIGHT, MARKETPLACE_COLORS } from '../theme';
 import { SEARCH_DEBOUNCE_MS } from '../lib/constants';
 import { Kbd } from './ui/Kbd';
 
@@ -82,12 +82,12 @@ export function QueueToolbar({
           display: 'flex',
           alignItems: 'center',
           gap: 2.5,
-          height: 44,
+          height: CONTROL_HEIGHT,
           px: 3.5,
           flex: '1 1 300px',
           maxWidth: hasFilters ? { md: 640 } : 'none',
           minWidth: { xs: '100%', sm: 260 },
-          borderRadius: 1.25,
+          borderRadius: 'var(--db-radius-md)',
           border: (t) => `1px solid ${(t.vars ?? t).palette.surface.borderStrong}`,
           bgcolor: 'surface.panel',
           transition: 'border-color 120ms ease, box-shadow 120ms ease',
@@ -100,7 +100,7 @@ export function QueueToolbar({
           '&:focus-within .search-icon': { color: 'primary.main' },
         }}
       >
-        <SearchIcon className="search-icon" sx={{ fontSize: 19 }} />
+        <SearchIcon className="search-icon" />
         <InputBase
           inputRef={inputRef}
           value={text}
@@ -121,7 +121,7 @@ export function QueueToolbar({
             aria-label="Clear search"
             sx={{ p: 0.5 }}
           >
-            <CloseIcon sx={{ fontSize: 16 }} />
+            <CloseIcon fontSize="small" />
           </IconButton>
         ) : (
           <Kbd sx={{ display: { xs: 'none', sm: 'inline-block' } }}>/</Kbd>
@@ -141,19 +141,11 @@ export function QueueToolbar({
           {showPriority && (
             <ToggleButton
               value="priority"
-              size="small"
               selected={priority}
               onChange={() => emit({ priority: !priority })}
               sx={{
-                border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
-                borderRadius: '9px !important', // !important overrides MUI's own toggle radius
-                px: 3.5,
-                height: 40,
-                fontSize: '0.8125rem',
-                fontWeight: 550,
-                color: 'text.secondary',
-                textTransform: 'none',
-                gap: 2,
+                // Shape, size and the neutral state come from the theme; only the "this filter
+                // is on" tint is specific to this toggle.
                 '&.Mui-selected': {
                   bgcolor: (t) =>
                     `color-mix(in srgb, ${(t.vars ?? t).palette.primary.main} 12%, transparent)`,
@@ -166,7 +158,7 @@ export function QueueToolbar({
                 },
               }}
             >
-              <FlagRoundedIcon sx={{ fontSize: 16 }} />
+              <FlagRoundedIcon fontSize="small" />
               Priority
             </ToggleButton>
           )}
@@ -174,31 +166,11 @@ export function QueueToolbar({
           {showMarketplace && (
             <ToggleButtonGroup
               exclusive
-              size="small"
               value={marketplace || 'all'}
               onChange={(_, val) =>
                 emit({ marketplace: val === 'all' || !val ? '' : (val as Marketplace) })
               }
-              sx={{
-                gap: 1.5,
-                flexWrap: 'wrap',
-                maxWidth: '100%',
-                '& .MuiToggleButton-root': {
-                  border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
-                  borderRadius: '9px !important',
-                  px: 3.25,
-                  height: 40,
-                  fontSize: '0.8125rem',
-                  fontWeight: 550,
-                  color: 'text.secondary',
-                  textTransform: 'none',
-                  '&.Mui-selected': {
-                    bgcolor: 'surface.sunken',
-                    color: 'text.primary',
-                    borderColor: (t) => (t.vars ?? t).palette.surface.borderStrong,
-                  },
-                },
-              }}
+              sx={{ maxWidth: '100%' }}
             >
               <ToggleButton value="all">All</ToggleButton>
               {MARKETPLACES.map((m) => (

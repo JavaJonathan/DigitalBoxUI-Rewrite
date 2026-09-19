@@ -22,7 +22,7 @@ export function Kbd({ children, size = 'md', sx }: KbdProps) {
         lineHeight: 1,
         px: sm ? 0.5 : 0.75,
         py: sm ? 0.25 : 0.5,
-        borderRadius: sm ? 0.625 : 0.75,
+        borderRadius: sm ? 0.5 : 0.75, // 4px / 6px
         border: (t) => `1px solid ${(t.vars ?? t).palette.surface.borderStrong}`,
         bgcolor: 'surface.sunken',
         color: sm ? 'text.secondary' : 'text.disabled',

@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
@@ -17,13 +18,6 @@ import { getInventoryStatus, lookupOrder } from '../api/lookup';
 import { getApiErrorMessage } from '../api/client';
 import { pluralize } from '../lib/format';
 import type { InventoryKind, InventorySnapshot, InventoryStatus, LookupResult } from '../types';
-
-const panelSx = {
-  border: (t: import('@mui/material/styles').Theme) =>
-    `1px solid ${(t.vars ?? t).palette.surface.border}`,
-  borderRadius: 3,
-  bgcolor: 'surface.panel',
-} as const;
 
 function InventoryRow({
   label,
@@ -46,7 +40,7 @@ function InventoryRow({
       }}
     >
       <Box sx={{ minWidth: 0 }}>
-        <Typography sx={{ fontSize: '0.875rem', fontWeight: 600 }}>{label}</Typography>
+        <Typography sx={{ fontWeight: 600 }}>{label}</Typography>
         <Typography sx={{ fontSize: '0.8125rem', color: 'text.secondary' }}>
           {snapshot ? (
             <>
@@ -124,7 +118,9 @@ export function LookupPage() {
             autoFocus
             slotProps={{
               input: {
-                startAdornment: <SearchIcon sx={{ fontSize: 18, mr: 1, color: 'text.disabled' }} />,
+                startAdornment: (
+                  <SearchIcon fontSize="small" sx={{ mr: 1, color: 'text.disabled' }} />
+                ),
               },
             }}
           />
@@ -142,7 +138,7 @@ export function LookupPage() {
         )}
 
         {!loading && result && !result.found && (
-          <Box sx={panelSx}>
+          <Paper variant="outlined">
             <EmptyState
               icon={<ManageSearchOutlinedIcon />}
               title="No order found"
@@ -150,12 +146,12 @@ export function LookupPage() {
                 result.shipStationConfigured ? ' or ShipStation' : ''
               } matches “${result.orderNumber}”.`}
             />
-          </Box>
+          </Paper>
         )}
 
         {!loading && result?.found && <LookupResultCard result={result} />}
 
-        <Box sx={panelSx}>
+        <Paper variant="outlined">
           <Typography
             sx={{
               px: 2.5,
@@ -181,7 +177,7 @@ export function LookupPage() {
             snapshot={inventory?.purchaseOrders ?? null}
             onReplace={() => setUploadKind('purchaseOrders')}
           />
-        </Box>
+        </Paper>
       </Stack>
 
       {uploadKind && (

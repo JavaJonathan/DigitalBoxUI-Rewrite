@@ -61,11 +61,13 @@ function OrderPrimaryCell({ order, isHistory }: { order: OrderListItem; isHistor
             <Tooltip title={PARSE_STATUS_HINTS[order.parseStatus]} arrow>
               {order.parseStatus === 'Failed' ? (
                 <ErrorOutlineRoundedIcon
-                  sx={{ fontSize: 14, flexShrink: 0, color: 'error.main' }}
+                  fontSize="inherit"
+                  sx={{ flexShrink: 0, color: 'error.main' }}
                 />
               ) : (
                 <WarningAmberRoundedIcon
-                  sx={{ fontSize: 14, flexShrink: 0, color: 'warning.main' }}
+                  fontSize="inherit"
+                  sx={{ flexShrink: 0, color: 'warning.main' }}
                 />
               )}
             </Tooltip>
@@ -73,7 +75,8 @@ function OrderPrimaryCell({ order, isHistory }: { order: OrderListItem; isHistor
           {isHistory && order.notes && (
             <Tooltip title={order.notes} arrow>
               <StickyNote2OutlinedIcon
-                sx={{ fontSize: 13, flexShrink: 0, color: 'text.disabled' }}
+                fontSize="inherit"
+                sx={{ flexShrink: 0, color: 'text.disabled' }}
               />
             </Tooltip>
           )}
@@ -133,8 +136,8 @@ function NotesCell({
       ) : onEditNote ? (
         <StickyNote2OutlinedIcon
           className="db-row-hover"
+          fontSize="inherit"
           sx={{
-            fontSize: 14,
             color: 'text.disabled',
             opacity: 0,
             transition: 'opacity 100ms ease',
@@ -191,7 +194,6 @@ export function OrdersTableRow({
           <PriorityToggle
             isPriority={order.isPriority}
             onToggle={() => onTogglePriority?.(order)}
-            iconSize={15}
             className={order.isPriority ? undefined : 'db-row-hover'}
             sx={{
               opacity: order.isPriority ? 1 : 0,
@@ -269,14 +271,14 @@ export function OrdersTableRow({
               className="db-row-hover"
               sx={{ opacity: 0, transition: 'opacity 100ms ease' }}
             >
-              <ReplayRoundedIcon sx={{ fontSize: 15 }} />
+              <ReplayRoundedIcon fontSize="small" />
             </IconButton>
           </Tooltip>
         ) : (
           <ChevronRightIcon
             className="db-chevron"
+            fontSize="small"
             sx={{
-              fontSize: 16,
               color: 'text.disabled',
               opacity: 0,
               transform: 'translateX(-4px)',

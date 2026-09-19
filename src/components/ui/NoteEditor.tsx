@@ -52,8 +52,8 @@ export function NoteEditor({
           <Button size="small" variant="text" onClick={onCancel} disabled={busy}>
             Cancel
           </Button>
-          <Button size="small" variant="contained" onClick={onSave} disabled={busy}>
-            {busy ? 'Saving…' : 'Save'}
+          <Button size="small" variant="contained" onClick={onSave} loading={busy}>
+            Save
           </Button>
         </Stack>
       </Box>

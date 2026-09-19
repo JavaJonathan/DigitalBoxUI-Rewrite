@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
@@ -9,14 +8,13 @@ import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import LinearProgress from '@mui/material/LinearProgress';
-import IconButton from '@mui/material/IconButton';
-import CloseIcon from '@mui/icons-material/Close';
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
 import { uploadInventory } from '../../api/lookup';
 import { getApiErrorMessage } from '../../api/client';
 import { parseCsvHeaders, guessInventoryColumns } from '../../lib/csv';
 import { FileDropzone } from '../ui/FileDropzone';
 import type { InventoryKind, InventoryStatus } from '../../types';
+import { DialogHeader } from '../ui/DialogHeader';
 
 interface InventoryUploadDialogProps {
   kind: InventoryKind;
@@ -114,12 +112,7 @@ export function InventoryUploadDialog({ kind, onClose, onUploaded }: InventoryUp
 
   return (
     <Dialog open onClose={close} maxWidth="sm" fullWidth>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pr: 1 }}>
-        <DialogTitle>{KIND_COPY[kind].title}</DialogTitle>
-        <IconButton size="small" onClick={close} disabled={busy} aria-label="Close">
-          <CloseIcon sx={{ fontSize: 18 }} />
-        </IconButton>
-      </Box>
+      <DialogHeader title={KIND_COPY[kind].title} onClose={close} disabled={busy} />
 
       <DialogContent>
         {phase === 'pick' && (
@@ -132,8 +125,8 @@ export function InventoryUploadDialog({ kind, onClose, onUploaded }: InventoryUp
               disabled={busy}
               onFiles={(list) => accept(list[0])}
             >
-              <UploadFileOutlinedIcon sx={{ fontSize: 32, color: 'text.secondary' }} />
-              <Typography sx={{ fontSize: '0.875rem', fontWeight: 550, mt: 1 }}>
+              <UploadFileOutlinedIcon fontSize="large" sx={{ color: 'text.secondary' }} />
+              <Typography sx={{ fontWeight: 550, mt: 1 }}>
                 Drop a .csv here, or click to choose
               </Typography>
             </FileDropzone>
@@ -174,8 +167,8 @@ export function InventoryUploadDialog({ kind, onClose, onUploaded }: InventoryUp
           Cancel
         </Button>
         {phase === 'map' && (
-          <Button variant="contained" onClick={submit} disabled={!canSubmit}>
-            {busy ? 'Uploading…' : 'Replace list'}
+          <Button variant="contained" onClick={submit} loading={busy} disabled={!canSubmit}>
+            Replace list
           </Button>
         )}
       </DialogActions>

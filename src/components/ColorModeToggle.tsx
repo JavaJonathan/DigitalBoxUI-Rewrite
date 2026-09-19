@@ -18,9 +18,9 @@ export function ColorModeToggle() {
     <Tooltip title={label} placement="top" arrow>
       <IconButton size="small" onClick={() => setMode(next)} aria-label={label}>
         {mode === 'dark' ? (
-          <DarkModeOutlinedIcon sx={{ fontSize: 18 }} />
+          <DarkModeOutlinedIcon fontSize="small" />
         ) : (
-          <LightModeOutlinedIcon sx={{ fontSize: 18 }} />
+          <LightModeOutlinedIcon fontSize="small" />
         )}
       </IconButton>
     </Tooltip>

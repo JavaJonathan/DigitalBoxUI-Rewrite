@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
+import TableContainer from '@mui/material/TableContainer';
 import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
 import Table from '@mui/material/Table';
@@ -26,42 +28,13 @@ import { AppShell } from '../components/AppShell';
 import { Mono } from '../components/ui/Mono';
 import { RelativeTime } from '../components/ui/RelativeTime';
 import { EmptyState } from '../components/ui/EmptyState';
+import { StatusBadge } from '../components/ui/StatusBadge';
 import { TableSkeleton } from '../components/ui/TableSkeleton';
 import { useToast } from '../components/ToastProvider';
 import { getApiErrorMessage } from '../api/client';
 import { createUser, listUsers, renameUser, resetUserPassword, setUserActive } from '../api/users';
 import { DISPLAY_NAME_MAX_LENGTH } from '../lib/constants';
 import type { AdminUserListItem, GeneratedPasswordResponse } from '../types';
-
-const panelSx = {
-  border: (t: import('@mui/material/styles').Theme) =>
-    `1px solid ${(t.vars ?? t).palette.surface.border}`,
-  borderRadius: 3,
-  bgcolor: 'surface.panel',
-  overflow: 'hidden',
-} as const;
-
-function RolePill({ role }: { role: string }) {
-  const admin = role === 'Admin';
-  return (
-    <Box
-      component="span"
-      sx={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        height: 22,
-        px: 1.25,
-        borderRadius: 1,
-        fontSize: '0.75rem',
-        fontWeight: 600,
-        color: admin ? 'primary.dark' : 'text.secondary',
-        bgcolor: admin ? 'primary.light' : 'surface.sunken',
-      }}
-    >
-      {admin ? 'Admin' : 'Staff'}
-    </Box>
-  );
-}
 
 export function UsersPage() {
   const { notify } = useToast();
@@ -136,7 +109,7 @@ export function UsersPage() {
         <Button
           variant="contained"
           size="small"
-          startIcon={<PersonAddOutlinedIcon sx={{ fontSize: 16 }} />}
+          startIcon={<PersonAddOutlinedIcon />}
           onClick={() => setAddOpen(true)}
         >
           Add user
@@ -153,11 +126,9 @@ export function UsersPage() {
         {error && <Alert severity="error">{error}</Alert>}
 
         {!users ? (
-          <Box sx={panelSx}>
-            <TableSkeleton rows={5} columns={5} />
-          </Box>
+          <TableSkeleton rows={5} columns={6} />
         ) : users.length === 0 ? (
-          <Box sx={panelSx}>
+          <Paper variant="outlined">
             <EmptyState
               icon={<PersonAddOutlinedIcon />}
               title="No users yet"
@@ -168,9 +139,9 @@ export function UsersPage() {
                 </Button>
               }
             />
-          </Box>
+          </Paper>
         ) : (
-          <Box sx={panelSx}>
+          <TableContainer>
             <Table size="small">
               <TableHead>
                 <TableRow>
@@ -190,7 +161,11 @@ export function UsersPage() {
                       <Mono muted>{user.username}</Mono>
                     </TableCell>
                     <TableCell>
-                      <RolePill role={user.role} />
+                      <StatusBadge
+                        tone={user.role === 'Admin' ? 'info' : 'neutral'}
+                        label={user.role === 'Admin' ? 'Admin' : 'Staff'}
+                        dot={false}
+                      />
                     </TableCell>
                     <TableCell sx={{ color: user.isActive ? 'success.dark' : 'text.disabled' }}>
                       {user.isActive ? 'Active' : 'Deactivated'}
@@ -204,14 +179,14 @@ export function UsersPage() {
                         aria-label={`Actions for ${user.displayName}`}
                         onClick={(e) => setMenu({ anchor: e.currentTarget, user })}
                       >
-                        <MoreVertRoundedIcon sx={{ fontSize: 18 }} />
+                        <MoreVertRoundedIcon fontSize="small" />
                       </IconButton>
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-          </Box>
+          </TableContainer>
         )}
       </Stack>
 
@@ -369,9 +344,10 @@ function AddUserDialog({
           <Button
             type="submit"
             variant="contained"
-            disabled={busy || username.trim().length < 2 || displayName.trim().length === 0}
+            loading={busy}
+            disabled={username.trim().length < 2 || displayName.trim().length === 0}
           >
-            {busy ? 'Creating…' : 'Create'}
+            Create
           </Button>
         </DialogActions>
       </Stack>
@@ -471,7 +447,7 @@ function GeneratedPasswordDialog({
               alignItems: 'center',
               gap: 1,
               p: 2,
-              borderRadius: 2,
+              borderRadius: 'var(--db-radius-lg)',
               border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
               bgcolor: 'surface.sunken',
             }}
@@ -485,9 +461,9 @@ function GeneratedPasswordDialog({
             <Tooltip title={copied ? 'Copied' : 'Copy'} placement="top" arrow>
               <IconButton size="small" onClick={copy} aria-label="Copy password">
                 {copied ? (
-                  <CheckRoundedIcon sx={{ fontSize: 18, color: 'success.main' }} />
+                  <CheckRoundedIcon fontSize="small" sx={{ color: 'success.main' }} />
                 ) : (
-                  <ContentCopyRoundedIcon sx={{ fontSize: 18 }} />
+                  <ContentCopyRoundedIcon fontSize="small" />
                 )}
               </IconButton>
             </Tooltip>

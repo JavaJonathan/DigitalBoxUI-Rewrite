@@ -47,7 +47,7 @@ export function SelectionBar({ count, onClear, children }: SelectionBarProps) {
             pl: 5,
             pr: 4,
             py: 3.5,
-            borderRadius: 2,
+            borderRadius: 'var(--db-radius-xl)',
             bgcolor: 'surface.panel',
             border: (t) => `1px solid ${(t.vars ?? t).palette.surface.borderStrong}`,
             boxShadow: (t) =>
@@ -60,7 +60,7 @@ export function SelectionBar({ count, onClear, children }: SelectionBarProps) {
                 minWidth: 28,
                 height: 28,
                 px: 1.5,
-                borderRadius: 1,
+                borderRadius: 'var(--db-radius-md)',
                 bgcolor: 'primary.main',
                 color: 'primary.contrastText',
                 fontSize: '0.875rem',
@@ -88,7 +88,7 @@ export function SelectionBar({ count, onClear, children }: SelectionBarProps) {
               aria-label="Clear selection"
               sx={{ ml: 0.5 }}
             >
-              <CloseRoundedIcon sx={{ fontSize: 19 }} />
+              <CloseRoundedIcon />
             </IconButton>
           </Box>
 

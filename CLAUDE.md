@@ -63,10 +63,33 @@ Full redesign, 2026. Target aesthetic is Linear / Vercel / Stripe dashboard: fla
 - Fonts: Inter Variable for UI, Geist Mono for order numbers / SKUs / IDs (`.db-mono` class or
   the `<Mono>` component, which also does click-to-copy).
 - Shadow tokens: `var(--db-shadow-sm | -md | -lg)` (defined in `MuiCssBaseline`, light + dark).
-- Spacing base is **4px** (`theme.spacing = 4`), radius base **8px** (`shape.borderRadius = 8`),
-  so sx `p: 3` = 12px, `borderRadius: 3` = 24px, `borderRadius: 1.5` = 12px. Use multipliers for
-  padding / margin / gap / borderRadius; raw px numbers only for fixed dimensions (`height`,
-  `width`, `fontSize`).
+- Spacing base is **4px** (`theme.spacing = 4`), so sx `p: 3` = 12px. Use multipliers for
+  padding / margin / gap; raw px numbers only for fixed dimensions (`height`, `width`).
+- **Radius scale** — four steps, as CSS vars next to the shadow tokens in `MuiCssBaseline`:
+
+  | token | px | role |
+  |---|---|---|
+  | `--db-radius-sm` | 6 | chips, badges, menu items, skeletons |
+  | `--db-radius-md` | 8 | buttons, inputs, icon buttons, toggles |
+  | `--db-radius-lg` | 12 | **containers**: panels, cards, tables, dialogs, menus, toast |
+  | `--db-radius-xl` | 16 | dropzones, empty-state tiles, the selection pill |
+
+  In `sx` write `borderRadius: 'var(--db-radius-lg)'`, **not** a multiplier. `shape.borderRadius`
+  is 8, so `borderRadius: 3` silently means 24px, not 3 — that trap is exactly how the app
+  drifted to twelve different radii. `'50%'` for circles is still fine.
+- **Icon scale** — three steps on MUI's own `fontSize` prop, via `MuiSvgIcon` overrides:
+  `small` = 16 (button icons, dialog closes, most controls), `medium` = 20 (the default;
+  sidebar nav, emphasis), `large` = 28 (empty states, dropzones, toast). Use the prop
+  (`<Icon fontSize="small" />`), never `sx={{ fontSize: 16 }}`. A glyph sitting inline with
+  text in a table row uses `fontSize="inherit"` so it tracks the cell. `MuiButton`'s
+  `startIcon`/`endIcon` overrides already size button icons, so those call sites pass nothing.
+- **Control height** — `CONTROL_HEIGHT` (40, exported from `theme.ts`) is the filter-row
+  height: the queue search field and both toggle kinds share it so the toolbar reads as one
+  band. Buttons keep their own 28/34/42 `size` scale.
+- **Panels are `<Paper variant="outlined">`**, which the theme already gives a 1px
+  `surface.border` + 12px radius + `surface.panel` background. There is deliberately **no**
+  `<Panel>` primitive. `MuiTableContainer` carries the same chrome, so a table and a panel are
+  the same object and a loading panel can't have different corners from the table replacing it.
 - Motion: two opt-in classes in `index.css`. `.db-fade-in` (page/panel entrance, **opacity
   only**; `<main>` carries it and also holds the `position: fixed` SelectionBar, so a
   `transform` there would re-anchor the fixed child) and `.db-row-in` (per-row; caller sets

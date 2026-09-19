@@ -110,7 +110,7 @@ export function OrderDetailPage() {
         component={RouterLink}
         to="/"
         variant="text"
-        startIcon={<ArrowBackRoundedIcon sx={{ fontSize: 16 }} />}
+        startIcon={<ArrowBackRoundedIcon />}
         sx={{ mb: 2, ml: -1 }}
       >
         Back to queue
@@ -158,7 +158,7 @@ export function OrderDetailPage() {
                     <Button
                       size="small"
                       variant="outlined"
-                      startIcon={<EditOutlinedIcon sx={{ fontSize: 15 }} />}
+                      startIcon={<EditOutlinedIcon />}
                       onClick={() => setEditing(true)}
                     >
                       Edit
@@ -168,7 +168,7 @@ export function OrderDetailPage() {
                     size="small"
                     variant="contained"
                     color="success"
-                    startIcon={<LocalShippingOutlinedIcon sx={{ fontSize: 15 }} />}
+                    startIcon={<LocalShippingOutlinedIcon />}
                     onClick={() => setAction('ship')}
                   >
                     Ship
@@ -177,7 +177,7 @@ export function OrderDetailPage() {
                     size="small"
                     variant="outlined"
                     color="error"
-                    startIcon={<CancelOutlinedIcon sx={{ fontSize: 15 }} />}
+                    startIcon={<CancelOutlinedIcon />}
                     onClick={() => setAction('cancel')}
                     sx={{
                       color: 'error.main',
@@ -192,7 +192,7 @@ export function OrderDetailPage() {
                   <Button
                     size="small"
                     variant="outlined"
-                    startIcon={<ReplayRoundedIcon sx={{ fontSize: 15 }} />}
+                    startIcon={<ReplayRoundedIcon />}
                     onClick={() => setAction('reopen')}
                   >
                     Reopen order

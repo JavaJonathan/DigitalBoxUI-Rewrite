@@ -2,14 +2,9 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { useAuth } from '../../auth/AuthContext';
 import { useOnlineUsers } from '../../realtime/RealtimeContext';
+import { initials } from '../../lib/format';
 
 /** First letters of the first two words, else the first two characters. */
-function initials(name: string): string {
-  const words = name.trim().split(/\s+/).filter(Boolean);
-  if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
-  return (name.trim().slice(0, 2) || '?').toUpperCase();
-}
-
 /**
  * The live "who's on" roster in the sidebar. Current user first, then everyone else by name,
  * each with a pulsing presence dot. Hidden only when the hub isn't connected at all.
@@ -51,7 +46,7 @@ export function SidebarPresence() {
             minWidth: 18,
             height: 18,
             px: 1,
-            borderRadius: '9px',
+            borderRadius: '999px', // a count pill reads best fully round
             display: 'grid',
             placeItems: 'center',
             fontSize: '0.6875rem',
@@ -87,7 +82,7 @@ export function SidebarPresence() {
                 pl: 3,
                 pr: 2.5,
                 height: 44,
-                borderRadius: 1.5,
+                borderRadius: 'var(--db-radius-lg)',
               }}
             >
               <Box sx={{ position: 'relative', flexShrink: 0, width: 30, height: 30 }}>
@@ -127,7 +122,6 @@ export function SidebarPresence() {
               <Box sx={{ minWidth: 0, flex: 1, display: 'flex', alignItems: 'baseline', gap: 1.5 }}>
                 <Typography
                   sx={{
-                    fontSize: '0.875rem',
                     fontWeight: isSelf ? 600 : 500,
                     color: 'text.primary',
                     lineHeight: 1.3,

@@ -58,8 +58,11 @@ export function LoginPage() {
           content: '""',
           position: 'absolute',
           inset: 0,
+          // color-mix, not a `${colour}14` hex-alpha suffix: in cssVariables mode the palette
+          // value is `var(--mui-palette-…)`, so the suffix produced an invalid colour and the
+          // whole declaration was dropped, i.e. this glow never rendered.
           background: (t) =>
-            `radial-gradient(60rem 40rem at 50% -10rem, ${(t.vars ?? t).palette.primary.main}14, transparent 70%)`,
+            `radial-gradient(60rem 40rem at 50% -10rem, color-mix(in srgb, ${(t.vars ?? t).palette.primary.main} 8%, transparent), transparent 70%)`,
           pointerEvents: 'none',
         },
       }}
@@ -77,13 +80,11 @@ export function LoginPage() {
           sx={{
             p: 3.5,
             border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
-            borderRadius: 3.5,
+            borderRadius: 'var(--db-radius-lg)',
             boxShadow: 'var(--db-shadow-md)',
           }}
         >
-          <Typography variant="h3" sx={{ fontSize: '1.125rem' }}>
-            Sign in
-          </Typography>
+          <Typography variant="h3">Sign in</Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
             Sign in with your DigitalBox account.
           </Typography>
@@ -101,7 +102,7 @@ export function LoginPage() {
                 input: {
                   startAdornment: (
                     <InputAdornment position="start">
-                      <PersonOutlineIcon sx={{ fontSize: 18, color: 'text.disabled' }} />
+                      <PersonOutlineIcon fontSize="small" sx={{ color: 'text.disabled' }} />
                     </InputAdornment>
                   ),
                 },
@@ -119,7 +120,7 @@ export function LoginPage() {
                 input: {
                   startAdornment: (
                     <InputAdornment position="start">
-                      <LockOutlinedIcon sx={{ fontSize: 18, color: 'text.disabled' }} />
+                      <LockOutlinedIcon fontSize="small" sx={{ color: 'text.disabled' }} />
                     </InputAdornment>
                   ),
                 },
@@ -132,11 +133,11 @@ export function LoginPage() {
               type="submit"
               variant="contained"
               size="large"
-              disabled={submitting}
-              endIcon={!submitting && <ArrowForwardIcon sx={{ fontSize: 18 }} />}
+              loading={submitting}
+              endIcon={<ArrowForwardIcon fontSize="small" />}
               sx={{ mt: 0.5 }}
             >
-              {submitting ? 'Signing in…' : 'Sign in'}
+              Sign in
             </Button>
           </Stack>
         </Paper>

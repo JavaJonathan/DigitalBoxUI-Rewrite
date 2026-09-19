@@ -51,7 +51,7 @@ export function FileDropzone({
       sx={{
         border: '1.5px dashed',
         borderColor: dragging ? 'primary.main' : 'surface.borderStrong',
-        borderRadius: 2.5,
+        borderRadius: 'var(--db-radius-xl)',
         px: 3,
         py: 4,
         textAlign: 'center',

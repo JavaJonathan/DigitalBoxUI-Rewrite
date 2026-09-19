@@ -70,7 +70,7 @@ export function ActivityFeed() {
               maxWidth: 320,
               px: 3,
               py: 2.25,
-              borderRadius: 1.5,
+              borderRadius: 'var(--db-radius-lg)',
               bgcolor: 'surface.panel',
               border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
               boxShadow: 'var(--db-shadow-md)',

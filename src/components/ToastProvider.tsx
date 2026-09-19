@@ -13,8 +13,8 @@ import { EASE_BACK_OUT } from '../lib/constants';
 
 type Severity = 'success' | 'error' | 'info' | 'warning';
 
-interface ToastState {
-  open: boolean;
+interface Toast {
+  id: number;
   message: string;
   severity: Severity;
 }
@@ -44,24 +44,42 @@ const DURATION: Record<Severity, number> = {
   error: 9000,
 };
 
+/**
+ * Cap on queued toasts. Ship/cancel and the realtime feed can both fire at once, and a burst
+ * of errors must not lock the operator behind a minute of backlog.
+ */
+const MAX_QUEUE = 3;
+
+let seq = 0;
+
 export function ToastProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<ToastState>({ open: false, message: '', severity: 'info' });
+  // A queue, not a single slot: a second notify() used to replace the first mid-read.
+  const [items, setItems] = useState<Toast[]>([]);
 
   const notify = useCallback((message: string, severity: Severity = 'info') => {
-    setState({ open: true, message, severity });
+    setItems((prev) =>
+      // collapse an immediate repeat, e.g. the same error retried
+      prev.at(-1)?.message === message
+        ? prev
+        : [...prev, { id: ++seq, message, severity }].slice(-MAX_QUEUE),
+    );
   }, []);
 
   const value = useMemo(() => ({ notify }), [notify]);
-  const close = () => setState((s) => ({ ...s, open: false }));
+  const close = () => setItems((prev) => prev.slice(1));
 
-  const cfg = CONFIG[state.severity];
+  const current = items[0];
+  const cfg = CONFIG[current?.severity ?? 'info'];
 
   return (
     <ToastContext.Provider value={value}>
       {children}
       <Snackbar
-        open={state.open}
-        autoHideDuration={DURATION[state.severity]}
+        // Keying by id restarts autoHideDuration and replays the slide for each message, so
+        // the queue drains without an effect (which would trip react(set-state-in-effect)).
+        key={current?.id}
+        open={current !== undefined}
+        autoHideDuration={DURATION[current?.severity ?? 'info']}
         onClose={(_, reason) => {
           if (reason !== 'clickaway') close();
         }}
@@ -81,15 +99,15 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             pl: 4.5,
             pr: 2.5,
             py: 3.5,
-            borderRadius: 1.75,
+            borderRadius: 'var(--db-radius-lg)',
             bgcolor: cfg.bg,
             color: cfg.fg,
             boxShadow: 'var(--db-shadow-lg)',
           }}
         >
-          <cfg.Icon sx={{ fontSize: 28, flexShrink: 0 }} />
+          <cfg.Icon fontSize="large" sx={{ flexShrink: 0 }} />
           <Box sx={{ flex: 1, fontSize: '1rem', fontWeight: 600, lineHeight: 1.35 }}>
-            {state.message}
+            {current?.message}
           </Box>
           <IconButton
             onClick={close}
@@ -98,10 +116,15 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               color: 'inherit',
               opacity: 0.8,
               flexShrink: 0,
-              '&:hover': { opacity: 1, bgcolor: 'rgba(255,255,255,0.18)' },
+              // currentColor is the severity's contrastText, so this scrim stays visible on the
+              // light amber warning bar in dark mode, where a white one nearly vanishes.
+              '&:hover': {
+                opacity: 1,
+                bgcolor: 'color-mix(in srgb, currentColor 18%, transparent)',
+              },
             }}
           >
-            <CloseRoundedIcon sx={{ fontSize: 22 }} />
+            <CloseRoundedIcon />
           </IconButton>
         </Box>
       </Snackbar>

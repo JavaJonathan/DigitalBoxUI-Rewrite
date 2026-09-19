@@ -73,3 +73,10 @@ export function pluralize(n: number, singular: string, plural = `${singular}s`):
 export function formatBytes(n: number): string {
   return n < 1024 * 1024 ? `${Math.round(n / 1024)} KB` : `${(n / 1024 / 1024).toFixed(1)} MB`;
 }
+
+/** Up to two initials for an avatar, e.g. "Rachel Adams" -> "RA", "rachel" -> "RA". */
+export function initials(name: string): string {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
+  return (name.trim().slice(0, 2) || '?').toUpperCase();
+}

@@ -2,14 +2,9 @@ import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
 import { useAuth } from '../auth/AuthContext';
 import { useOnlineUsers } from '../realtime/RealtimeContext';
+import { initials } from '../lib/format';
 
 /** First letters of the first two words, else the first two characters. */
-function initials(name: string): string {
-  const words = name.trim().split(/\s+/).filter(Boolean);
-  if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
-  return (name.trim().slice(0, 2) || '?').toUpperCase();
-}
-
 const MAX_SHOWN = 5;
 
 /**

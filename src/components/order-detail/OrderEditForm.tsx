@@ -127,14 +127,14 @@ export function OrderEditForm({ order, onSaved, onCancel }: OrderEditFormProps) 
               disabled={lines.length === 1}
               aria-label="Remove line item"
             >
-              <DeleteOutlineRoundedIcon sx={{ fontSize: 17 }} />
+              <DeleteOutlineRoundedIcon fontSize="small" />
             </IconButton>
           </Stack>
         ))}
         <Button
           size="small"
           variant="text"
-          startIcon={<AddRoundedIcon sx={{ fontSize: 16 }} />}
+          startIcon={<AddRoundedIcon />}
           onClick={() => setLines((prev) => [...prev, { title: '', quantity: 1, sku: '' }])}
           sx={{ alignSelf: 'flex-start' }}
         >
@@ -143,8 +143,8 @@ export function OrderEditForm({ order, onSaved, onCancel }: OrderEditFormProps) 
 
         <Divider />
         <Stack direction="row" spacing={1}>
-          <Button variant="contained" size="small" onClick={save} disabled={saving}>
-            {saving ? 'Saving…' : 'Save changes'}
+          <Button variant="contained" size="small" onClick={save} loading={saving}>
+            Save changes
           </Button>
           <Button variant="text" size="small" onClick={onCancel} disabled={saving}>
             Discard

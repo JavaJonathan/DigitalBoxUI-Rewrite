@@ -36,6 +36,12 @@ const FONT_SANS =
   '"Inter Variable", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
 const FONT_MONO = '"Geist Mono", "SFMono-Regular", ui-monospace, "JetBrains Mono", monospace';
 
+/**
+ * Height of a filter-row control (the queue search field and its toggles), so the toolbar
+ * reads as one band. Buttons keep their own 28/34/42 size scale.
+ */
+export const CONTROL_HEIGHT = 40;
+
 export const theme = createTheme({
   cssVariables: {
     colorSchemeSelector: 'class',
@@ -175,6 +181,14 @@ export const theme = createTheme({
         ':root': {
           colorScheme: 'light dark',
           '--db-mono': FONT_MONO,
+          // Radius scale. Four steps, one role each; every rounded surface in the app maps
+          // onto one of these. Vars rather than sx multipliers because `borderRadius: 3`
+          // reads as "3" but renders 24px (shape.borderRadius = 8), which is how the scale
+          // drifted to twelve values in the first place.
+          '--db-radius-sm': '6px', // chips, badges, menu items, skeletons
+          '--db-radius-md': '8px', // buttons, inputs, icon buttons, toggles
+          '--db-radius-lg': '12px', // panels, cards, tables, dialogs: the container radius
+          '--db-radius-xl': '16px', // dropzones, empty-state tiles, the selection pill
           '--db-shadow-sm': '0 1px 2px rgba(16,17,26,0.04), 0 1px 3px rgba(16,17,26,0.05)',
           '--db-shadow-md':
             '0 4px 12px -2px rgba(16,17,26,0.10), 0 2px 6px -2px rgba(16,17,26,0.06)',
@@ -228,21 +242,21 @@ export const theme = createTheme({
         }),
         outlined: ({ theme: t }) => ({
           border: `1px solid ${(t.vars ?? t).palette.surface.border}`,
-          borderRadius: 12,
+          borderRadius: 'var(--db-radius-lg)',
         }),
       },
     },
     MuiCard: {
       defaultProps: { elevation: 0, variant: 'outlined' },
       styleOverrides: {
-        root: { borderRadius: 12 },
+        root: { borderRadius: 'var(--db-radius-lg)' },
       },
     },
     MuiButton: {
       defaultProps: { disableElevation: true },
       styleOverrides: {
         root: {
-          borderRadius: 7,
+          borderRadius: 'var(--db-radius-md)',
           textTransform: 'none',
           transition:
             'background-color 120ms ease, border-color 120ms ease, color 120ms ease, box-shadow 120ms ease',
@@ -250,6 +264,15 @@ export const theme = createTheme({
         sizeSmall: { height: 28, paddingInline: 10, fontSize: '0.8125rem' },
         sizeMedium: { height: 34, paddingInline: 14 },
         sizeLarge: { height: 42, paddingInline: 18, fontSize: '0.875rem' },
+        // MUI sizes button icons 18/20/22 from inside the icon slot's own variants; setting
+        // them here (styleOverrides are emitted last at equal specificity) puts them on the
+        // icon scale instead, so call sites don't each carry an sx={{ fontSize }}.
+        startIcon: ({ ownerState }) => ({
+          '& > *:nth-of-type(1)': { fontSize: ownerState.size === 'large' ? 20 : 16 },
+        }),
+        endIcon: ({ ownerState }) => ({
+          '& > *:nth-of-type(1)': { fontSize: ownerState.size === 'large' ? 20 : 16 },
+        }),
         contained: ({ theme: t }) => ({
           boxShadow: 'none',
           '&:hover': { boxShadow: 'none', backgroundColor: (t.vars ?? t).palette.primary.dark },
@@ -275,7 +298,7 @@ export const theme = createTheme({
     MuiIconButton: {
       styleOverrides: {
         root: ({ theme: t }) => ({
-          borderRadius: 7,
+          borderRadius: 'var(--db-radius-md)',
           color: (t.vars ?? t).palette.text.secondary,
           transition: 'background-color 120ms ease, color 120ms ease',
           '&:hover': {
@@ -289,7 +312,7 @@ export const theme = createTheme({
     MuiChip: {
       styleOverrides: {
         root: {
-          borderRadius: 6,
+          borderRadius: 'var(--db-radius-sm)',
           fontWeight: 550,
           fontSize: '0.75rem',
           height: 22,
@@ -307,7 +330,7 @@ export const theme = createTheme({
     MuiOutlinedInput: {
       styleOverrides: {
         root: ({ theme: t }) => ({
-          borderRadius: 7,
+          borderRadius: 'var(--db-radius-md)',
           backgroundColor: (t.vars ?? t).palette.surface.panel,
           transition: 'border-color 120ms ease, box-shadow 120ms ease',
           '& .MuiOutlinedInput-notchedOutline': {
@@ -359,8 +382,15 @@ export const theme = createTheme({
       },
     },
     MuiTableContainer: {
+      // Same chrome as Paper variant="outlined", so a table and a panel are the same object by
+      // construction. This is what stops a loading panel and the table that replaces it from
+      // having different corners.
       styleOverrides: {
-        root: { borderRadius: 12 },
+        root: ({ theme: t }) => ({
+          borderRadius: 'var(--db-radius-lg)',
+          border: `1px solid ${(t.vars ?? t).palette.surface.border}`,
+          backgroundColor: (t.vars ?? t).palette.surface.panel,
+        }),
       },
     },
     MuiTable: {
@@ -417,7 +447,7 @@ export const theme = createTheme({
           '&:hover': { color: (t.vars ?? t).palette.text.primary },
           '&.Mui-active': { color: (t.vars ?? t).palette.text.primary },
         }),
-        icon: { fontSize: 15, opacity: 0.6 },
+        icon: { fontSize: 16, opacity: 0.6 },
       },
     },
     MuiTabs: {
@@ -451,7 +481,7 @@ export const theme = createTheme({
     MuiDialog: {
       styleOverrides: {
         paper: ({ theme: t }) => ({
-          borderRadius: 14,
+          borderRadius: 'var(--db-radius-lg)',
           border: `1px solid ${(t.vars ?? t).palette.surface.border}`,
           boxShadow: 'var(--db-shadow-lg)',
           backgroundImage: 'none',
@@ -477,7 +507,7 @@ export const theme = createTheme({
     MuiMenu: {
       styleOverrides: {
         paper: ({ theme: t }) => ({
-          borderRadius: 10,
+          borderRadius: 'var(--db-radius-lg)',
           border: `1px solid ${(t.vars ?? t).palette.surface.border}`,
           boxShadow: 'var(--db-shadow-md)',
           marginTop: 4,
@@ -488,7 +518,7 @@ export const theme = createTheme({
     MuiMenuItem: {
       styleOverrides: {
         root: ({ theme: t }) => ({
-          borderRadius: 6,
+          borderRadius: 'var(--db-radius-sm)',
           fontSize: '0.8125rem',
           minHeight: 34,
           '&:hover': { backgroundColor: (t.vars ?? t).palette.surface.hover },
@@ -500,7 +530,7 @@ export const theme = createTheme({
     MuiPopover: {
       styleOverrides: {
         paper: ({ theme: t }) => ({
-          borderRadius: 10,
+          borderRadius: 'var(--db-radius-lg)',
           border: `1px solid ${(t.vars ?? t).palette.surface.border}`,
           boxShadow: 'var(--db-shadow-md)',
         }),
@@ -513,7 +543,7 @@ export const theme = createTheme({
           color: '#f4f4f5',
           fontSize: '0.6875rem',
           fontWeight: 500,
-          borderRadius: 6,
+          borderRadius: 'var(--db-radius-sm)',
           padding: '5px 8px',
           boxShadow: 'var(--db-shadow-md)',
         },
@@ -523,7 +553,7 @@ export const theme = createTheme({
     MuiAlert: {
       styleOverrides: {
         root: ({ theme: t }) => ({
-          borderRadius: 9,
+          borderRadius: 'var(--db-radius-md)',
           border: `1px solid ${(t.vars ?? t).palette.surface.border}`,
           fontSize: '0.8125rem',
           alignItems: 'center',
@@ -531,7 +561,7 @@ export const theme = createTheme({
           backgroundColor: (t.vars ?? t).palette.surface.panel,
           color: (t.vars ?? t).palette.text.primary,
         }),
-        icon: { opacity: 1, padding: 0 },
+        icon: { opacity: 1, padding: 0, fontSize: 20 },
       },
     },
     MuiLinearProgress: {
@@ -561,8 +591,9 @@ export const theme = createTheme({
     },
     MuiPaginationItem: {
       styleOverrides: {
+        icon: { fontSize: 16 },
         root: ({ theme: t }) => ({
-          borderRadius: 7,
+          borderRadius: 'var(--db-radius-md)',
           fontSize: '0.8125rem',
           fontWeight: 500,
           color: (t.vars ?? t).palette.text.secondary,
@@ -577,13 +608,64 @@ export const theme = createTheme({
       styleOverrides: {
         root: ({ theme: t }) => ({
           backgroundColor: (t.vars ?? t).palette.surface.sunken,
-          borderRadius: 6,
+          borderRadius: 'var(--db-radius-sm)',
         }),
       },
     },
     MuiSelect: {
       styleOverrides: {
         select: { fontSize: '0.875rem' },
+      },
+    },
+    // Icon scale. Three steps carried by MUI's own `fontSize` prop, so call sites read
+    // `<Icon fontSize="small" />` instead of `sx={{ fontSize: 16 }}`. Before this the app
+    // used eleven different icon sizes.
+    MuiSvgIcon: {
+      styleOverrides: {
+        fontSizeSmall: { fontSize: 16 }, // inside buttons, chips, table cells
+        fontSizeMedium: { fontSize: 20 }, // standalone icon buttons, nav, toolbar
+        fontSizeLarge: { fontSize: 28 }, // empty states, dropzones
+      },
+    },
+    // Styled centrally so QueueToolbar no longer needs `borderRadius: '9px !important'`
+    // to beat MUI's own toggle radius.
+    MuiToggleButton: {
+      styleOverrides: {
+        root: ({ theme: t }) => ({
+          border: `1px solid ${(t.vars ?? t).palette.surface.border}`,
+          borderRadius: 'var(--db-radius-md)',
+          height: CONTROL_HEIGHT,
+          paddingInline: 14,
+          gap: 8,
+          fontSize: '0.8125rem',
+          fontWeight: 550,
+          textTransform: 'none',
+          color: (t.vars ?? t).palette.text.secondary,
+          transition: 'background-color 120ms ease, border-color 120ms ease, color 120ms ease',
+          '&:hover': { backgroundColor: (t.vars ?? t).palette.surface.hover },
+          '&.Mui-selected': {
+            backgroundColor: (t.vars ?? t).palette.surface.sunken,
+            color: (t.vars ?? t).palette.text.primary,
+            borderColor: (t.vars ?? t).palette.surface.borderStrong,
+          },
+        }),
+      },
+    },
+    MuiToggleButtonGroup: {
+      styleOverrides: {
+        // DigitalBox uses separated pills, not a segmented control. MUI joins the children by
+        // stripping their inner corners through `& .MuiToggleButtonGroup-{first,middle,last}Button`
+        // rules on the group root; those are two-class descendant selectors, so they outrank
+        // anything set on MuiToggleButton.root. Restoring the shape has to happen here, at
+        // matching specificity, which is what the old `borderRadius: '9px !important'` was for.
+        root: {
+          gap: 6,
+          flexWrap: 'wrap',
+          '& .MuiToggleButtonGroup-grouped': {
+            borderRadius: 'var(--db-radius-md)',
+            marginLeft: 0,
+          },
+        },
       },
     },
   },

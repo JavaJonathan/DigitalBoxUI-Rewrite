@@ -66,10 +66,8 @@ export function OrdersTable({
     <TableContainer
       className="db-fade-in"
       sx={{
-        border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
         maxHeight: 'max(360px, calc(100dvh - 250px))',
         overflow: 'auto',
-        bgcolor: 'surface.panel',
       }}
     >
       <Table stickyHeader size="small" sx={{ tableLayout: 'fixed', minWidth }}>

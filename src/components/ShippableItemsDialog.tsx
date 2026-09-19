@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
@@ -9,7 +8,6 @@ import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import LinearProgress from '@mui/material/LinearProgress';
-import IconButton from '@mui/material/IconButton';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -19,7 +17,6 @@ import TableRow from '@mui/material/TableRow';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Chip from '@mui/material/Chip';
-import CloseIcon from '@mui/icons-material/Close';
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
 import { generateShippableItemsReport } from '../api/reports';
 import { getApiErrorMessage } from '../api/client';
@@ -27,6 +24,7 @@ import { parseCsvHeaders, guessInventoryColumns, toCsv, downloadCsv } from '../l
 import { Mono } from './ui/Mono';
 import { FileDropzone } from './ui/FileDropzone';
 import type { ShippableItemsResponse, ShippableCoverage } from '../types';
+import { DialogHeader } from './ui/DialogHeader';
 
 interface ShippableItemsDialogProps {
   open: boolean;
@@ -170,12 +168,7 @@ export function ShippableItemsDialog({ open, onClose }: ShippableItemsDialogProp
 
   return (
     <Dialog open={open} onClose={close} maxWidth={phase === 'done' ? 'md' : 'sm'} fullWidth>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pr: 1 }}>
-        <DialogTitle>Shippable items report</DialogTitle>
-        <IconButton size="small" onClick={close} disabled={busy} aria-label="Close">
-          <CloseIcon sx={{ fontSize: 18 }} />
-        </IconButton>
-      </Box>
+      <DialogHeader title={'Shippable items report'} onClose={close} disabled={busy} />
 
       <DialogContent>
         {phase === 'pick' && (
@@ -189,8 +182,8 @@ export function ShippableItemsDialog({ open, onClose }: ShippableItemsDialogProp
               disabled={busy}
               onFiles={(list) => accept(list[0])}
             >
-              <UploadFileOutlinedIcon sx={{ fontSize: 32, color: 'text.secondary' }} />
-              <Typography sx={{ fontSize: '0.875rem', fontWeight: 550, mt: 1 }}>
+              <UploadFileOutlinedIcon fontSize="large" sx={{ color: 'text.secondary' }} />
+              <Typography sx={{ fontWeight: 550, mt: 1 }}>
                 Drop a .csv here, or click to choose
               </Typography>
             </FileDropzone>
@@ -246,8 +239,6 @@ export function ShippableItemsDialog({ open, onClose }: ShippableItemsDialogProp
               <>
                 <TableContainer
                   sx={{
-                    border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
-                    borderRadius: 2,
                     maxHeight: 360,
                   }}
                 >
@@ -334,8 +325,6 @@ export function ShippableItemsDialog({ open, onClose }: ShippableItemsDialogProp
                 ) : (
                   <TableContainer
                     sx={{
-                      border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
-                      borderRadius: 2,
                       maxHeight: 320,
                     }}
                   >

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -15,6 +15,7 @@ import { SelectionBar } from '../components/SelectionBar';
 import { ConfirmActionDialog } from '../components/ConfirmActionDialog';
 import { EmptyState } from '../components/ui/EmptyState';
 import { TableSkeleton } from '../components/ui/TableSkeleton';
+import { orderColumns } from '../components/orders-table/orderColumns';
 import { PaginationBar } from '../components/ui/PaginationBar';
 import { useOrders } from '../hooks/useOrders';
 import { undoOrders } from '../api/orders';
@@ -111,23 +112,12 @@ export function HistoryPage() {
         {error && <Alert severity="error">{error}</Alert>}
 
         {loading ? (
-          <Box
-            sx={{
-              border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
-              borderRadius: 3,
-              bgcolor: 'surface.panel',
-            }}
-          >
-            <TableSkeleton rows={8} columns={7} />
-          </Box>
+          <TableSkeleton
+            rows={8}
+            layout={orderColumns({ isHistory: true, selectable: true, showFlag: false })}
+          />
         ) : orders.length === 0 ? (
-          <Box
-            sx={{
-              border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
-              borderRadius: 3,
-              bgcolor: 'surface.panel',
-            }}
-          >
+          <Paper variant="outlined">
             <EmptyState
               icon={<HistoryOutlinedIcon />}
               title={`No ${tab.toLowerCase()} orders`}
@@ -137,7 +127,7 @@ export function HistoryPage() {
                   : `Orders you ${tab === 'Shipped' ? 'ship' : 'cancel'} will appear here.`
               }
             />
-          </Box>
+          </Paper>
         ) : (
           <OrdersTable
             orders={orders}
@@ -169,7 +159,7 @@ export function HistoryPage() {
         <Button
           size="large"
           variant="contained"
-          startIcon={<ReplayRoundedIcon sx={{ fontSize: 18 }} />}
+          startIcon={<ReplayRoundedIcon />}
           onClick={() => {
             setReopenIds([...selectedIds]);
             setConfirmOpen(true);
@@ -180,11 +170,12 @@ export function HistoryPage() {
         <Button
           size="large"
           variant="text"
-          startIcon={<FileDownloadOutlinedIcon sx={{ fontSize: 18 }} />}
+          startIcon={<FileDownloadOutlinedIcon />}
           onClick={() => deliverSlips(buildSlipRefs([...selectedIds], findOrder), true)}
-          disabled={slipBusy}
+          loading={slipBusy}
+          loadingPosition="start"
         >
-          {slipBusy ? 'Preparing…' : 'Download slips'}
+          Download slips
         </Button>
       </SelectionBar>
 

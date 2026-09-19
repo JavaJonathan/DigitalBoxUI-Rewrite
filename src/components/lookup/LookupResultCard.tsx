@@ -1,5 +1,6 @@
 import { Link as RouterLink } from 'react-router-dom';
 import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -11,66 +12,15 @@ import TableRow from '@mui/material/TableRow';
 import NorthEastIcon from '@mui/icons-material/NorthEast';
 import { Mono } from '../ui/Mono';
 import { MarketplaceTag } from '../ui/MarketplaceTag';
-import { OrderStatusBadge } from '../ui/StatusBadge';
+import { OrderStatusBadge, StatusBadge, type Tone } from '../ui/StatusBadge';
 import { formatDate } from '../../lib/format';
 import type { InventoryLineStatus, LookupLineItem, LookupResult } from '../../types';
 
-const panelSx = {
-  border: (t: import('@mui/material/styles').Theme) =>
-    `1px solid ${(t.vars ?? t).palette.surface.border}`,
-  borderRadius: 3,
-  bgcolor: 'surface.panel',
-  p: { xs: 2.5, sm: 3 },
-} as const;
-
-const INVENTORY_BADGE: Record<
-  InventoryLineStatus,
-  { label: string; fg: string; bg: string; dot: string }
-> = {
-  InStock: {
-    label: 'In stock',
-    fg: 'success.dark',
-    bg: 'success.light',
-    dot: 'success.main',
-  },
-  PreOrdered: {
-    label: 'Pre-ordered',
-    fg: 'warning.dark',
-    bg: 'warning.light',
-    dot: 'warning.main',
-  },
-  Unknown: {
-    label: 'Unknown',
-    fg: 'text.secondary',
-    bg: 'surface.sunken',
-    dot: 'text.disabled',
-  },
+const INVENTORY: Record<InventoryLineStatus, { tone: Tone; label: string }> = {
+  InStock: { tone: 'success', label: 'In stock' },
+  PreOrdered: { tone: 'warning', label: 'Pre-ordered' },
+  Unknown: { tone: 'neutral', label: 'Unknown' },
 };
-
-function InventoryBadge({ status }: { status: InventoryLineStatus }) {
-  const c = INVENTORY_BADGE[status];
-  return (
-    <Box
-      component="span"
-      sx={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 0.625,
-        height: 22,
-        px: 0.875,
-        borderRadius: 1.5,
-        fontSize: '0.6875rem',
-        fontWeight: 600,
-        color: c.fg,
-        bgcolor: c.bg,
-        whiteSpace: 'nowrap',
-      }}
-    >
-      <Box component="span" sx={{ width: 5, height: 5, borderRadius: '50%', bgcolor: c.dot }} />
-      {c.label}
-    </Box>
-  );
-}
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -125,7 +75,7 @@ function ItemsTable({ items, showStatus }: { items: LookupLineItem[]; showStatus
             </TableCell>
             {showStatus && (
               <TableCell align="right">
-                {item.inventoryStatus && <InventoryBadge status={item.inventoryStatus} />}
+                {item.inventoryStatus && <StatusBadge {...INVENTORY[item.inventoryStatus]} />}
               </TableCell>
             )}
           </TableRow>
@@ -152,7 +102,7 @@ export function LookupResultCard({ result }: { result: LookupResult }) {
   return (
     <Stack spacing={2}>
       {db && (
-        <Box sx={panelSx}>
+        <Paper variant="outlined" sx={{ p: { xs: 2.5, sm: 3 } }}>
           <Box
             sx={{
               display: 'flex',
@@ -179,7 +129,7 @@ export function LookupResultCard({ result }: { result: LookupResult }) {
               }}
             >
               View order
-              <NorthEastIcon sx={{ fontSize: 14 }} />
+              <NorthEastIcon fontSize="inherit" />
             </Link>
           </Box>
 
@@ -211,11 +161,11 @@ export function LookupResultCard({ result }: { result: LookupResult }) {
           )}
 
           <ItemsTable items={db.lineItems} showStatus={dbAwaiting} />
-        </Box>
+        </Paper>
       )}
 
       {ss && (
-        <Box sx={panelSx}>
+        <Paper variant="outlined" sx={{ p: { xs: 2.5, sm: 3 } }}>
           <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, mb: 2 }}>
             {result.source === 'ShipStation' ? 'From ShipStation' : 'ShipStation (live)'}
           </Typography>
@@ -239,16 +189,14 @@ export function LookupResultCard({ result }: { result: LookupResult }) {
             <Box sx={{ mt: 2 }}>
               <Field label="Ship to">
                 {addressLines(ss.shipTo).map((line, i) => (
-                  <Typography key={i} sx={{ fontSize: '0.875rem' }}>
-                    {line}
-                  </Typography>
+                  <Typography key={i}>{line}</Typography>
                 ))}
               </Field>
             </Box>
           )}
 
           <ItemsTable items={ss.items} showStatus={ssAwaiting} />
-        </Box>
+        </Paper>
       )}
 
       {result.shipStationError ? (

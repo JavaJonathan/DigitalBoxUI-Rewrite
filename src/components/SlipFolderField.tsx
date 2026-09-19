@@ -31,7 +31,7 @@ export function SlipFolderField({ supported, name, onChoose, onForget }: SlipFol
         color: 'text.secondary',
       }}
     >
-      <FolderOutlinedIcon sx={{ fontSize: 14 }} />
+      <FolderOutlinedIcon fontSize="inherit" />
       {name ? (
         <Typography variant="caption" sx={{ color: 'inherit' }}>
           Saving to <strong>{name}</strong>

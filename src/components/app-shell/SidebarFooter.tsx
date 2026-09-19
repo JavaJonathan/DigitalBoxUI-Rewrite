@@ -5,14 +5,9 @@ import Tooltip from '@mui/material/Tooltip';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import { ColorModeToggle } from '../ColorModeToggle';
 import { PoweredByHsl } from '../PoweredByHsl';
+import { initials } from '../../lib/format';
 
 /** Two-letter avatar seed from a display name: first letters of the first two words, else first two chars. */
-function initials(name: string): string {
-  const words = name.trim().split(/\s+/).filter(Boolean);
-  if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
-  return (name.trim().slice(0, 2) || '?').toUpperCase();
-}
-
 export function SidebarFooter({
   displayName,
   role,
@@ -32,7 +27,7 @@ export function SidebarFooter({
           flexDirection: 'column',
           gap: 2,
           p: 3,
-          borderRadius: 1.5,
+          borderRadius: 'var(--db-radius-lg)',
           border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
           bgcolor: 'surface.sunken',
         }}
@@ -56,7 +51,7 @@ export function SidebarFooter({
             {initials(name)}
           </Box>
           <Box sx={{ minWidth: 0, flex: 1 }}>
-            <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, lineHeight: 1.3 }} noWrap>
+            <Typography sx={{ fontWeight: 600, lineHeight: 1.3 }} noWrap>
               {name}
             </Typography>
             <Typography
@@ -80,7 +75,7 @@ export function SidebarFooter({
           <ColorModeToggle />
           <Tooltip title="Sign out" placement="top" arrow>
             <IconButton onClick={onSignOut} aria-label="Sign out">
-              <LogoutOutlinedIcon sx={{ fontSize: 19 }} />
+              <LogoutOutlinedIcon />
             </IconButton>
           </Tooltip>
         </Box>

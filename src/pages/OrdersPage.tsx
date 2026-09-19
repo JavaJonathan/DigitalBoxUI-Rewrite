@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Paper from '@mui/material/Paper';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Stack from '@mui/material/Stack';
@@ -27,6 +28,7 @@ import { SlipFolderField } from '../components/SlipFolderField';
 import { NotePopover } from '../components/NotePopover';
 import { EmptyState } from '../components/ui/EmptyState';
 import { TableSkeleton } from '../components/ui/TableSkeleton';
+import { orderColumns } from '../components/orders-table/orderColumns';
 import { PaginationBar } from '../components/ui/PaginationBar';
 import { useAuth } from '../auth/AuthContext';
 import { useOrders } from '../hooks/useOrders';
@@ -163,13 +165,13 @@ export function OrdersPage() {
         <>
           <Tooltip title="Refresh" arrow>
             <IconButton size="small" onClick={() => refresh()} aria-label="Refresh">
-              <RefreshIcon sx={{ fontSize: 18 }} />
+              <RefreshIcon fontSize="small" />
             </IconButton>
           </Tooltip>
           <Button
             variant="outlined"
             size="small"
-            startIcon={<Inventory2OutlinedIcon sx={{ fontSize: 16 }} />}
+            startIcon={<Inventory2OutlinedIcon />}
             onClick={() => setOrdersReportOpen(true)}
             sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
           >
@@ -178,7 +180,7 @@ export function OrdersPage() {
           <Button
             variant="outlined"
             size="small"
-            startIcon={<ChecklistOutlinedIcon sx={{ fontSize: 16 }} />}
+            startIcon={<ChecklistOutlinedIcon />}
             onClick={() => setItemsReportOpen(true)}
             sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
           >
@@ -188,7 +190,7 @@ export function OrdersPage() {
             <Button
               variant="contained"
               size="small"
-              startIcon={<UploadFileOutlinedIcon sx={{ fontSize: 16 }} />}
+              startIcon={<UploadFileOutlinedIcon />}
               onClick={() => setUploadOpen(true)}
             >
               Upload slips
@@ -209,23 +211,12 @@ export function OrdersPage() {
         {error && <Alert severity="error">{error}</Alert>}
 
         {loading ? (
-          <Box
-            sx={{
-              border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
-              borderRadius: 3,
-              bgcolor: 'surface.panel',
-            }}
-          >
-            <TableSkeleton rows={10} columns={6} />
-          </Box>
+          <TableSkeleton
+            rows={10}
+            layout={orderColumns({ isHistory: false, selectable: true, showFlag: true })}
+          />
         ) : orders.length === 0 ? (
-          <Box
-            sx={{
-              border: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
-              borderRadius: 3,
-              bgcolor: 'surface.panel',
-            }}
-          >
+          <Paper variant="outlined">
             {filtered ? (
               <EmptyState
                 icon={<Inventory2OutlinedIcon />}
@@ -259,7 +250,7 @@ export function OrdersPage() {
                 }
               />
             )}
-          </Box>
+          </Paper>
         ) : (
           <OrdersTable
             orders={orders}
@@ -291,7 +282,7 @@ export function OrdersPage() {
           size="large"
           variant="contained"
           color="success"
-          startIcon={<LocalShippingOutlinedIcon sx={{ fontSize: 18 }} />}
+          startIcon={<LocalShippingOutlinedIcon />}
           onClick={() => setAction('ship')}
         >
           Ship
@@ -300,7 +291,7 @@ export function OrdersPage() {
           size="large"
           variant="outlined"
           color="error"
-          startIcon={<CancelOutlinedIcon sx={{ fontSize: 18 }} />}
+          startIcon={<CancelOutlinedIcon />}
           onClick={() => setAction('cancel')}
           sx={{ color: 'error.main', borderColor: (t) => (t.vars ?? t).palette.error.light }}
         >
@@ -309,11 +300,12 @@ export function OrdersPage() {
         <Button
           size="large"
           variant="text"
-          startIcon={<FileDownloadOutlinedIcon sx={{ fontSize: 18 }} />}
+          startIcon={<FileDownloadOutlinedIcon />}
           onClick={() => deliverSlips(buildSlipRefs([...selectedIds], findOrder), true)}
-          disabled={slipBusy}
+          loading={slipBusy}
+          loadingPosition="start"
         >
-          {slipBusy ? 'Preparing…' : 'Download slips'}
+          Download slips
         </Button>
       </SelectionBar>
 

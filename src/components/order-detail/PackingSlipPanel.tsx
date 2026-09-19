@@ -55,7 +55,7 @@ export function PackingSlipPanel({ orderId }: { orderId: string }) {
               target="_blank"
               rel="noreferrer"
             >
-              <OpenInNewRoundedIcon sx={{ fontSize: 16 }} />
+              <OpenInNewRoundedIcon fontSize="small" />
             </IconButton>
           </Tooltip>
         )}

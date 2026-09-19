@@ -39,7 +39,7 @@ export function SidebarNavItem({
         pl: 3,
         pr: 2.5,
         height: 46,
-        borderRadius: 1.5,
+        borderRadius: 'var(--db-radius-lg)',
         textDecoration: 'none',
         fontSize: '0.9375rem',
         fontWeight: active ? 650 : 500,
@@ -69,13 +69,13 @@ export function SidebarNavItem({
           width: 30,
           height: 30,
           flexShrink: 0,
-          borderRadius: '9px', // odd value on the 8px grid, kept explicit
+          borderRadius: 'var(--db-radius-md)',
           display: 'grid',
           placeItems: 'center',
           bgcolor: active ? (t) => tint(t, 20) : 'surface.sunken',
           color: active ? 'primary.main' : 'text.secondary',
           transition: 'background-color 120ms ease, color 120ms ease',
-          '& svg': { fontSize: 19 },
+          '& svg': { fontSize: 20 },
         }}
       >
         <Icon />

@@ -25,13 +25,13 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
         sx={{
           width: 44,
           height: 44,
-          borderRadius: 2.5,
+          borderRadius: 'var(--db-radius-xl)',
           display: 'grid',
           placeItems: 'center',
           bgcolor: 'surface.sunken',
           color: 'text.secondary',
           mb: 2,
-          '& svg': { fontSize: 22 },
+          '& svg': { fontSize: 20 },
         }}
       >
         {icon}

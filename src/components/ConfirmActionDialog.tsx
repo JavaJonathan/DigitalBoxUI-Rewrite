@@ -85,8 +85,8 @@ export function ConfirmActionDialog({
         <Button variant="text" onClick={onClose} disabled={busy}>
           Back
         </Button>
-        <Button variant="contained" color={cfg.color} disabled={busy} onClick={confirmAction}>
-          {busy ? 'Working…' : `${cfg.verb} ${count}`}
+        <Button variant="contained" color={cfg.color} loading={busy} onClick={confirmAction}>
+          {`${cfg.verb} ${count}`}
         </Button>
       </DialogActions>
     </Dialog>
