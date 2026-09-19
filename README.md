@@ -15,4 +15,5 @@ npm run dev        # http://localhost:5183
 
 Sign in with the shared warehouse credentials configured on the API.
 
-See [CLAUDE.md](CLAUDE.md) for architecture and conventions.
+See [AGENTS.md](AGENTS.md) for architecture and conventions (any AI coding agent should start
+there; Claude Code loads it automatically via `CLAUDE.md`).
