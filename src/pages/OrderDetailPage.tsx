@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link as RouterLink, useParams } from 'react-router-dom';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
@@ -7,6 +7,8 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
 import Skeleton from '@mui/material/Skeleton';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
@@ -33,6 +35,12 @@ import {
 import { getApiErrorMessage } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { useToast } from '../components/ToastProvider';
+import { SlipFolderField } from '../components/SlipFolderField';
+import { useDownloadSlipsOnShip } from '../hooks/useDownloadSlipsOnShip';
+import { useSlipDelivery } from '../hooks/useSlipDelivery';
+import { useRealtimeEvent } from '../realtime/RealtimeContext';
+import { QUEUE_SYNC_DEBOUNCE_MS } from '../lib/constants';
+import { buildSlipRefs } from '../lib/slipFolder';
 import type { OrderDetail } from '../types';
 
 export function OrderDetailPage() {
@@ -47,35 +55,57 @@ export function OrderDetailPage() {
   const [editing, setEditing] = useState(false);
   const [action, setAction] = useState<'ship' | 'cancel' | 'reopen' | null>(null);
 
-  const load = useCallback(async () => {
-    if (!id) return;
-    setLoading(true);
-    setError(null);
-    try {
-      setOrder(await getOrder(id));
-    } catch (err) {
-      setError(getApiErrorMessage(err, 'Could not load this order.'));
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
+  const [downloadSlips, setDownloadSlips] = useDownloadSlipsOnShip();
+  const { folder: slipFolder, deliver: deliverSlips } = useSlipDelivery();
+  const syncTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  // `background` re-fetches without the skeleton, so an open edit form isn't remounted.
+  const load = useCallback(
+    async (background = false) => {
+      if (!id) return;
+      if (!background) {
+        setLoading(true);
+        setError(null);
+      }
+      try {
+        setOrder(await getOrder(id));
+      } catch (err) {
+        if (!background) setError(getApiErrorMessage(err, 'Could not load this order.'));
+      } finally {
+        if (!background) setLoading(false);
+      }
+    },
+    [id],
+  );
 
   useEffect(() => {
     load();
   }, [load]);
 
+  // A coworker shipped / cancelled / edited something; keep this page's status current.
+  useRealtimeEvent('queueChanged', () => {
+    clearTimeout(syncTimer.current);
+    syncTimer.current = setTimeout(() => load(true), QUEUE_SYNC_DEBOUNCE_MS);
+  });
+  useEffect(() => () => clearTimeout(syncTimer.current), []);
+
   const runAction = async () => {
     if (!id) return;
+    const shipping = action === 'ship';
+    // Snapshot before the reload replaces the order.
+    const refs = shipping && downloadSlips && order ? buildSlipRefs([id], () => order) : [];
     try {
-      const result =
-        action === 'ship'
-          ? await shipOrders([id])
-          : action === 'cancel'
-            ? await cancelOrders([id])
-            : await undoOrders([id]); // action === 'reopen'
-      notify(result.message, 'success');
+      const result = shipping
+        ? await shipOrders([id])
+        : action === 'cancel'
+          ? await cancelOrders([id])
+          : await undoOrders([id]); // action === 'reopen'
+      // Not open (or reopenable) any more, e.g. a coworker got there first.
+      const applied = result.updated > 0;
+      notify(result.message, applied ? 'success' : 'warning');
       setAction(null);
       load();
+      if (applied && refs.length) await deliverSlips(refs);
     } catch (err) {
       notify(getApiErrorMessage(err, 'Action failed.'), 'error');
     }
@@ -237,7 +267,35 @@ export function OrderDetailPage() {
         count={1}
         onClose={() => setAction(null)}
         onConfirm={runAction}
-      />
+      >
+        {action === 'ship' && (
+          <Box sx={{ mt: 1.5 }}>
+            <FormControlLabel
+              sx={{ display: 'flex' }}
+              control={
+                <Checkbox
+                  size="small"
+                  checked={downloadSlips}
+                  onChange={(e) => setDownloadSlips(e.target.checked)}
+                />
+              }
+              label={
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  Save packing slip after shipping
+                </Typography>
+              }
+            />
+            {downloadSlips && (
+              <SlipFolderField
+                supported={slipFolder.supported}
+                name={slipFolder.name}
+                onChoose={slipFolder.choose}
+                onForget={slipFolder.forget}
+              />
+            )}
+          </Box>
+        )}
+      </ConfirmActionDialog>
     </AppShell>
   );
 }

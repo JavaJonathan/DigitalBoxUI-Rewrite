@@ -150,8 +150,8 @@ connection per mounted app to `/hub/activity`, starts after login, and stops on 
 Presence drives the online roster; `ActivityFeed` displays coworker actions. Queue and history
 subscribe through `useRealtimeEvent` and debounce `queueChanged` refreshes by
 `QUEUE_SYNC_DEBOUNCE_MS` (1200ms). Events from the signed-in user are ignored by user ID,
-including other tabs using that account. Order detail currently does not subscribe to these
-refreshes. Mutations still use HTTP; realtime messages are best-effort refresh signals.
+including other tabs using that account. Order detail also subscribes (background reload, no
+skeleton). Mutations still use HTTP; realtime messages are best-effort refresh signals.
 
 **Packing-slip saving** (`hooks/useSlipDelivery.ts`, `hooks/useSlipFolder.ts`,
 `hooks/useDownloadSlipsOnShip.ts`, `lib/slipFolder.ts`): queue/history can save selected PDFs
@@ -160,9 +160,9 @@ directory handle persisted in IndexedDB; otherwise, or without write permission,
 falls back to individual browser downloads. The queue's ship confirmation offers automatic
 saving, enabled by default with the preference stored in localStorage. Filenames derive from
 marketplace/order number and are deduplicated within the batch. Delivery reports its own
-success/failure counts after the order action. Detail-page shipping currently has no automatic
-saving, and queue shipping currently saves the pre-action selection without filtering API
-`skippedIds`; account for these differences when changing that flow.
+success/failure counts after the order action. Detail-page shipping offers the same saving and
+only delivers when the API reports `updated > 0`; queue shipping still saves the pre-action
+selection without filtering API `skippedIds`, so account for that difference when changing it.
 
 **Key components**:
 - `AppShell`: fixed left sidebar (`SIDEBAR_WIDTH` = 260, exported from `lib/layout.ts` and
