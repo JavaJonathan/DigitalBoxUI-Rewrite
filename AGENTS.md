@@ -259,6 +259,13 @@ token theft, not just a defaced page. Keep the discipline that makes that hard:
 
 ## Deployment configuration (mirror Henderson)
 
+**Auto deploy**: the Amplify app is manual-deploy (no GitHub connection), so
+`.github/workflows/deploy-ui.yml` deploys on every push to `master`: build with the production API URL,
+zip `dist/`, `aws amplify create-deployment` / `start-deployment`. Auth is OIDC into the IAM role
+`digitalbox-ui-github-actions-deploy` (trust limited to this repo's master; policy limited to Amplify
+deployment on app `d5fyu1cc9a713`). `deploy.ps1` remains the manual fallback. Everything below about
+`amplify.yml` applies only if the app is ever connected to GitHub.
+
 `amplify.yml` configures `npm ci`, `npm run build`, and publishing `dist`. The intended hosting
 flow is AWS Amplify connected to `master` for auto-build/deploy; `deploy.ps1` also provides a
 manual deployment path. Set `VITE_API_BASE_URL` as an Amplify branch environment variable.
