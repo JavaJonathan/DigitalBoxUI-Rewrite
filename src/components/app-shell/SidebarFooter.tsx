@@ -55,7 +55,7 @@ export function SidebarFooter({
               {name}
             </Typography>
             <Typography
-              sx={{ fontSize: '0.75rem', color: 'text.disabled', lineHeight: 1.3 }}
+              sx={{ fontSize: '0.75rem', color: 'text.tertiary', lineHeight: 1.3 }}
               noWrap
             >
               {roleLabel}

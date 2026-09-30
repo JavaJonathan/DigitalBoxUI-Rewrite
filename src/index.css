@@ -93,6 +93,24 @@ body,
   animation: db-presence-pulse 2.4s ease-out infinite;
 }
 
+/*
+ * Row affordances (flag, add-note, chevron, reopen) fade in on hover. Keep them reachable
+ * by keyboard (focus inside the row) and on touch screens, where there is no hover.
+ */
+tr:focus-within .db-row-hover,
+tr:focus-within .db-chevron {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+@media (hover: none) {
+  .db-row-hover,
+  .db-chevron {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

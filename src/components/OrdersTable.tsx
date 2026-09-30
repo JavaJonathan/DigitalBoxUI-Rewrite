@@ -8,6 +8,7 @@ import TableSortLabel from '@mui/material/TableSortLabel';
 import Checkbox from '@mui/material/Checkbox';
 import type { OrderListItem, OrderStatus } from '../types';
 import { OrdersTableRow } from './orders-table/OrdersTableRow';
+import { xsQuery } from '../lib/layout';
 import { orderColumns } from './orders-table/orderColumns';
 
 type SortKey = 'shipDate' | 'title';
@@ -70,10 +71,30 @@ export function OrdersTable({
         overflow: 'auto',
       }}
     >
-      <Table stickyHeader size="small" sx={{ tableLayout: 'fixed', minWidth }}>
+      <Table
+        stickyHeader
+        size="small"
+        sx={{
+          tableLayout: 'fixed',
+          minWidth,
+          [xsQuery]: {
+            minWidth: 0,
+            '& .db-hide-xs': { display: 'none' },
+            '& col.db-fill-xs': { width: 'auto !important' },
+          },
+        }}
+      >
         <colgroup>
-          {cols.map((style, i) => (
-            <col key={i} style={style} />
+          {cols.map((col, i) => (
+            <col
+              key={i}
+              style={col.style}
+              className={
+                [col.hideXs && 'db-hide-xs', col.fillXs && 'db-fill-xs']
+                  .filter(Boolean)
+                  .join(' ') || undefined
+              }
+            />
           ))}
         </colgroup>
         <TableHead>
@@ -90,20 +111,24 @@ export function OrdersTable({
             )}
             {showFlag && <TableCell padding="checkbox" />}
             <TableCell>{headCell('title', 'Order')}</TableCell>
-            <TableCell>Marketplace</TableCell>
-            <TableCell align="right">Qty</TableCell>
-            <TableCell>{headCell('shipDate', 'Ship date')}</TableCell>
+            <TableCell className="db-hide-xs">Marketplace</TableCell>
+            <TableCell align="right" className="db-hide-xs">
+              Qty
+            </TableCell>
+            <TableCell className="db-hide-xs">{headCell('shipDate', 'Ship date')}</TableCell>
             {isHistory ? (
               <>
-                <TableCell>Status</TableCell>
-                <TableCell>{status === 'Shipped' ? 'Shipped' : 'Cancelled'}</TableCell>
-                <TableCell>Operator</TableCell>
+                <TableCell className="db-hide-xs">Status</TableCell>
+                <TableCell className="db-hide-xs">
+                  {status === 'Shipped' ? 'Shipped' : 'Cancelled'}
+                </TableCell>
+                <TableCell className="db-hide-xs">Operator</TableCell>
               </>
             ) : (
-              <TableCell>Notes</TableCell>
+              <TableCell className="db-hide-xs">Notes</TableCell>
             )}
             <TableCell padding="checkbox" />
-            <TableCell aria-hidden sx={{ p: 0 }} />
+            <TableCell aria-hidden className="db-hide-xs" sx={{ p: 0 }} />
           </TableRow>
         </TableHead>
         <TableBody>

@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import type { ColSpec } from '../orders-table/orderColumns';
 import Skeleton from '@mui/material/Skeleton';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -7,10 +7,12 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 
+import { xsQuery } from '../../lib/layout';
+
 /** Column geometry, as returned by `orders-table/orderColumns`. */
 export interface TableLayout {
   minWidth: number;
-  cols: (CSSProperties | undefined)[];
+  cols: ColSpec[];
 }
 
 interface TableSkeletonProps {
@@ -32,24 +34,43 @@ interface TableSkeletonProps {
  * loaded table. Anything else shifts the layout at the moment the data arrives.
  */
 export function TableSkeleton({ rows = 8, layout, columns = 6 }: TableSkeletonProps) {
-  const cols = layout?.cols ?? Array.from({ length: columns }, () => undefined);
+  const cols = layout?.cols ?? Array.from({ length: columns }, (): ColSpec => ({}));
   // In the orders layouts the primary (Order) column is the first percentage-width one; the
   // fixed-px columns before it are the checkbox / priority-flag gutters.
-  const primaryIndex = layout ? cols.findIndex((c) => typeof c?.width === 'string') : 0;
+  const primaryIndex = layout ? cols.findIndex((c) => typeof c.style?.width === 'string') : 0;
   const primaryIsStacked = layout !== undefined && primaryIndex >= 0;
 
   return (
     <TableContainer>
-      <Table size="small" sx={{ tableLayout: 'fixed', minWidth: layout?.minWidth }}>
+      <Table
+        size="small"
+        sx={{
+          tableLayout: 'fixed',
+          minWidth: layout?.minWidth,
+          [xsQuery]: {
+            minWidth: 0,
+            '& .db-hide-xs': { display: 'none' },
+            '& col.db-fill-xs': { width: 'auto !important' },
+          },
+        }}
+      >
         <colgroup>
-          {cols.map((style, i) => (
-            <col key={i} style={style} />
+          {cols.map((col, i) => (
+            <col
+              key={i}
+              style={col.style}
+              className={
+                [col.hideXs && 'db-hide-xs', col.fillXs && 'db-fill-xs']
+                  .filter(Boolean)
+                  .join(' ') || undefined
+              }
+            />
           ))}
         </colgroup>
         <TableHead>
           <TableRow>
             {cols.map((_, c) => (
-              <TableCell key={c}>
+              <TableCell key={c} className={cols[c].hideXs ? 'db-hide-xs' : undefined}>
                 <Skeleton variant="text" width={c === primaryIndex ? 64 : '60%'} />
               </TableCell>
             ))}
@@ -59,7 +80,11 @@ export function TableSkeleton({ rows = 8, layout, columns = 6 }: TableSkeletonPr
           {Array.from({ length: rows }).map((_, r) => (
             <TableRow key={r}>
               {cols.map((_, c) => (
-                <TableCell key={c} sx={{ opacity: 1 - r * 0.07, py: primaryIsStacked ? 0.75 : 1 }}>
+                <TableCell
+                  key={c}
+                  className={cols[c].hideXs ? 'db-hide-xs' : undefined}
+                  sx={{ opacity: 1 - r * 0.07, py: primaryIsStacked ? 0.75 : 1 }}
+                >
                   {c === primaryIndex && primaryIsStacked ? (
                     // The orders table stacks the order number over the item title, so the
                     // placeholder has to be two lines or the rows jump shorter when data lands.

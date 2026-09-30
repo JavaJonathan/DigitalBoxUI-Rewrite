@@ -1,3 +1,6 @@
 /** Fixed left-nav width. Shared so the content offset, the SelectionBar, and the
  *  toast all stay in lockstep with it. */
 export const SIDEBAR_WIDTH = 260;
+
+/** Media query for phone widths (below MUI's `sm`), for `sx` keys like `[xsQuery]: { ... }`. */
+export const xsQuery = '@media (max-width:599.95px)';

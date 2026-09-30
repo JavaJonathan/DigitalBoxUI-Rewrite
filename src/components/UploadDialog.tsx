@@ -121,7 +121,7 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
               <UploadFileOutlinedIcon />
             </Box>
             <Typography sx={{ fontWeight: 550 }}>Drop PDFs here, or click to browse</Typography>
-            <Typography variant="caption" sx={{ color: 'text.disabled' }}>
+            <Typography variant="caption" sx={{ color: 'text.tertiary' }}>
               Up to {UPLOAD_MAX_FILES.toLocaleString()} files · 15 MB each
             </Typography>
           </FileDropzone>
@@ -169,11 +169,11 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
                     bgcolor: 'surface.sunken',
                   }}
                 >
-                  <PictureAsPdfOutlinedIcon fontSize="small" sx={{ color: 'text.disabled' }} />
+                  <PictureAsPdfOutlinedIcon fontSize="small" sx={{ color: 'text.tertiary' }} />
                   <Typography sx={{ flex: 1, fontSize: '0.8125rem' }} noWrap>
                     {file.name}
                   </Typography>
-                  <Typography sx={{ fontSize: '0.6875rem', color: 'text.disabled' }}>
+                  <Typography sx={{ fontSize: '0.6875rem', color: 'text.tertiary' }}>
                     {formatBytes(file.size)}
                   </Typography>
                   <IconButton
@@ -189,7 +189,7 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
               {files.length > UPLOAD_LIST_PREVIEW && (
                 <Typography
                   variant="caption"
-                  sx={{ color: 'text.disabled', textAlign: 'center', py: 0.75 }}
+                  sx={{ color: 'text.tertiary', textAlign: 'center', py: 0.75 }}
                 >
                   + {(files.length - UPLOAD_LIST_PREVIEW).toLocaleString()} more not shown
                 </Typography>
@@ -265,7 +265,7 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
                     ) : dup ? (
                       <RemoveCircleOutlineRoundedIcon
                         fontSize="small"
-                        sx={{ color: 'text.disabled', mt: 0.25 }}
+                        sx={{ color: 'text.tertiary', mt: 0.25 }}
                       />
                     ) : (
                       <ErrorOutlineRoundedIcon
@@ -277,7 +277,7 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
                       <Typography sx={{ fontSize: '0.8125rem' }} noWrap>
                         {f.fileName}
                       </Typography>
-                      <Typography sx={{ fontSize: '0.6875rem', color: 'text.disabled' }}>
+                      <Typography sx={{ fontSize: '0.6875rem', color: 'text.tertiary' }}>
                         {ok ? (
                           <>
                             <Mono muted>{f.orderNumber || 'no order #'}</Mono>
@@ -295,7 +295,7 @@ export function UploadDialog({ open, onClose, onUploaded }: UploadDialogProps) {
               {orderedResults.length > UPLOAD_LIST_PREVIEW && (
                 <Typography
                   variant="caption"
-                  sx={{ color: 'text.disabled', textAlign: 'center', py: 0.75 }}
+                  sx={{ color: 'text.tertiary', textAlign: 'center', py: 0.75 }}
                 >
                   + {(orderedResults.length - UPLOAD_LIST_PREVIEW).toLocaleString()} more
                 </Typography>

@@ -69,7 +69,7 @@ export function PoweredByHsl({
     >
       <HslMark size={size} />
       <Box component="span" sx={{ fontSize, lineHeight: 1.3 }}>
-        <Box component="span" sx={{ color: 'text.disabled' }}>
+        <Box component="span" sx={{ color: 'text.tertiary' }}>
           Powered by{' '}
         </Box>
         <Box component="span" sx={{ color: 'text.secondary', fontWeight: 600 }}>

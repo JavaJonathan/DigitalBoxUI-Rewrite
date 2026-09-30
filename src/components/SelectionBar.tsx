@@ -43,10 +43,14 @@ export function SelectionBar({ count, onClear, children }: SelectionBarProps) {
             pointerEvents: 'auto',
             display: 'flex',
             alignItems: 'center',
-            gap: { xs: 3, sm: 5 },
-            pl: 5,
-            pr: 4,
-            py: 3.5,
+            gap: { xs: 2.5, sm: 5 },
+            // Phones: count row on top, action buttons wrapped underneath.
+            flexWrap: { xs: 'wrap', sm: 'nowrap' },
+            justifyContent: 'center',
+            maxWidth: '100%',
+            pl: { xs: 4, sm: 5 },
+            pr: { xs: 3, sm: 4 },
+            py: { xs: 3, sm: 3.5 },
             borderRadius: 'var(--db-radius-xl)',
             bgcolor: 'surface.panel',
             border: (t) => `1px solid ${(t.vars ?? t).palette.surface.borderStrong}`,
@@ -92,9 +96,24 @@ export function SelectionBar({ count, onClear, children }: SelectionBarProps) {
             </IconButton>
           </Box>
 
-          <Divider orientation="vertical" flexItem sx={{ my: 0.5 }} />
+          <Divider
+            orientation="vertical"
+            flexItem
+            sx={{ my: 0.5, display: { xs: 'none', sm: 'block' } }}
+          />
 
-          <Box sx={{ display: 'flex', gap: 2.5 }}>{children}</Box>
+          <Box
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              gap: 2.5,
+              // Large buttons are for desktop; on a phone the pill would eat a fifth of the screen.
+              '& .MuiButton-root': { height: { xs: 36, sm: 42 } },
+            }}
+          >
+            {children}
+          </Box>
         </Box>
       </Slide>
     </Box>

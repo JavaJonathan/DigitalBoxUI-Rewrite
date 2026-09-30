@@ -455,7 +455,7 @@ export function ShippableOrdersDialog({ open, onClose }: ShippableOrdersDialogPr
                             sx={{
                               fontVariantNumeric: 'tabular-nums',
                               fontWeight: 650,
-                              color: r.shippableQty > 0 ? 'success.main' : 'text.disabled',
+                              color: r.shippableQty > 0 ? 'success.main' : 'text.tertiary',
                             }}
                           >
                             {r.shippableQty}
@@ -464,7 +464,7 @@ export function ShippableOrdersDialog({ open, onClose }: ShippableOrdersDialogPr
                             align="right"
                             sx={{
                               fontVariantNumeric: 'tabular-nums',
-                              color: r.shortQty > 0 ? 'error.main' : 'text.disabled',
+                              color: r.shortQty > 0 ? 'error.main' : 'text.tertiary',
                             }}
                           >
                             {r.shortQty}
@@ -484,7 +484,7 @@ export function ShippableOrdersDialog({ open, onClose }: ShippableOrdersDialogPr
                 {result.rows.length > 100 && (
                   <Typography
                     variant="caption"
-                    sx={{ color: 'text.disabled', mt: 1, display: 'block' }}
+                    sx={{ color: 'text.tertiary', mt: 1, display: 'block' }}
                   >
                     Showing the first 100 rows; the download has all {result.rows.length}.
                   </Typography>
@@ -499,7 +499,7 @@ export function ShippableOrdersDialog({ open, onClose }: ShippableOrdersDialogPr
                   mismatch, or a variant SKU the report skips.
                 </Typography>
                 {result.unmatchedDemand.length === 0 ? (
-                  <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+                  <Typography variant="body2" sx={{ color: 'text.tertiary' }}>
                     Every open-order line matched an inventory row.
                   </Typography>
                 ) : (

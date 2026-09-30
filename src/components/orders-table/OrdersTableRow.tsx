@@ -76,7 +76,7 @@ function OrderPrimaryCell({ order, isHistory }: { order: OrderListItem; isHistor
             <Tooltip title={order.notes} arrow>
               <StickyNote2OutlinedIcon
                 fontSize="inherit"
-                sx={{ flexShrink: 0, color: 'text.disabled' }}
+                sx={{ flexShrink: 0, color: 'text.tertiary' }}
               />
             </Tooltip>
           )}
@@ -93,6 +93,23 @@ function OrderPrimaryCell({ order, isHistory }: { order: OrderListItem; isHistor
         >
           {order.firstItemTitle || '—'}
         </Typography>
+        {/* Phones drop the data columns; the essentials ride under the title instead. */}
+        <Box
+          sx={{
+            display: { xs: 'flex', sm: 'none' },
+            alignItems: 'center',
+            gap: 1.5,
+            mt: 0.25,
+            fontSize: '0.75rem',
+            color: 'text.secondary',
+          }}
+        >
+          <MarketplaceTag marketplace={order.marketplace} />
+          <span style={{ whiteSpace: 'nowrap' }}>Qty {order.totalQuantity}</span>
+          {order.shipDate && (
+            <span style={{ whiteSpace: 'nowrap' }}>{formatDate(order.shipDate)}</span>
+          )}
+        </Box>
       </Box>
     </TableCell>
   );
@@ -108,6 +125,7 @@ function NotesCell({
 }) {
   return (
     <TableCell
+      className="db-hide-xs"
       onClick={
         onEditNote
           ? (e) => {
@@ -138,7 +156,7 @@ function NotesCell({
           className="db-row-hover"
           fontSize="inherit"
           sx={{
-            color: 'text.disabled',
+            color: 'text.tertiary',
             opacity: 0,
             transition: 'opacity 100ms ease',
             display: 'block',
@@ -206,11 +224,11 @@ export function OrdersTableRow({
 
       <OrderPrimaryCell order={order} isHistory={isHistory} />
 
-      <TableCell>
+      <TableCell className="db-hide-xs">
         <MarketplaceTag marketplace={order.marketplace} />
       </TableCell>
 
-      <TableCell align="right">
+      <TableCell align="right" className="db-hide-xs">
         <Tooltip
           title={`${order.lineItemCount} line item${order.lineItemCount === 1 ? '' : 's'}`}
           arrow
@@ -225,13 +243,13 @@ export function OrdersTableRow({
         </Tooltip>
       </TableCell>
 
-      <TableCell>
+      <TableCell className="db-hide-xs">
         <Typography
           component="span"
           sx={{
             fontSize: '0.8125rem',
             whiteSpace: 'nowrap',
-            color: order.shipDate ? 'text.primary' : 'text.disabled',
+            color: order.shipDate ? 'text.primary' : 'text.tertiary',
           }}
         >
           {formatDate(order.shipDate)}
@@ -240,17 +258,17 @@ export function OrdersTableRow({
 
       {isHistory ? (
         <>
-          <TableCell>
+          <TableCell className="db-hide-xs">
             <OrderStatusBadge status={order.status} />
           </TableCell>
-          <TableCell>
+          <TableCell className="db-hide-xs">
             <RelativeTime value={status === 'Shipped' ? order.shippedAt : order.cancelledAt} />
           </TableCell>
-          <TableCell>
+          <TableCell className="db-hide-xs">
             <Typography
               sx={{
                 fontSize: '0.8125rem',
-                color: order.actionedBy ? 'text.primary' : 'text.disabled',
+                color: order.actionedBy ? 'text.primary' : 'text.tertiary',
               }}
             >
               {order.actionedBy ?? '—'}
@@ -279,7 +297,7 @@ export function OrdersTableRow({
             className="db-chevron"
             fontSize="small"
             sx={{
-              color: 'text.disabled',
+              color: 'text.tertiary',
               opacity: 0,
               transform: 'translateX(-4px)',
               transition: 'opacity 120ms ease, transform 120ms ease',
@@ -287,7 +305,7 @@ export function OrdersTableRow({
           />
         )}
       </TableCell>
-      <TableCell aria-hidden sx={{ p: 0 }} />
+      <TableCell aria-hidden className="db-hide-xs" sx={{ p: 0 }} />
     </TableRow>
   );
 }

@@ -7,11 +7,16 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
+import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ChecklistOutlinedIcon from '@mui/icons-material/ChecklistOutlined';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
@@ -57,6 +62,7 @@ export function OrdersPage() {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [ordersReportOpen, setOrdersReportOpen] = useState(false);
   const [itemsReportOpen, setItemsReportOpen] = useState(false);
+  const [reportsAnchor, setReportsAnchor] = useState<HTMLElement | null>(null);
   const [action, setAction] = useState<'ship' | 'cancel' | null>(null);
   const [downloadSlips, setDownloadSlips] = useDownloadSlipsOnShip();
   const { folder: slipFolder, busy: slipBusy, deliver: deliverSlips } = useSlipDelivery();
@@ -156,7 +162,7 @@ export function OrdersPage() {
       titleMeta={
         <Typography
           component="span"
-          sx={{ fontSize: '0.75rem', color: 'text.disabled', fontVariantNumeric: 'tabular-nums' }}
+          sx={{ fontSize: '0.75rem', color: 'text.tertiary', fontVariantNumeric: 'tabular-nums' }}
         >
           {data?.total ?? 0} open
         </Typography>
@@ -171,21 +177,45 @@ export function OrdersPage() {
           <Button
             variant="outlined"
             size="small"
-            startIcon={<Inventory2OutlinedIcon />}
-            onClick={() => setOrdersReportOpen(true)}
+            startIcon={<AssessmentOutlinedIcon />}
+            endIcon={<KeyboardArrowDownIcon />}
+            onClick={(e) => setReportsAnchor(e.currentTarget)}
+            aria-haspopup="menu"
+            aria-expanded={reportsAnchor !== null}
             sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
           >
-            Shippable Orders
+            Reports
           </Button>
-          <Button
-            variant="outlined"
-            size="small"
-            startIcon={<ChecklistOutlinedIcon />}
-            onClick={() => setItemsReportOpen(true)}
-            sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
+          <Menu
+            anchorEl={reportsAnchor}
+            open={reportsAnchor !== null}
+            onClose={() => setReportsAnchor(null)}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
           >
-            Shippable Items
-          </Button>
+            <MenuItem
+              onClick={() => {
+                setReportsAnchor(null);
+                setOrdersReportOpen(true);
+              }}
+            >
+              <ListItemIcon>
+                <Inventory2OutlinedIcon fontSize="small" />
+              </ListItemIcon>
+              Shippable orders
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                setReportsAnchor(null);
+                setItemsReportOpen(true);
+              }}
+            >
+              <ListItemIcon>
+                <ChecklistOutlinedIcon fontSize="small" />
+              </ListItemIcon>
+              Shippable items
+            </MenuItem>
+          </Menu>
           {isAdmin && (
             <Button
               variant="contained"

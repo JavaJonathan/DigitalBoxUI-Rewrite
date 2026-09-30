@@ -17,7 +17,7 @@ const VERB_DOT: Record<string, string> = {
   shipped: 'success.main',
   cancelled: 'error.main',
   reopened: 'info.main',
-  uploaded: 'text.disabled',
+  uploaded: 'text.tertiary',
 };
 
 /**
@@ -84,7 +84,7 @@ export function ActivityFeed() {
                 height: 6,
                 borderRadius: '50%',
                 flexShrink: 0,
-                bgcolor: VERB_DOT[item.verb] ?? 'text.disabled',
+                bgcolor: VERB_DOT[item.verb] ?? 'text.tertiary',
               }}
             />
             <Box component="span" sx={{ minWidth: 0 }}>

@@ -84,7 +84,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             fontWeight: 700,
             letterSpacing: '0.09em',
             textTransform: 'uppercase',
-            color: 'text.disabled',
+            color: 'text.tertiary',
           }}
         >
           Warehouse
@@ -108,7 +108,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             px: 3,
             pb: 1,
             fontSize: '0.6875rem',
-            color: 'text.disabled',
+            color: 'text.tertiary',
             display: { xs: 'none', md: 'block' },
           }}
         >

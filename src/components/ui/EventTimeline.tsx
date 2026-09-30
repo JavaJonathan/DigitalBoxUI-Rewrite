@@ -5,7 +5,7 @@ import { relativeTime, formatDateTime } from '../../lib/format';
 import Tooltip from '@mui/material/Tooltip';
 
 const DOT_COLOR: Record<string, string> = {
-  Created: 'text.disabled',
+  Created: 'text.tertiary',
   Edited: 'warning.main',
   Shipped: 'success.main',
   Cancelled: 'error.main',
@@ -36,7 +36,7 @@ export function EventTimeline({ events }: { events: OrderEvent[] }) {
                 width: 9,
                 height: 9,
                 borderRadius: '50%',
-                bgcolor: DOT_COLOR[event.type] ?? 'text.disabled',
+                bgcolor: DOT_COLOR[event.type] ?? 'text.tertiary',
                 border: (t) => `2px solid ${(t.vars ?? t).palette.surface.panel}`,
                 boxSizing: 'content-box',
               }}
@@ -52,7 +52,7 @@ export function EventTimeline({ events }: { events: OrderEvent[] }) {
                 )}
               </Typography>
               <Tooltip title={formatDateTime(event.occurredAt)} placement="top" arrow>
-                <Typography component="span" sx={{ fontSize: '0.6875rem', color: 'text.disabled' }}>
+                <Typography component="span" sx={{ fontSize: '0.6875rem', color: 'text.tertiary' }}>
                   {relativeTime(event.occurredAt)}
                 </Typography>
               </Tooltip>

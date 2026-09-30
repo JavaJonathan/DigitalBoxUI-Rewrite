@@ -22,7 +22,7 @@ export function PriorityToggle({ isPriority, onToggle, sx, className }: Priority
         onClick={onToggle}
         aria-label={label}
         className={className}
-        sx={{ color: isPriority ? 'primary.main' : 'text.disabled', ...sx }}
+        sx={{ color: isPriority ? 'primary.main' : 'text.tertiary', ...sx }}
       >
         {isPriority ? <FlagRoundedIcon fontSize="small" /> : <OutlinedFlagIcon fontSize="small" />}
       </IconButton>

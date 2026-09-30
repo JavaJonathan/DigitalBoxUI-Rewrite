@@ -12,7 +12,7 @@ import type { OrderDetail } from '../../types';
 function FieldRow({ label, children }: { label: string; children: ReactNode }) {
   return (
     <Box sx={{ display: 'flex', gap: 2, py: 0.75, alignItems: 'baseline' }}>
-      <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled', width: 96, flexShrink: 0 }}>
+      <Typography sx={{ fontSize: '0.75rem', color: 'text.tertiary', width: 96, flexShrink: 0 }}>
         {label}
       </Typography>
       <Box sx={{ fontSize: '0.8125rem', minWidth: 0 }}>{children}</Box>
@@ -31,7 +31,7 @@ export function OrderInfoPanel({ order }: { order: OrderDetail }) {
         <Typography
           sx={{
             fontSize: '0.8125rem',
-            color: order.shipDate ? 'text.primary' : 'text.disabled',
+            color: order.shipDate ? 'text.primary' : 'text.tertiary',
           }}
         >
           {formatDate(order.shipDate)}
@@ -76,7 +76,7 @@ export function OrderInfoPanel({ order }: { order: OrderDetail }) {
           </Box>
         ))}
         {order.lineItems.length === 0 && (
-          <Typography sx={{ fontSize: '0.8125rem', color: 'text.disabled' }}>
+          <Typography sx={{ fontSize: '0.8125rem', color: 'text.tertiary' }}>
             Nothing was parsed. Use Edit to enter the items manually.
           </Typography>
         )}

@@ -138,12 +138,12 @@ export function OrderDetailPage() {
     <AppShell title="Order">
       <Button
         component={RouterLink}
-        to="/"
+        to={order && !isOpen ? '/history' : '/'}
         variant="text"
         startIcon={<ArrowBackRoundedIcon />}
         sx={{ mb: 2, ml: -1 }}
       >
-        Back to queue
+        {order && !isOpen ? 'Back to history' : 'Back to queue'}
       </Button>
 
       {loading ? (
@@ -256,7 +256,11 @@ export function OrderDetailPage() {
           </Grid>
 
           <Grid size={{ xs: 12, md: 7 }}>
-            <PackingSlipPanel orderId={order.id} />
+            <PackingSlipPanel
+              orderId={order.id}
+              closed={order.status !== 'Open'}
+              expired={order.packingSlip.byteSize === 0}
+            />
           </Grid>
         </Grid>
       ) : null}

@@ -51,7 +51,7 @@ export function NotePopover({
     >
       <Typography
         variant="caption"
-        sx={{ color: 'text.disabled', px: 0.5, mb: 0.5, display: 'block' }}
+        sx={{ color: 'text.tertiary', px: 0.5, mb: 0.5, display: 'block' }}
       >
         Note · {orderNumber || 'order'}
       </Typography>

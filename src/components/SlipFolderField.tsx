@@ -14,7 +14,7 @@ interface SlipFolderFieldProps {
 export function SlipFolderField({ supported, name, onChoose, onForget }: SlipFolderFieldProps) {
   if (!supported) {
     return (
-      <Typography variant="caption" sx={{ color: 'text.disabled', pl: 3.5 }}>
+      <Typography variant="caption" sx={{ color: 'text.tertiary', pl: 3.5 }}>
         Slips download to your browser's Downloads folder.
       </Typography>
     );

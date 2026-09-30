@@ -99,7 +99,7 @@ export function UsersPage() {
         users ? (
           <Typography
             component="span"
-            sx={{ fontSize: '0.75rem', color: 'text.disabled', fontVariantNumeric: 'tabular-nums' }}
+            sx={{ fontSize: '0.75rem', color: 'text.tertiary', fontVariantNumeric: 'tabular-nums' }}
           >
             {users.length}
           </Typography>
@@ -167,7 +167,7 @@ export function UsersPage() {
                         dot={false}
                       />
                     </TableCell>
-                    <TableCell sx={{ color: user.isActive ? 'success.dark' : 'text.disabled' }}>
+                    <TableCell sx={{ color: user.isActive ? 'success.dark' : 'text.tertiary' }}>
                       {user.isActive ? 'Active' : 'Deactivated'}
                     </TableCell>
                     <TableCell>

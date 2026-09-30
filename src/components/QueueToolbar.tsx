@@ -91,7 +91,7 @@ export function QueueToolbar({
           border: (t) => `1px solid ${(t.vars ?? t).palette.surface.borderStrong}`,
           bgcolor: 'surface.panel',
           transition: 'border-color 120ms ease, box-shadow 120ms ease',
-          '& .search-icon': { color: 'text.disabled', transition: 'color 120ms ease' },
+          '& .search-icon': { color: 'text.tertiary', transition: 'color 120ms ease' },
           '&:focus-within': {
             borderColor: 'primary.main',
             boxShadow: (t) =>
@@ -134,8 +134,14 @@ export function QueueToolbar({
             display: 'flex',
             alignItems: 'center',
             gap: 2.5,
-            flexWrap: 'wrap',
+            // One swipeable row on phones instead of a three-line stack of pills.
+            flexWrap: { xs: 'nowrap', md: 'wrap' },
+            overflowX: { xs: 'auto', md: 'visible' },
+            width: { xs: '100%', md: 'auto' },
             ml: { md: 'auto' },
+            '& .MuiToggleButton-root': { flexShrink: 0, whiteSpace: 'nowrap' },
+            scrollbarWidth: 'none',
+            '&::-webkit-scrollbar': { display: 'none' },
           }}
         >
           {showPriority && (
@@ -170,7 +176,7 @@ export function QueueToolbar({
               onChange={(_, val) =>
                 emit({ marketplace: val === 'all' || !val ? '' : (val as Marketplace) })
               }
-              sx={{ maxWidth: '100%' }}
+              sx={{ maxWidth: '100%', flexWrap: { xs: 'nowrap', md: 'wrap' } }}
             >
               <ToggleButton value="all">All</ToggleButton>
               {MARKETPLACES.map((m) => (

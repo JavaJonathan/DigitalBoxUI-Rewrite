@@ -119,7 +119,7 @@ export function LookupPage() {
             slotProps={{
               input: {
                 startAdornment: (
-                  <SearchIcon fontSize="small" sx={{ mr: 1, color: 'text.disabled' }} />
+                  <SearchIcon fontSize="small" sx={{ mr: 1, color: 'text.tertiary' }} />
                 ),
               },
             }}
@@ -160,7 +160,7 @@ export function LookupPage() {
               fontWeight: 700,
               letterSpacing: '0.09em',
               textTransform: 'uppercase',
-              color: 'text.disabled',
+              color: 'text.tertiary',
               borderBottom: (t) => `1px solid ${(t.vars ?? t).palette.surface.border}`,
             }}
           >

@@ -57,7 +57,7 @@ export function OrderNoteCard({ notes, onSave }: OrderNoteCardProps) {
         <Typography
           sx={{
             fontSize: '0.8125rem',
-            color: notes ? 'text.primary' : 'text.disabled',
+            color: notes ? 'text.primary' : 'text.tertiary',
             whiteSpace: 'pre-wrap',
           }}
         >

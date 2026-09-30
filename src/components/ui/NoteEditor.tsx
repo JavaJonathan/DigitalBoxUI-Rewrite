@@ -45,7 +45,7 @@ export function NoteEditor({
         slotProps={{ htmlInput: { maxLength: NOTE_MAX_LENGTH } }}
       />
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Typography variant="caption" sx={{ color: 'text.disabled' }}>
+        <Typography variant="caption" sx={{ color: 'text.tertiary' }}>
           {value.length}/{NOTE_MAX_LENGTH}
         </Typography>
         <Stack direction="row" spacing={0.5}>

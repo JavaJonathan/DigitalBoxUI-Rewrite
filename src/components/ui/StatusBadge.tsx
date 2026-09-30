@@ -11,7 +11,7 @@ const TONES: Record<Tone, (t: Theme) => { fg: string; bg: string; dot: string }>
   neutral: (t) => ({
     fg: (t.vars ?? t).palette.text.secondary,
     bg: (t.vars ?? t).palette.surface.sunken,
-    dot: (t.vars ?? t).palette.text.disabled,
+    dot: (t.vars ?? t).palette.text.tertiary,
   }),
   success: (t) => ({
     fg: (t.vars ?? t).palette.success.dark,

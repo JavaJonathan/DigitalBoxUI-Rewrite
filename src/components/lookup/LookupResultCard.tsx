@@ -31,7 +31,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
           fontWeight: 700,
           letterSpacing: '0.06em',
           textTransform: 'uppercase',
-          color: 'text.disabled',
+          color: 'text.tertiary',
           mb: 0.25,
         }}
       >
@@ -200,12 +200,12 @@ export function LookupResultCard({ result }: { result: LookupResult }) {
       )}
 
       {result.shipStationError ? (
-        <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>
+        <Typography sx={{ fontSize: '0.75rem', color: 'text.tertiary' }}>
           {result.shipStationError}
         </Typography>
       ) : (
         !result.shipStationConfigured && (
-          <Typography sx={{ fontSize: '0.75rem', color: 'text.disabled' }}>
+          <Typography sx={{ fontSize: '0.75rem', color: 'text.tertiary' }}>
             ShipStation isn’t configured; showing DigitalBox data only.
           </Typography>
         )

@@ -62,6 +62,11 @@ Full redesign, 2026. Target aesthetic is Linear / Vercel / Stripe dashboard: fla
 - Custom palette node **`surface`** (`canvas / panel / sunken / inset / border / borderStrong / hover`)
   augmented onto `Palette` + `PaletteOptions` at the bottom of `theme.ts`. MUI auto-generates
   `--mui-palette-surface-*` vars for it.
+- **Text tones**: `text.primary` / `text.secondary` / `text.tertiary` (readable, about 4.5:1, for captions,
+  empty values, hints) / `text.disabled` (only for genuinely disabled controls; too faint to carry content).
+- **Phones (<600px)**: `OrdersTable` collapses the `hideXs` columns from `orderColumns.ts` (class
+  `db-hide-xs`, `xsQuery` in `lib/layout.ts`) and `OrdersTableRow` shows marketplace / qty / date under
+  the title instead. Row hover-reveal controls stay visible on touch and on `:focus-within` (`index.css`).
 - Fonts: Inter Variable for UI, Geist Mono for order numbers / SKUs / IDs (`.db-mono` class or
   the `<Mono>` component, which also does click-to-copy).
 - Shadow tokens: `var(--db-shadow-sm | -md | -lg)` (defined in `MuiCssBaseline`, light + dark).
@@ -189,7 +194,9 @@ selection without filtering API `skippedIds`, so account for that difference whe
   icon there instead.
 - `OrderDetailPage` is a thin shell over `components/order-detail/`: `OrderInfoPanel` (read
   view), `OrderEditForm` (correction form, owns its edit state, so mount `key={order.id}`),
-  `OrderNoteCard`, `PackingSlipPanel` (owns the blob-URL effect).
+  `OrderNoteCard`, `PackingSlipPanel` (owns the blob-URL effect; shows the "deleted N days after shipping or
+  cancelling" caption on closed orders and skips the fetch when `packingSlip.byteSize === 0`,
+  meaning the API purged it; `SLIP_RETENTION_DAYS` in `lib/constants.ts` mirrors the API config).
 - `SelectionBar`: floating pill, bottom-centre over the content, deliberately **loud**
   (large `size="large"` buttons, 28px count badge, a `color-mix` primary ring + `--db-shadow-lg`,
   back-out slide-up). Generalized to `{ count, onClear, children }`; each page passes its own

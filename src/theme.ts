@@ -63,6 +63,7 @@ export const theme = createTheme({
         text: {
           primary: '#17171a',
           secondary: '#5f606a',
+          tertiary: '#767783',
           disabled: '#a3a4ad',
         },
         background: {
@@ -123,6 +124,7 @@ export const theme = createTheme({
         text: {
           primary: '#f2f2f3',
           secondary: '#9d9da6',
+          tertiary: '#8a8a94',
           disabled: '#5c5c64',
         },
         background: {
@@ -228,7 +230,6 @@ export const theme = createTheme({
         ':focus-visible': {
           outline: `2px solid ${(t.vars ?? t).palette.primary.main}`,
           outlineOffset: 2,
-          borderRadius: 4,
         },
       }),
     },
@@ -337,7 +338,7 @@ export const theme = createTheme({
             borderColor: (t.vars ?? t).palette.surface.borderStrong,
           },
           '&:hover .MuiOutlinedInput-notchedOutline': {
-            borderColor: (t.vars ?? t).palette.text.disabled,
+            borderColor: (t.vars ?? t).palette.text.tertiary,
           },
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
             borderColor: (t.vars ?? t).palette.primary.main,
@@ -360,7 +361,7 @@ export const theme = createTheme({
     MuiInputBase: {
       styleOverrides: {
         input: ({ theme: t }) => ({
-          '&::placeholder': { color: (t.vars ?? t).palette.text.disabled, opacity: 1 },
+          '&::placeholder': { color: (t.vars ?? t).palette.text.tertiary, opacity: 1 },
         }),
       },
     },
@@ -485,6 +486,12 @@ export const theme = createTheme({
           border: `1px solid ${(t.vars ?? t).palette.surface.border}`,
           boxShadow: 'var(--db-shadow-lg)',
           backgroundImage: 'none',
+          // MUI keeps a 32px margin on every side; on a phone that leaves a sliver of dialog.
+          '@media (max-width:599.95px)': {
+            margin: 12,
+            maxHeight: 'calc(100% - 24px)',
+            '&.MuiDialog-paperFullWidth': { width: 'calc(100% - 24px)' },
+          },
         }),
       },
     },
@@ -670,6 +677,17 @@ export const theme = createTheme({
     },
   },
 });
+
+// `text.tertiary` is the readable-but-quiet tone (about 4.5:1) for captions, empty values and
+// hints; `text.disabled` stays for genuinely disabled controls.
+declare module '@mui/material/styles' {
+  interface TypeText {
+    tertiary: string;
+  }
+  interface TypeTextOptions {
+    tertiary?: string;
+  }
+}
 
 /* Augment the palette so (theme.vars ?? theme).palette.surface.* type-checks. */
 declare module '@mui/material/styles' {

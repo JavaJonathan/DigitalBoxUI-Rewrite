@@ -5,7 +5,7 @@ import { formatDateTime, relativeTime } from '../../lib/format';
 export function RelativeTime({ value }: { value: string | null }) {
   if (!value)
     return (
-      <Box component="span" sx={{ color: 'text.disabled' }}>
+      <Box component="span" sx={{ color: 'text.tertiary' }}>
         —
       </Box>
     );

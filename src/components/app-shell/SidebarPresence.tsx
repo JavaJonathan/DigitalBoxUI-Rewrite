@@ -36,7 +36,7 @@ export function SidebarPresence() {
             fontWeight: 700,
             letterSpacing: '0.09em',
             textTransform: 'uppercase',
-            color: 'text.disabled',
+            color: 'text.tertiary',
           }}
         >
           Online now
@@ -133,7 +133,7 @@ export function SidebarPresence() {
                 {isSelf && (
                   <Typography
                     component="span"
-                    sx={{ fontSize: '0.6875rem', color: 'text.disabled', flexShrink: 0 }}
+                    sx={{ fontSize: '0.6875rem', color: 'text.tertiary', flexShrink: 0 }}
                   >
                     you
                   </Typography>

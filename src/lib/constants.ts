@@ -32,6 +32,9 @@ export const UPLOAD_MAX_FILES = 1000;
 /** How many individual file rows the upload dialog renders before collapsing the rest to a count. */
 export const UPLOAD_LIST_PREVIEW = 80;
 
+/** Days after ship/cancel before the API deletes a packing-slip PDF (`PackingSlips:RetentionDays`). */
+export const SLIP_RETENTION_DAYS = 30;
+
 /** Max length of a user's display name (matches the server-side cap). */
 export const DISPLAY_NAME_MAX_LENGTH = 120;
 
