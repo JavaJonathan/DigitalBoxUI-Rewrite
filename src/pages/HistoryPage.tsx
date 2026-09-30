@@ -13,6 +13,7 @@ import { QueueToolbar } from '../components/QueueToolbar';
 import { OrdersTable } from '../components/OrdersTable';
 import { SelectionBar } from '../components/SelectionBar';
 import { ConfirmActionDialog } from '../components/ConfirmActionDialog';
+import { SlipDeliveryDialog } from '../components/SlipDeliveryDialog';
 import { EmptyState } from '../components/ui/EmptyState';
 import { TableSkeleton } from '../components/ui/TableSkeleton';
 import { orderColumns } from '../components/orders-table/orderColumns';
@@ -37,7 +38,7 @@ export function HistoryPage() {
   const [selectedRaw, setSelectedRaw] = useState<Set<string>>(new Set());
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [reopenIds, setReopenIds] = useState<string[]>([]);
-  const { busy: slipBusy, deliver: deliverSlips } = useSlipDelivery();
+  const { busy: slipBusy, deliver: deliverSlips, dialogProps: slipDialogProps } = useSlipDelivery();
 
   const query = useMemo(
     () => ({ status: tab, q, sort: 'shipDate' as const, page, pageSize }),
@@ -186,6 +187,7 @@ export function HistoryPage() {
         onClose={() => setConfirmOpen(false)}
         onConfirm={runReopen}
       />
+      <SlipDeliveryDialog {...slipDialogProps} />
     </AppShell>
   );
 }

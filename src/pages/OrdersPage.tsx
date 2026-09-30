@@ -25,6 +25,7 @@ import { AppShell } from '../components/AppShell';
 import { QueueToolbar, type ToolbarState } from '../components/QueueToolbar';
 import { OrdersTable } from '../components/OrdersTable';
 import { UploadDialog } from '../components/UploadDialog';
+import { SlipDeliveryDialog } from '../components/SlipDeliveryDialog';
 import { ShippableOrdersDialog } from '../components/ShippableOrdersDialog';
 import { ShippableItemsDialog } from '../components/ShippableItemsDialog';
 import { ConfirmActionDialog } from '../components/ConfirmActionDialog';
@@ -43,7 +44,7 @@ import { useToast } from '../components/ToastProvider';
 import { useDownloadSlipsOnShip } from '../hooks/useDownloadSlipsOnShip';
 import { useSlipDelivery } from '../hooks/useSlipDelivery';
 import { useRealtimeEvent } from '../realtime/RealtimeContext';
-import { PAGE_SIZE, QUEUE_SYNC_DEBOUNCE_MS } from '../lib/constants';
+import { DIALOG_HANDOFF_MS, PAGE_SIZE, QUEUE_SYNC_DEBOUNCE_MS } from '../lib/constants';
 import { buildSlipRefs } from '../lib/slipFolder';
 import { toggleInSet } from '../lib/collections';
 import type { Marketplace, OrderListItem } from '../types';
@@ -65,7 +66,12 @@ export function OrdersPage() {
   const [reportsAnchor, setReportsAnchor] = useState<HTMLElement | null>(null);
   const [action, setAction] = useState<'ship' | 'cancel' | null>(null);
   const [downloadSlips, setDownloadSlips] = useDownloadSlipsOnShip();
-  const { folder: slipFolder, busy: slipBusy, deliver: deliverSlips } = useSlipDelivery();
+  const {
+    folder: slipFolder,
+    busy: slipBusy,
+    deliver: deliverSlips,
+    dialogProps: slipDialogProps,
+  } = useSlipDelivery();
   const [noteTarget, setNoteTarget] = useState<{
     order: OrderListItem;
     anchor: HTMLElement;
@@ -125,11 +131,17 @@ export function OrdersPage() {
     const refs = shipping && downloadSlips ? buildSlipRefs(ids, findOrder) : [];
     try {
       const result = shipping ? await shipOrders(ids) : await cancelOrders(ids);
-      notify(result.message, 'success');
+      // A multi-slip delivery opens its own dialog, which carries the ship result as its
+      // subtitle; a toast on top of it would just collide.
+      const inDialog = refs.length > 1;
+      if (!inDialog) notify(result.message, 'success');
       setSelectedRaw(new Set());
       setAction(null);
       refresh();
-      if (refs.length) await deliverSlips(refs);
+      if (refs.length) {
+        if (inDialog) await new Promise((r) => setTimeout(r, DIALOG_HANDOFF_MS));
+        await deliverSlips(refs, false, result.message);
+      }
     } catch (err) {
       notify(getApiErrorMessage(err, 'Action failed.'), 'error');
     }
@@ -340,6 +352,7 @@ export function OrdersPage() {
       </SelectionBar>
 
       <UploadDialog open={uploadOpen} onClose={() => setUploadOpen(false)} onUploaded={refresh} />
+      <SlipDeliveryDialog {...slipDialogProps} />
       <ShippableOrdersDialog open={ordersReportOpen} onClose={() => setOrdersReportOpen(false)} />
       <ShippableItemsDialog open={itemsReportOpen} onClose={() => setItemsReportOpen(false)} />
 

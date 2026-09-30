@@ -164,8 +164,13 @@ through authenticated blob fetches. Supported browsers use a user-chosen File Sy
 directory handle persisted in IndexedDB; otherwise, or without write permission, delivery
 falls back to individual browser downloads. The queue's ship confirmation offers automatic
 saving, enabled by default with the preference stored in localStorage. Filenames derive from
-marketplace/order number and are deduplicated within the batch. Delivery reports its own
-success/failure counts after the order action. Detail-page shipping offers the same saving and
+marketplace/order number and are deduplicated within the batch. More than one slip opens
+`SlipDeliveryDialog` (state lives in `useSlipDelivery`, exposed as `dialogProps`) with overall
+progress, per-file status, Stop, Retry failed/Resume and, in download mode, Download again; a
+single slip just toasts. Download mode is paced by `DOWNLOAD_SPACING_MS` (300) because browsers
+drop bursts of programmatic downloads, and it reports files as `sent`, never `saved`, since a
+blocked download can't be detected (only folder writes are confirmed `saved`). Delivery runs after
+the order action. Detail-page shipping offers the same saving and
 only delivers when the API reports `updated > 0`; queue shipping still saves the pre-action
 selection without filtering API `skippedIds`, so account for that difference when changing it.
 

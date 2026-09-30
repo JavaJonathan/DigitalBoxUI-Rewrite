@@ -32,6 +32,15 @@ export const UPLOAD_MAX_FILES = 1000;
 /** How many individual file rows the upload dialog renders before collapsing the rest to a count. */
 export const UPLOAD_LIST_PREVIEW = 80;
 
+/**
+ * Gap between browser downloads when bulk-saving packing slips without a chosen folder. Browsers
+ * drop bursts of programmatic downloads, so they are spaced out.
+ */
+export const DOWNLOAD_SPACING_MS = 300;
+
+/** Lets a closing confirm dialog finish its exit transition before the next dialog opens. */
+export const DIALOG_HANDOFF_MS = 250;
+
 /** Days after ship/cancel before the API deletes a packing-slip PDF (`PackingSlips:RetentionDays`). */
 export const SLIP_RETENTION_DAYS = 30;
 

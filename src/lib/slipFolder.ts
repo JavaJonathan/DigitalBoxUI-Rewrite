@@ -1,4 +1,5 @@
 import { fetchPackingSlipBlob } from '../api/orders';
+import { DOWNLOAD_SPACING_MS } from './constants';
 import { downloadBlob } from './download';
 import type { Marketplace } from '../types';
 
@@ -118,6 +119,13 @@ export function buildSlipRefs(
 
 // --- delivery ---
 
+/**
+ * `saved` = written into the chosen folder (confirmed). `sent` = handed to the browser as a
+ * download; the browser may still block or drop it and the page can't tell, so we never call
+ * a download "saved".
+ */
+export type SlipStatus = 'queued' | 'working' | 'saved' | 'sent' | 'failed';
+
 export interface SlipDeliveryResult {
   mode: 'folder' | 'download';
   total: number;
@@ -125,37 +133,63 @@ export interface SlipDeliveryResult {
   failed: number;
 }
 
+export interface DeliverOptions {
+  /** Called once the mode is known (after the folder permission check). */
+  onMode?: (mode: SlipDeliveryResult['mode']) => void;
+  /** Called on every per-slip transition; `index` is into the `slips` array passed in. */
+  onUpdate?: (index: number, status: SlipStatus, error?: string) => void;
+  /** Aborting stops before the next slip; the rest are left untouched (still queued). */
+  signal?: AbortSignal;
+}
+
+const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+function errorText(err: unknown): string {
+  return err instanceof Error && err.message ? err.message : 'Could not download this slip.';
+}
+
 /**
  * Fetch each slip and either write it into the chosen folder or hand it to the browser as a
  * download. `folder` is the handle from `useSlipFolder`; pass null to force the download path.
+ * Download mode is paced (`DOWNLOAD_SPACING_MS`) because browsers drop bursts of programmatic
+ * downloads.
  */
 export async function deliverSlips(
   slips: SlipRef[],
   folder: FileSystemDirectoryHandle | null,
+  { onMode, onUpdate, signal }: DeliverOptions = {},
 ): Promise<SlipDeliveryResult> {
   const useFolder = folder !== null && (await canWrite(folder));
-  const result: SlipDeliveryResult = {
-    mode: useFolder ? 'folder' : 'download',
-    total: slips.length,
-    delivered: 0,
-    failed: 0,
-  };
+  const mode = useFolder ? 'folder' : 'download';
+  onMode?.(mode);
+  const result: SlipDeliveryResult = { mode, total: slips.length, delivered: 0, failed: 0 };
 
-  for (const slip of slips) {
+  for (let i = 0; i < slips.length; i++) {
+    if (signal?.aborted) break;
+    const slip = slips[i];
+    onUpdate?.(i, 'working');
     try {
       const blob = await fetchPackingSlipBlob(slip.orderId);
       if (useFolder && folder) {
         const fileHandle = await folder.getFileHandle(slip.fileName, { create: true });
         const writable = await fileHandle.createWritable();
-        await writable.write(blob);
-        await writable.close();
+        try {
+          await writable.write(blob);
+          await writable.close();
+        } catch (err) {
+          await writable.abort().catch(() => {});
+          throw err;
+        }
       } else {
         downloadBlob(slip.fileName, blob);
       }
       result.delivered++;
-    } catch {
+      onUpdate?.(i, useFolder ? 'saved' : 'sent');
+    } catch (err) {
       result.failed++;
+      onUpdate?.(i, 'failed', errorText(err));
     }
+    if (!useFolder && i < slips.length - 1) await sleep(DOWNLOAD_SPACING_MS);
   }
 
   return result;

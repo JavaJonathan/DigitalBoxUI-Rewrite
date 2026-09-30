@@ -148,7 +148,9 @@ export async function fetchPackingSlipBlob(orderId: string): Promise<Blob> {
     headers: token ? { Authorization: `Bearer ${token}` } : undefined,
   });
   if (!response.ok) {
-    throw new ApiError(response.status, 'Could not load a packing slip.');
+    // Surface the server's reason (e.g. the slip was purged by retention) when it sends one.
+    const body = (await response.json().catch(() => null)) as { message?: string } | null;
+    throw new ApiError(response.status, body?.message || 'Could not load a packing slip.');
   }
   return response.blob();
 }
