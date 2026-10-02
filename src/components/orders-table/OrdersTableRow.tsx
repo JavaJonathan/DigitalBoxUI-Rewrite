@@ -34,7 +34,7 @@ interface OrdersTableRowProps {
   selectable: boolean;
   selected: boolean;
   showFlag: boolean;
-  onToggle?: (id: string) => void;
+  onToggle?: (id: string, shiftKey: boolean) => void;
   onTogglePriority?: (order: OrderListItem) => void;
   onEditNote?: (order: OrderListItem, anchor: HTMLElement) => void;
   onReopenRow?: (order: OrderListItem) => void;
@@ -196,10 +196,19 @@ export function OrdersTableRow({
       }}
     >
       {selectable && (
-        <TableCell padding="checkbox" sx={{ pl: 1.5 }} onClick={stop}>
+        <TableCell
+          padding="checkbox"
+          sx={{ pl: 1.5 }}
+          onClick={stop}
+          // Shift+click would otherwise also highlight the text between the two rows.
+          onMouseDown={(e) => {
+            if (e.shiftKey) e.preventDefault();
+          }}
+        >
           <Checkbox
             checked={selected}
-            onChange={() => onToggle?.(order.id)}
+            // A checkbox's change event comes from its click, so shiftKey is on the native event.
+            onChange={(e) => onToggle?.(order.id, (e.nativeEvent as PointerEvent).shiftKey)}
             slotProps={{
               input: { 'aria-label': `Select order ${order.orderNumber || order.id}` },
             }}

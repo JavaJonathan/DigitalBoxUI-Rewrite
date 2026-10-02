@@ -43,10 +43,10 @@ import { getApiErrorMessage } from '../api/client';
 import { useToast } from '../components/ToastProvider';
 import { useDownloadSlipsOnShip } from '../hooks/useDownloadSlipsOnShip';
 import { useSlipDelivery } from '../hooks/useSlipDelivery';
+import { useRangeToggle } from '../hooks/useRangeToggle';
 import { useRealtimeEvent } from '../realtime/RealtimeContext';
 import { DIALOG_HANDOFF_MS, PAGE_SIZE, QUEUE_SYNC_DEBOUNCE_MS } from '../lib/constants';
 import { buildSlipRefs } from '../lib/slipFolder';
-import { toggleInSet } from '../lib/collections';
 import type { Marketplace, OrderListItem } from '../types';
 
 export function OrdersPage() {
@@ -117,7 +117,7 @@ export function OrdersPage() {
     setPage(1);
   };
 
-  const toggle = (id: string) => setSelectedRaw((prev) => toggleInSet(prev, id));
+  const toggle = useRangeToggle(orders, setSelectedRaw);
 
   const toggleAll = (checked: boolean) =>
     setSelectedRaw(checked ? new Set(orders.map((o) => o.id)) : new Set());

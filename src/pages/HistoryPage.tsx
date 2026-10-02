@@ -23,10 +23,10 @@ import { undoOrders } from '../api/orders';
 import { getApiErrorMessage } from '../api/client';
 import { useToast } from '../components/ToastProvider';
 import { useSlipDelivery } from '../hooks/useSlipDelivery';
+import { useRangeToggle } from '../hooks/useRangeToggle';
 import { useRealtimeEvent } from '../realtime/RealtimeContext';
 import { PAGE_SIZE, QUEUE_SYNC_DEBOUNCE_MS } from '../lib/constants';
 import { buildSlipRefs } from '../lib/slipFolder';
-import { toggleInSet } from '../lib/collections';
 import type { OrderStatus } from '../types';
 
 export function HistoryPage() {
@@ -76,7 +76,7 @@ export function HistoryPage() {
     return alive.size === selectedRaw.size ? selectedRaw : alive;
   }, [selectedRaw, orders]);
 
-  const toggle = (id: string) => setSelectedRaw((prev) => toggleInSet(prev, id));
+  const toggle = useRangeToggle(orders, setSelectedRaw);
   const toggleAll = (checked: boolean) =>
     setSelectedRaw(checked ? new Set(orders.map((o) => o.id)) : new Set());
 

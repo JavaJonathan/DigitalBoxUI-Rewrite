@@ -196,7 +196,9 @@ selection without filtering API `skippedIds`, so account for that difference whe
   add icon), `onReopenRow` (per-row Reopen, history only). Hover-reveal elements use
   `.db-row-hover`. Parse status is **not a column**; a non-`Parsed` order shows a warning/error
   icon next to its number (tooltip from `PARSE_STATUS_HINTS`); history rows show a note-present
-  icon there instead.
+  icon there instead. Row checkboxes support shift+click range selection: `onToggle(id,
+  shiftKey)` feeds `hooks/useRangeToggle`, which keeps the anchor row and applies the clicked
+  row's new state across the range (both pages use it).
 - `OrderDetailPage` is a thin shell over `components/order-detail/`: `OrderInfoPanel` (read
   view), `OrderEditForm` (correction form, owns its edit state, so mount `key={order.id}`),
   `OrderNoteCard`, `PackingSlipPanel` (owns the blob-URL effect; shows the "deleted N days after shipping or

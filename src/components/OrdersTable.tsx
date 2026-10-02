@@ -19,7 +19,7 @@ interface OrdersTableProps {
   status: OrderStatus;
   selectable?: boolean;
   selectedIds?: Set<string>;
-  onToggle?: (id: string) => void;
+  onToggle?: (id: string, shiftKey: boolean) => void;
   onToggleAll?: (checked: boolean) => void;
   sort?: SortKey;
   onSortChange?: (sort: SortKey) => void;
